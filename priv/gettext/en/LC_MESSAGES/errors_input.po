@@ -541,3 +541,13 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Password must contain at least one uppercase letter"
 msgstr ""
+
+#: lib/tymeslot/security/field_validators/institution_validator.ex
+#, elixir-autogen, elixir-format
+msgid "Institution or company is required"
+msgstr ""
+
+#: lib/tymeslot/security/field_validators/institution_validator.ex
+#, elixir-autogen, elixir-format
+msgid "Institution or company is too long (maximum %{max_length} characters)"
+msgstr ""

@@ -76,8 +76,11 @@ defmodule Tymeslot.ThemeCustomizations.Options.ColourMode do
   @impl OptionGroup
   @spec tokens(Spec.settings(), Spec.overrides(), OptionGroup.token_sets(), group()) ::
           OptionGroup.token_sets()
-  def tokens(settings, _overrides, acc, group) do
-    mode = mode(settings, group)
+  def tokens(settings, overrides, acc, group) do
+    # An embed may pin the mode for one page view (`?colour-mode=light|dark`,
+    # rd-brand.patch): the host page's own light or dark choice wins over the
+    # stored mode and over the visitor's OS.
+    mode = override(overrides) || mode(settings, group)
     %{vars: vars, dark_vars: dark_vars} = sets(acc, mode)
 
     %{
@@ -85,6 +88,9 @@ defmodule Tymeslot.ThemeCustomizations.Options.ColourMode do
       dark_vars: dark_vars
     }
   end
+
+  defp override(%{colour_mode: mode}) when mode in ["light", "dark"], do: mode
+  defp override(_overrides), do: nil
 
   defp sets(acc, "light"), do: %{acc | dark_vars: %{}}
 

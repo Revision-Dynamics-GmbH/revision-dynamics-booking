@@ -46,3 +46,7 @@
 
 @import "../../shared/embed.css";
 @import "./modules/iframe.css";
+
+/* Revision Dynamics (rd-brand.patch): the website's look and the calendar
+   above the times, laid over everything before it. */
+@import "./modules/revision.css";

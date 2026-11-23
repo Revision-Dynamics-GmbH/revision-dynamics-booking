@@ -94,11 +94,19 @@ defmodule TymeslotWeb.Helpers.LocaleFormat do
   """
   @spec format_time(Calendar.time(), String.t()) :: String.t()
   def format_time(time, locale) do
-    case TimeFormat.for_locale(locale) do
+    case attendee_clock(locale) do
       "12h" -> Calendar.strftime(time, "%I:%M %p")
       "24h" -> Calendar.strftime(time, "%H:%M")
     end
   end
+
+  # Revision Dynamics (rd-time-format.patch): its English booking page and
+  # attendee emails read a 24-hour clock ("14:30", not "02:30 PM"), as the
+  # German ones do. Organiser-facing output keeps `TimeFormat` unchanged.
+  @rd_twenty_four_hour_locales ["en"]
+
+  defp attendee_clock(locale) when locale in @rd_twenty_four_hour_locales, do: "24h"
+  defp attendee_clock(locale), do: TimeFormat.for_locale(locale)
 
   @month_names %{
     "de" => %{

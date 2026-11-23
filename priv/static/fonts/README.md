@@ -60,3 +60,14 @@ bdf4c22802eaf804f998195871c6b8938aac2ac14b2d78a8bd66a6f1eced833b  OFL-fraunces.t
 ## Updating
 
 Change the version in the URLs above, fetch again, replace the checksums, and compare each package's `wght.css` (`unicode-range`, `font-weight`) with `fonts.css`. A new family also needs its `@font-face` pair and stacks in `fonts.css`, its row here and its licence; `TymeslotWeb.Themes.SharedFontsTest` fails until the files, the rules and the licences agree.
+
+## Revision Dynamics addition (rd-brand.patch)
+
+Outfit (text) and Urbanist (headings), SIL OFL 1.1, variable weight 100 to 900, Latin and Latin Extended. The four files are the subsets the Revision Dynamics website serves through `next/font/google`, copied unchanged from its build output; licences in `OFL-outfit.txt` and `OFL-urbanist.txt` (copyright lines as embedded in the font files). They are not part of upstream Tymeslot, and `SharedFontsTest` does not know them.
+
+```
+92684e4acde79ef07758cd09380b7e01e9824d8b061eddeda046f78c166d7b12  outfit-latin-wght-normal.woff2
+9e38b3f1575daba3435ef09d33a202585ed5bd204bd0a8c744955c750c2b9091  outfit-latin-ext-wght-normal.woff2
+ce6e0dd89c3ffa4de97bda85f9b08bcb775bea4df456b3dbb7e819c1c879be50  urbanist-latin-wght-normal.woff2
+2abe1ed29084b56909d14e0e3097ac292b513d4a2761241bb6267505ebf77145  urbanist-latin-ext-wght-normal.woff2
+```

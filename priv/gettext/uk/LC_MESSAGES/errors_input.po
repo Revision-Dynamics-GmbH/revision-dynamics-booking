@@ -544,3 +544,13 @@ msgstr "Пароль має містити щонайменше один спе�
 #, elixir-autogen, elixir-format
 msgid "Password must contain at least one uppercase letter"
 msgstr "Пароль має містити щонайменше одну велику літеру"
+
+#: lib/tymeslot/security/field_validators/institution_validator.ex
+#, elixir-autogen, elixir-format
+msgid "Institution or company is required"
+msgstr "Потрібно вказати установу або компанію"
+
+#: lib/tymeslot/security/field_validators/institution_validator.ex
+#, elixir-autogen, elixir-format
+msgid "Institution or company is too long (maximum %{max_length} characters)"
+msgstr "Назва установи або компанії задовга (максимальна кількість символів: %{max_length})"

@@ -908,3 +908,13 @@ msgstr "%{page} mit %{name}"
 #, elixir-autogen, elixir-format
 msgid "We'll email you a link to confirm this booking."
 msgstr "Wir senden Ihnen per E-Mail einen Link, mit dem Sie diese Buchung bestätigen."
+
+#: lib/tymeslot_web/themes/shared/components/booking_form.ex
+#, elixir-autogen, elixir-format
+msgid "Institution or company"
+msgstr "Einrichtung oder Unternehmen"
+
+#: lib/tymeslot_web/themes/shared/components/booking_form.ex
+#, elixir-autogen, elixir-format
+msgid "Enter your institution or company"
+msgstr "Einrichtung oder Unternehmen eingeben"

@@ -544,3 +544,13 @@ msgstr "Hasło musi zawierać co najmniej jeden znak specjalny"
 #, elixir-autogen, elixir-format
 msgid "Password must contain at least one uppercase letter"
 msgstr "Hasło musi zawierać co najmniej jedną wielką literę"
+
+#: lib/tymeslot/security/field_validators/institution_validator.ex
+#, elixir-autogen, elixir-format
+msgid "Institution or company is required"
+msgstr "Nazwa instytucji lub firmy jest wymagana"
+
+#: lib/tymeslot/security/field_validators/institution_validator.ex
+#, elixir-autogen, elixir-format
+msgid "Institution or company is too long (maximum %{max_length} characters)"
+msgstr "Nazwa instytucji lub firmy jest za długa (maksymalna liczba znaków: %{max_length})"

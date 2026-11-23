@@ -242,6 +242,33 @@ defmodule Tymeslot.ThemeCustomizations.Presets.ColourSchemes do
         text_secondary: "#94a3b8"
       }
     },
+    # Revision Dynamics: the website's own light and dark stage, so the
+    # embedded booking page reads as part of revisiondynamics.com
+    # (rd-brand.patch in the website repository).
+    "paper_revision" => %{
+      name: "Revision Dynamics",
+      mode: :light,
+      colors: %{
+        primary: "#0a7194",
+        primary_hover: "#085c79",
+        secondary: "#0aa5cc",
+        accent: "#0aa5cc",
+        background: "#f1f6fc",
+        surface: "#ffffff",
+        text: "#071832",
+        text_secondary: "#5b6785"
+      },
+      dark_colors: %{
+        primary: "#43deff",
+        primary_hover: "#22c8ec",
+        secondary: "#43deff",
+        accent: "#43deff",
+        background: "#010a19",
+        surface: "#040c1b",
+        text: "#eef2fb",
+        text_secondary: "#a9b6d8"
+      }
+    },
     "paper_arctic" => %{
       name: dgettext_noop("dashboard_appearance", "Arctic Blue"),
       mode: :light,

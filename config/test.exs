@@ -13,6 +13,13 @@ config :bcrypt_elixir, log_rounds: 4
 # Core tests must not enforce legal agreements.
 config :tymeslot, enforce_legal_agreements: false
 
+# Revision Dynamics (rd-institution-title.patch): the booking form's
+# institution field is off for the suite, whose bookings give a name, an email
+# and a message only. The tests of the field turn it on
+# (`Tymeslot.ConfigTestHelpers.with_config/2`). Every other environment asks
+# for it (`Tymeslot.Bookings.Institution.field_enabled?/0`).
+config :tymeslot, booking_institution_field: false
+
 # Poll tests in async modules share a handful of addresses and request links
 # on one poll repeatedly, so the per-address and per-poll budgets are raised
 # beyond their reach. Tests of the limits fill the buckets explicitly.

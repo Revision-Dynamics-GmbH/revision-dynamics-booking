@@ -422,6 +422,7 @@ defmodule TymeslotWeb.Themes.Shared.PathHandlers do
       |> maybe_put_query_param("theme", socket.assigns[:theme_id])
       |> maybe_put_query_param("layout", column_layout(socket.assigns[:embed_layout]))
       |> maybe_put_query_param("primary-color", primary_colour(socket.assigns[:theme_overrides]))
+      |> maybe_put_query_param("colour-mode", colour_mode(socket.assigns[:theme_overrides]))
     else
       params
     end
@@ -432,6 +433,9 @@ defmodule TymeslotWeb.Themes.Shared.PathHandlers do
 
   defp primary_colour(%{primary_color: colour}), do: colour
   defp primary_colour(_no_override), do: nil
+
+  defp colour_mode(%{colour_mode: mode}), do: mode
+  defp colour_mode(_no_override), do: nil
 
   # Either half is enough: `:theme_preview` is the URL's claim, `:owner_preview`
   # the verified token, and internal navigation can leave only the latter set.

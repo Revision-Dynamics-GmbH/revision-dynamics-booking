@@ -97,15 +97,50 @@ defmodule Tymeslot.Integrations.Calendar.Outlook.Paging do
   # The Prefer header is not part of a link and is sent again with every
   # page, so later pages come back in UTC with plain-text bodies like the
   # first.
-  defp get(token, link, kind) do
+  # rd-outlook-throttle.patch. Microsoft Graph answers 429 `ApplicationThrottled`
+  # once more than four requests for one mailbox run at the same time, which
+  # several selected calendars read in parallel reach as soon as two booking
+  # pages load together. A list read is what a visitor waits for, so it honours
+  # Graph's `Retry-After` (capped) and tries again instead of failing the whole
+  # availability check. Delta reads keep their own schedule and are not retried.
+  @list_retries 2
+  @max_retry_wait_ms 6_000
+
+  defp get(token, link, kind), do: get(token, link, kind, retries(kind))
+
+  defp get(token, link, kind, retries_left) do
     uri = URI.parse(link)
     path_and_query = uri.path <> if(uri.query, do: "?" <> uri.query, else: "")
 
-    HTTP.request(:get, @graph_host, path_and_query, token,
-      headers: [{"Content-Type", "application/json"}, {"Prefer", preference(kind)}],
-      response_handler: &handle(&1, kind)
-    )
+    result =
+      HTTP.request(:get, @graph_host, path_and_query, token,
+        headers: [{"Content-Type", "application/json"}, {"Prefer", preference(kind)}],
+        response_handler: &handle(&1, kind)
+      )
+
+    case result do
+      {:error, :rate_limited, message} when retries_left > 0 ->
+        Process.sleep(retry_wait_ms(message))
+        get(token, link, kind, retries_left - 1)
+
+      other ->
+        other
+    end
   end
+
+  defp retries(:list), do: @list_retries
+  defp retries(:delta), do: 0
+
+  # `ApiResponse.rate_limited_message/2` carries Graph's Retry-After as
+  # "retry_after:<seconds>". A little jitter keeps parallel readers apart.
+  defp retry_wait_ms("retry_after:" <> seconds) do
+    case Integer.parse(seconds) do
+      {value, _rest} when value > 0 -> min(value * 1_000, @max_retry_wait_ms) + :rand.uniform(400)
+      _unreadable -> 1_500 + :rand.uniform(400)
+    end
+  end
+
+  defp retry_wait_ms(_message), do: 1_500 + :rand.uniform(400)
 
   defp preference(:list), do: ~s(outlook.timezone="UTC", outlook.body-content-type="text")
 

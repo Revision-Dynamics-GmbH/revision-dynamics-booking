@@ -1,8 +1,10 @@
 defmodule TymeslotWeb.Themes.Shared.Components.BookingForm do
   @moduledoc """
-  The booking step's form: name, email and message, with the anti-spam
-  markup every theme's form must carry, in the one order the booking submit
-  (`Shared.BookingFlow`) and the reCAPTCHA hook expect:
+  The booking step's form: name, email, the institution or company (while
+  `Tymeslot.Bookings.Institution.field_enabled?/0`, Revision Dynamics) and
+  message, with the anti-spam markup every theme's form must carry, in the
+  one order the booking submit (`Shared.BookingFlow`) and the reCAPTCHA hook
+  expect:
 
     * the reCAPTCHA hook attributes on the `<form>`
       (`SecurityFields.recaptcha_form_attrs/2`);
@@ -34,6 +36,7 @@ defmodule TymeslotWeb.Themes.Shared.Components.BookingForm do
 
   use TymeslotWeb.Components.CoreComponents, only: [honeypot_field: 1, input: 1]
 
+  alias Tymeslot.Bookings.Institution
   alias TymeslotWeb.Live.Shared.FormValidationHelpers
   alias TymeslotWeb.Themes.Shared.SecurityFields
 
@@ -42,6 +45,8 @@ defmodule TymeslotWeb.Themes.Shared.Components.BookingForm do
     :name_placeholder,
     :email,
     :email_placeholder,
+    :company,
+    :company_placeholder,
     :message,
     :message_placeholder
   ]
@@ -73,7 +78,17 @@ defmodule TymeslotWeb.Themes.Shared.Components.BookingForm do
 
   @spec booking_form(map()) :: Phoenix.LiveView.Rendered.t()
   def booking_form(assigns) do
-    assigns = assign(assigns, :labels, assigns.labels || default_labels())
+    # A theme's own labels may predate the institution field.
+    labels =
+      Map.merge(
+        Map.take(default_labels(), [:company, :company_placeholder]),
+        assigns.labels || default_labels()
+      )
+
+    assigns =
+      assigns
+      |> assign(:labels, labels)
+      |> assign(:institution_field, Institution.field_enabled?())
 
     ~H"""
     <.form
@@ -106,6 +121,25 @@ defmodule TymeslotWeb.Themes.Shared.Components.BookingForm do
         labels={@labels}
         validation_errors={@validation_errors}
         target={@target}
+      />
+
+      <%!-- Its own row under name and email at every width: it names the
+           organiser's calendar entry ("<meeting type> x <institution>"). --%>
+      <.input
+        :if={@institution_field}
+        field={f[:company]}
+        label={@labels.company}
+        placeholder={@labels.company_placeholder}
+        errors={FormValidationHelpers.field_errors(@validation_errors, :company)}
+        required
+        maxlength={Institution.max_length()}
+        autocomplete="organization"
+        class="booking-form__institution"
+        data-testid="booking-institution"
+        phx-debounce="blur"
+        phx-blur="field_blur"
+        phx-value-field="company"
+        phx-target={@target}
       />
 
       <.input
@@ -163,6 +197,8 @@ defmodule TymeslotWeb.Themes.Shared.Components.BookingForm do
       name_placeholder: dgettext("booking", "John Doe"),
       email: dgettext("booking", "Email Address"),
       email_placeholder: dgettext("booking", "john@example.com"),
+      company: dgettext("booking", "Institution or company"),
+      company_placeholder: dgettext("booking", "Enter your institution or company"),
       message: dgettext("booking", "Additional Message (Optional)"),
       message_placeholder: dgettext("booking", "Let me know what you'd like to discuss...")
     }
@@ -170,8 +206,8 @@ defmodule TymeslotWeb.Themes.Shared.Components.BookingForm do
 
   @doc """
   The short labels and placeholders, in sentence case: "Name", "Email",
-  "Message (optional)". For a theme whose voice wants plainer words than
-  `default_labels/0`; pass them as `labels`.
+  "Institution or company", "Message (optional)". For a theme whose voice
+  wants plainer words than `default_labels/0`; pass them as `labels`.
   """
   @spec short_labels() :: %{atom() => String.t()}
   def short_labels do
@@ -180,6 +216,8 @@ defmodule TymeslotWeb.Themes.Shared.Components.BookingForm do
       name_placeholder: dgettext("booking", "Enter your full name"),
       email: dgettext("booking", "Email"),
       email_placeholder: dgettext("booking", "your.email@example.com"),
+      company: dgettext("booking", "Institution or company"),
+      company_placeholder: dgettext("booking", "Enter your institution or company"),
       message: dgettext("booking", "Message (optional)"),
       message_placeholder: dgettext("booking", "Add any details...")
     }

@@ -155,6 +155,27 @@ defmodule Tymeslot.Emails.Shared.TextBodyHelperTest do
     end
   end
 
+  describe "format_attendee_info/2" do
+    @attendee %{attendee_name: "Max Mustermann", attendee_email: "max@example.com"}
+
+    test "names the institution or company the booker gave under their address" do
+      text =
+        TextBodyHelper.format_attendee_info(
+          Map.put(@attendee, :attendee_company, "Montessori-Schule Idstein"),
+          "de"
+        )
+
+      assert text =~
+               "E-Mail: max@example.com\nEinrichtung oder Unternehmen: Montessori-Schule Idstein"
+    end
+
+    test "has no institution line for a booking without one" do
+      for attendee <- [@attendee, Map.put(@attendee, :attendee_company, nil)] do
+        refute TextBodyHelper.format_attendee_info(attendee, "en") =~ "Institution or company"
+      end
+    end
+  end
+
   describe "format_video_section/2" do
     test "lists a web join link" do
       text = TextBodyHelper.format_video_section("https://meet.example.com/room", "en")

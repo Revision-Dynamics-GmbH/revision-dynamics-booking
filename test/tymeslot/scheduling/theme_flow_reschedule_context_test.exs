@@ -46,11 +46,24 @@ defmodule Tymeslot.Scheduling.ThemeFlowRescheduleContextTest do
     assert context.meeting_type.id == meeting_type.id
     assert context.location_choice.option_id == "loc-video"
 
+    # A booking without an institution (rd-institution-title.patch) starts the
+    # field empty.
     assert context.form_data == %{
              "name" => "Ada Lovelace",
              "email" => "ada@example.com",
+             "company" => "",
              "message" => ""
            }
+  end
+
+  test "starts the institution field from the booking's own institution", %{
+    user: user,
+    meeting: meeting
+  } do
+    meeting |> Changeset.change(attendee_company: "Montessori-Schule Idstein") |> Repo.update!()
+
+    assert {:ok, %RescheduleContext{form_data: %{"company" => "Montessori-Schule Idstein"}}} =
+             ThemeFlow.reschedule_context(meeting.uid, user.id)
   end
 
   # Deleting a type clears it off its bookings, which leaves them where a

@@ -160,10 +160,11 @@ defmodule Tymeslot.Emails.Shared.TextBodyHelper do
 
   def format_attendee_info(appointment_details, locale) do
     Gettext.with_locale(TymeslotWeb.Gettext, locale, fn ->
-      info = [
-        "#{dgettext("emails", "Name:")} #{appointment_details.attendee_name}",
-        "#{dgettext("emails", "Email:")} #{appointment_details.attendee_email}"
-      ]
+      info =
+        [
+          "#{dgettext("emails", "Name:")} #{appointment_details.attendee_name}",
+          "#{dgettext("emails", "Email:")} #{appointment_details.attendee_email}"
+        ] ++ institution_line(appointment_details[:attendee_company])
 
       message_section =
         if appointment_details[:attendee_message] do
@@ -179,6 +180,13 @@ defmodule Tymeslot.Emails.Shared.TextBodyHelper do
       """
     end)
   end
+
+  # The institution or company the booker gave, on its own line under their
+  # address; none for a booking without one.
+  defp institution_line(company) when is_binary(company) and company != "",
+    do: ["#{dgettext("emails", "Institution or company:")} #{company}"]
+
+  defp institution_line(_company), do: []
 
   @doc """
   Formats the snapshotted custom-field answers as a plain-text section for

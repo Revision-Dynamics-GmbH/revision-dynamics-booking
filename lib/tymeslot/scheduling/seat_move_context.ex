@@ -50,6 +50,7 @@ defmodule Tymeslot.Scheduling.SeatMoveContext do
       form_data: %{
         "name" => participant.name,
         "email" => participant.email,
+        "company" => participant.company || "",
         "message" => participant.message || ""
       },
       window_until: BookingSeries.window_until(participant)

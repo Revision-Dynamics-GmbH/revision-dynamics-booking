@@ -26,6 +26,13 @@ defmodule Tymeslot.Integrations.Calendar.Shared.MultiCalendarFetch do
 
   @max_concurrency 20
 
+  # rd-outlook-throttle.patch. Microsoft Graph allows four concurrent requests
+  # per mailbox; two at a time leaves room for a second visitor's page.
+  @outlook_max_concurrency 2
+
+  defp max_concurrency(%{provider: "outlook"}), do: @outlook_max_concurrency
+  defp max_concurrency(_integration), do: @max_concurrency
+
   @doc """
   Lists events using selected calendars when available; otherwise falls back to
   the provider's primary events endpoint.
@@ -58,7 +65,7 @@ defmodule Tymeslot.Integrations.Calendar.Shared.MultiCalendarFetch do
             fn calendar ->
               api_module.list_events(integration, calendar.id, start_time, end_time)
             end,
-            max_concurrency: @max_concurrency,
+            max_concurrency: max_concurrency(integration),
             timeout: 30_000,
             on_timeout: :kill_task
           )

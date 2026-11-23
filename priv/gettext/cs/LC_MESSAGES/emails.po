@@ -224,11 +224,6 @@ msgstr "Údaje o účastníkovi"
 
 #: lib/tymeslot/emails/shared/meeting/attendee.ex
 #, elixir-autogen, elixir-format
-msgid "Company"
-msgstr "Společnost"
-
-#: lib/tymeslot/emails/shared/meeting/attendee.ex
-#, elixir-autogen, elixir-format
 msgid "Email"
 msgstr "E-mail"
 
@@ -607,3 +602,13 @@ msgstr "Videohovor:"
 #, elixir-autogen, elixir-format
 msgid "Booked through your %{page} page"
 msgstr "Rezervováno přes vaši stránku „%{page}“"
+
+#: lib/tymeslot/emails/shared/meeting/attendee.ex
+#, elixir-autogen, elixir-format
+msgid "Institution or company"
+msgstr "Instituce nebo firma"
+
+#: lib/tymeslot/emails/shared/text_body_helper.ex
+#, elixir-autogen, elixir-format
+msgid "Institution or company:"
+msgstr "Instituce nebo firma:"

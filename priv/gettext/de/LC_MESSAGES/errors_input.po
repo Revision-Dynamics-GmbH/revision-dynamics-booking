@@ -541,3 +541,13 @@ msgstr "Das Passwort muss mindestens ein Sonderzeichen enthalten"
 #, elixir-autogen, elixir-format
 msgid "Password must contain at least one uppercase letter"
 msgstr "Das Passwort muss mindestens einen Großbuchstaben enthalten"
+
+#: lib/tymeslot/security/field_validators/institution_validator.ex
+#, elixir-autogen, elixir-format
+msgid "Institution or company is required"
+msgstr "Einrichtung oder Unternehmen ist erforderlich"
+
+#: lib/tymeslot/security/field_validators/institution_validator.ex
+#, elixir-autogen, elixir-format
+msgid "Institution or company is too long (maximum %{max_length} characters)"
+msgstr "Einrichtung oder Unternehmen ist zu lang (maximal %{max_length} Zeichen)"

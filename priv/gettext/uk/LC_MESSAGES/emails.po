@@ -224,11 +224,6 @@ msgstr "Інформація про учасника"
 
 #: lib/tymeslot/emails/shared/meeting/attendee.ex
 #, elixir-autogen, elixir-format
-msgid "Company"
-msgstr "Компанія"
-
-#: lib/tymeslot/emails/shared/meeting/attendee.ex
-#, elixir-autogen, elixir-format
 msgid "Email"
 msgstr "Електронна пошта"
 
@@ -607,3 +602,13 @@ msgstr "Відеодзвінок:"
 #, elixir-autogen, elixir-format
 msgid "Booked through your %{page} page"
 msgstr "Заброньовано через вашу сторінку «%{page}»"
+
+#: lib/tymeslot/emails/shared/meeting/attendee.ex
+#, elixir-autogen, elixir-format
+msgid "Institution or company"
+msgstr "Установа або компанія"
+
+#: lib/tymeslot/emails/shared/text_body_helper.ex
+#, elixir-autogen, elixir-format
+msgid "Institution or company:"
+msgstr "Установа або компанія:"

@@ -9,9 +9,10 @@ defmodule TymeslotWeb.Themes.Paper.Scheduling.Components.ScheduleComponent do
   `@theme_tokens.media[:calendar_view]`; no tokens or no setting is a month)
   decides the picker.
 
-  A month (`data-calendar-view="month"`): the timezone picker, then the month
-  calendar and the chosen day's times (the shared `SlotList`): the visitor
-  sees the zone before any time. The times' heading and prompt are in
+  A month (`data-calendar-view="month"`): the timezone picker (at the foot of
+  the details since rd-brand.patch), then the month calendar and, under it,
+  the chosen day's times (the shared `SlotList`) headed by that day: the
+  visitor sees the zone before any time. The times' heading and prompt are in
   Paper's voice, and a month with no free day drops the prompt, so its
   "No times available this month" stands alone. The card lays them
   out by its own width (`schedule.css`): one column, then the details beside
@@ -185,7 +186,18 @@ defmodule TymeslotWeb.Themes.Paper.Scheduling.Components.ScheduleComponent do
           moment={@moment}
           moment_state={@moment_state}
           focus={assigns[:journey_focus]}
-        />
+        >
+          <%!-- Revision Dynamics (rd-brand.patch): the month's timezone picker
+               closes the details, so the calendar and the times below it
+               have the whole width. --%>
+          <.timezone
+            :if={@view == "month"}
+            timezone={@user_timezone}
+            open={@timezone_dropdown_open}
+            search={@timezone_search}
+            target={@myself}
+          />
+        </.details>
 
         <div :if={@view == "week"} class="paper-week" data-testid="paper-week">
           <div class="paper-week__header">
@@ -230,13 +242,6 @@ defmodule TymeslotWeb.Themes.Paper.Scheduling.Components.ScheduleComponent do
         </div>
 
         <div :if={@view == "month"} class="paper-picker">
-          <.timezone
-            timezone={@user_timezone}
-            open={@timezone_dropdown_open}
-            search={@timezone_search}
-            target={@myself}
-          />
-
           <SessionList.session_list
             sessions={assigns[:planned_sessions]}
             selected_date={@selected_date}
@@ -259,6 +264,10 @@ defmodule TymeslotWeb.Themes.Paper.Scheduling.Components.ScheduleComponent do
           />
 
           <div :if={SessionList.show_calendar?(assigns[:planned_sessions])} class="paper-slots">
+            <%!-- Revision Dynamics (rd-brand.patch): the chosen day heads its times. --%>
+            <p :if={@selected_date} class="paper-slots__day" data-testid="paper-slots-day">
+              {LocalizationHelpers.format_full_date_label(@selected_date)}
+            </p>
             <SlotList.slot_list
               selected_date={@selected_date}
               selected_time={@selected_time}
@@ -365,6 +374,7 @@ defmodule TymeslotWeb.Themes.Paper.Scheduling.Components.ScheduleComponent do
   attr :moment, :atom, required: true
   attr :moment_state, :atom, required: true
   attr :focus, :atom, default: nil
+  slot :inner_block, doc: "the month view's timezone picker"
 
   # The meeting type's name is the screen's heading: it takes the focus when
   # the visitor moves on to the screen (`Journey.Components.moment_heading/1`).
@@ -398,6 +408,7 @@ defmodule TymeslotWeb.Themes.Paper.Scheduling.Components.ScheduleComponent do
       </ul>
       <GroupSession.hint meeting_type={@meeting_type} />
       <p :if={@description} class="paper-details__description">{@description}</p>
+      {render_slot(@inner_block)}
     </aside>
     """
   end

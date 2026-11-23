@@ -1,0 +1,1006 @@
+/* Revision Dynamics (rd-brand.patch): Paper in the look of revisiondynamics.com.
+
+   Imported last (theme.css), so it lays itself over Paper's own modules and
+   the embed rules without editing them:
+
+     1  tokens   type from 14px, 44px controls, translucent tints for glass
+     2  stage    the canvas with its light, the card as a glass face
+     3  schedule the details as a compact head (a side panel on a wide card),
+                 the month calendar across the whole width, the day's times
+                 under it as one raster, the quarter hours in a row directly
+                 under the hour they belong to
+     4  details  the chosen time as a summary, the form, the submit
+     5  pages    confirmation, timezone panel, states, legal links
+     6  embed    transparent and frameless inside the website's glass card
+
+   Colours are mixed from the palette the server writes (--theme-*), so the
+   light and the dark set, and any other Paper palette, follow by themselves.
+   The week view (`paper-schedule--week`) keeps Paper's own layout. */
+
+/* ==========================================================================
+   1  Tokens
+   ========================================================================== */
+
+:root {
+  /* Nothing under 14px; body text at 16px. */
+  --theme-font-size-3xs: 0.875rem;
+  --theme-font-size-2xs: 0.875rem;
+  --theme-font-size-xs: 0.875rem;
+  --theme-font-size-sm: 0.9375rem;
+  --theme-font-size-base: 1rem;
+  --theme-font-size-md: 1.0625rem;
+  --theme-font-size-lg: 1.25rem;
+  --theme-font-size-xl: 1.5rem;
+  --theme-font-size-2xl: 1.75rem;
+
+  /* Every control is a full touch target. */
+  --paper-control-height: 3rem;
+  --paper-nav-size: 2.75rem;
+  --paper-details-width: 17rem;
+  --paper-card-width-wide: 68rem;
+  --paper-book-width: 44rem;
+
+  /* Surfaces, lines and tints as washes instead of opaque mixes: they sit on
+     glass (and, in an embed, on the host page's glass card). */
+  --surface-subtle: color-mix(in srgb, var(--theme-text) 3%, transparent);
+  --surface-light: color-mix(in srgb, var(--theme-text) 6%, transparent);
+  --surface-medium: color-mix(in srgb, var(--theme-text) 9%, transparent);
+  --surface-intense: color-mix(in srgb, var(--theme-text) 13%, transparent);
+  --border-subtle: color-mix(in srgb, var(--theme-text) 9%, transparent);
+  --border-light: color-mix(in srgb, var(--theme-text) 13%, transparent);
+  --border-medium: color-mix(in srgb, var(--theme-text) 22%, transparent);
+  --paper-tint: color-mix(in srgb, var(--theme-primary) 13%, transparent);
+  --paper-tint-strong: color-mix(in srgb, var(--theme-primary) 24%, transparent);
+  --paper-selected-surface: color-mix(in srgb, var(--theme-primary) 9%, transparent);
+
+  /* The accent as structure: the edge of a glass face and of a control. */
+  --rd-edge: color-mix(in srgb, var(--theme-primary) 26%, transparent);
+  --rd-edge-strong: color-mix(in srgb, var(--theme-primary) 62%, transparent);
+  /* A field or an idle control: a quiet well in the glass. */
+  --rd-well: color-mix(in srgb, var(--theme-canvas) 42%, transparent);
+  --rd-glass: color-mix(in srgb, var(--theme-surface) 74%, transparent);
+  --rd-sheen: color-mix(in srgb, var(--theme-primary) 8%, transparent);
+  --rd-radius-tile: 10px;
+
+  --paper-focus-outline: var(--border-width-thick) solid var(--theme-primary);
+  --paper-card-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--theme-text) 9%, transparent),
+    0 1.5rem 3.5rem -2rem rgb(2 8 23 / 0.5);
+  /* An opened panel (the timezone list) lies over the glass and is opaque. */
+  --dropdown-surface: color-mix(in srgb, var(--theme-text) 4%, var(--theme-surface));
+  --lang-switcher-panel-surface: var(--dropdown-surface);
+}
+
+/* ==========================================================================
+   2  Stage and glass
+   ========================================================================== */
+
+html.paper-theme {
+  background:
+    radial-gradient(64% 46% at 50% 0%, color-mix(in srgb, var(--theme-primary) 15%, transparent), transparent 72%),
+    radial-gradient(40% 36% at 14% 30%, color-mix(in srgb, var(--theme-primary) 7%, transparent), transparent 74%),
+    var(--theme-canvas);
+  background-attachment: fixed;
+}
+
+body.paper-theme,
+.paper-theme-wrapper {
+  background: transparent;
+}
+
+.paper-card {
+  background: linear-gradient(135deg, var(--rd-sheen), transparent 58%), var(--rd-glass);
+  border-color: var(--rd-edge);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  backdrop-filter: blur(18px) saturate(1.2);
+}
+
+.paper-title,
+.paper-heading,
+.paper-details__title,
+.paper-calendar__title,
+.paper-slots .slot-list__heading {
+  font-weight: var(--font-weight-medium);
+  letter-spacing: -0.005em;
+  text-wrap: balance;
+}
+
+/* Focus: one clear ring everywhere, also on a control that draws its own. */
+.paper-theme-wrapper :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: var(--paper-focus-outline);
+  outline-offset: var(--border-width-medium);
+}
+
+/* ==========================================================================
+   3  Schedule: details, calendar, times
+   ========================================================================== */
+
+/* --- Frame: one column; from 54rem the details stand beside it --- */
+
+.paper-schedule:not(.paper-schedule--week) {
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-lg);
+}
+
+/* The picker's parts (calendar, times) are the frame's own rows. */
+.paper-schedule:not(.paper-schedule--week) > .paper-picker {
+  display: contents;
+}
+
+/* Paper names grid areas for them, which this frame does not have. */
+.paper-schedule:not(.paper-schedule--week) :is(.paper-timezone, .paper-calendar, .paper-slots) {
+  grid-area: auto;
+}
+
+.paper-schedule:not(.paper-schedule--week) > :is(.paper-series, .paper-book) {
+  grid-column: auto;
+  margin-top: 0;
+  margin-inline-start: 0;
+}
+
+/* --- Details: a compact head above the calendar --- */
+
+.paper-schedule:not(.paper-schedule--week) > .paper-details {
+  align-items: stretch;
+  gap: var(--space-3xs);
+  padding: 0;
+  border: 0;
+}
+
+/* An organiser without a picture gets generated initials on a coloured disc;
+   the name right under it says the same, so the disc is left out. An
+   uploaded picture shows. */
+.paper-avatar[src^="data:image/svg+xml"] {
+  display: none;
+}
+
+.paper-details > .paper-avatar {
+  margin-bottom: var(--space-xs);
+}
+
+.paper-details__organiser {
+  margin: 0;
+  font-size: var(--theme-font-size-sm);
+}
+
+.paper-details__title {
+  font-size: var(--theme-font-size-xl);
+}
+
+/* The facts side by side, wrapping where they must. */
+.paper-details .paper-facts {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--space-2xs) var(--space-md);
+  margin-top: var(--space-xs);
+  color: var(--ink-1);
+}
+
+/* The icon centres on the fact's first line, whatever the fact wraps to. */
+.paper-fact__icon {
+  width: 1.125rem;
+  height: 1.125rem;
+  margin-top: calc((1lh - 1.125rem) / 2);
+  color: var(--theme-primary);
+}
+
+.paper-details__description {
+  max-width: 68ch;
+  margin-top: var(--space-xs);
+  font-size: var(--theme-font-size-sm);
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+.paper-details > .paper-timezone {
+  margin-top: var(--space-sm);
+}
+
+/* --- Timezone: a labelled control --- */
+
+.paper-timezone__label {
+  font-size: var(--theme-font-size-xs);
+}
+
+.paper-timezone .tz-picker {
+  width: min(100%, 22rem);
+}
+
+.paper-timezone .tz-picker__trigger {
+  border-color: var(--rd-edge);
+  background: var(--rd-well);
+  font-size: var(--theme-font-size-sm);
+}
+
+.paper-timezone .tz-picker__trigger:hover {
+  border-color: var(--rd-edge-strong);
+  background: var(--paper-selected-surface);
+}
+
+.paper-timezone .tz-picker__panel {
+  border-color: var(--rd-edge);
+  border-radius: var(--rd-radius-tile);
+}
+
+.paper-timezone .tz-picker__search {
+  min-height: var(--min-touch-target);
+  background: var(--rd-well);
+  font-size: var(--theme-font-size-base);
+}
+
+.paper-timezone .tz-picker__option {
+  min-height: var(--min-touch-target);
+  font-size: var(--theme-font-size-sm);
+}
+
+/* --- Calendar: the whole width, the month's arrows beside the title --- */
+
+.paper-calendar__header {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-xs) var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.paper-calendar__title {
+  font-size: var(--theme-font-size-xl);
+}
+
+.paper-calendar__nav {
+  flex: 0 0 auto;
+  gap: var(--space-xs);
+  margin-inline-start: auto;
+}
+
+.paper-calendar__month {
+  flex: 0 0 auto;
+  min-width: 9.5rem;
+  font-family: var(--theme-font-heading);
+  font-size: var(--theme-font-size-md);
+}
+
+.paper-calendar__nav-button {
+  border: var(--border-width-thin) solid var(--rd-edge);
+  background: var(--rd-well);
+  color: var(--ink-1);
+}
+
+.paper-calendar__nav-button:hover:not(:disabled) {
+  border-color: var(--rd-edge-strong);
+  background: var(--paper-tint);
+}
+
+.paper-calendar__nav-button:disabled {
+  border-color: var(--border-subtle);
+  background: transparent;
+}
+
+.paper-calendar__notice {
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--theme-font-size-xs);
+}
+
+/* Seven equal columns across the card. The days touch, so each is a full
+   touch target even on a phone; the tile a day shows is drawn inside it. */
+.paper-calendar__weekdays,
+.paper-calendar__grid {
+  --rd-day-inset: 0.1875rem;
+  gap: 0;
+  /* The tiles, not the touch cells, end at the card's content edge, where
+     the times below them begin and end too. */
+  margin-inline: calc(-1 * var(--rd-day-inset));
+}
+
+.paper-calendar__weekdays {
+  margin-bottom: var(--space-3xs);
+  font-size: var(--theme-font-size-2xs);
+}
+
+.calendar-day {
+  justify-self: stretch;
+  max-width: none;
+  min-height: var(--paper-control-height);
+  aspect-ratio: auto;
+  isolation: isolate;
+  background: transparent;
+  font-size: var(--theme-font-size-base);
+}
+
+.calendar-day::before {
+  content: "";
+  position: absolute;
+  inset: var(--rd-day-inset);
+  z-index: -1;
+  border: var(--border-width-thin) solid transparent;
+  border-radius: var(--radius-control);
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.calendar-day:not(:disabled) {
+  background: transparent;
+  color: var(--ink-1);
+}
+
+.calendar-day:not(:disabled)::before {
+  border-color: var(--rd-edge);
+  background: var(--paper-tint);
+}
+
+.calendar-day:not(:disabled):not(.calendar-day--selected):hover {
+  background: transparent;
+}
+
+.calendar-day:not(:disabled):not(.calendar-day--selected):hover::before {
+  border-color: var(--rd-edge-strong);
+  background: var(--paper-tint-strong);
+}
+
+.calendar-day.calendar-day--selected {
+  background: transparent;
+  color: var(--theme-on-primary);
+}
+
+.calendar-day.calendar-day--selected::before {
+  border-color: var(--theme-primary-solid);
+  background: var(--theme-primary-solid);
+}
+
+/* The ring hugs the tile, so neighbouring days never cover it. */
+.paper-theme-wrapper .calendar-day:focus-visible {
+  outline-offset: calc(-1 * var(--border-width-medium));
+  border-radius: calc(var(--radius-control) + 0.125rem);
+}
+
+.paper-theme-wrapper .calendar-day.calendar-day--selected:focus-visible {
+  outline-color: var(--ink-1);
+}
+
+.calendar-day--today::after {
+  bottom: 0.5rem;
+}
+
+/* --- Times: under the calendar, one raster for hours and quarter hours --- */
+
+.paper-slots {
+  padding-top: var(--space-lg);
+  border-top: var(--border-width-thin) solid var(--border-subtle);
+}
+
+/* The chosen day heads its times. */
+.paper-slots__day {
+  margin: 0 0 var(--space-3xs);
+  color: var(--theme-primary);
+  font-size: var(--theme-font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.02em;
+}
+
+.paper-slots .slot-list__heading {
+  margin-bottom: var(--space-md);
+  font-size: var(--theme-font-size-xl);
+}
+
+/* On a narrow page a new day's times are brought to the top of the view
+   (AutoScrollToSlots); the day above their heading stays in sight. */
+.paper-slots .slot-list {
+  scroll-margin-top: 3.5rem;
+}
+
+/* Nothing scrolls inside the card: the list is as tall as its times. */
+.paper-slots,
+.paper-slots .slot-list,
+.paper-slots .slot-list__body {
+  contain: none;
+  height: auto;
+  max-height: none;
+  overflow: visible;
+  padding-right: 0;
+  padding-bottom: 0;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+.paper-slots .slot-list__groups {
+  gap: var(--space-lg);
+}
+
+/* One part of the day: its label, then its hours (or its times) in columns.
+   The hours' own grid dissolves into the part's, so the quarter hours can
+   take the row right under the hour they belong to. */
+.paper-slots .slot-list__period {
+  --rd-time-columns: 4;
+  display: grid;
+  grid-template-columns: repeat(var(--rd-time-columns), minmax(0, 1fr));
+  grid-auto-flow: row dense;
+  gap: var(--space-xs);
+}
+
+.paper-slots .slot-list__period-label {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  margin-bottom: var(--space-3xs);
+  color: var(--ink-2);
+  font-size: var(--theme-font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.08em;
+}
+
+.paper-slots .slot-list__grid:not(.slot-list__grid--minutes) {
+  display: contents;
+}
+
+.paper-slots .slot-list__slot,
+.paper-series .slot-list__slot {
+  position: relative;
+  min-height: var(--paper-control-height);
+  padding: 0 var(--space-2xs);
+  border-color: var(--rd-edge);
+  background: var(--rd-well);
+  color: var(--ink-1);
+  font-size: var(--theme-font-size-base);
+  font-weight: var(--font-weight-medium);
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.paper-slots .slot-list__slot:hover,
+.paper-series .slot-list__slot:hover {
+  border-color: var(--rd-edge-strong);
+  background: var(--paper-tint);
+  color: var(--ink-1);
+}
+
+.paper-slots .slot-list__slot.slot-list__slot--selected,
+.paper-series .slot-list__slot.slot-list__slot--selected {
+  border-color: var(--theme-primary-solid);
+  background: var(--theme-primary-solid);
+  color: var(--theme-on-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.paper-slots .slot-list__slot:focus-visible {
+  outline-offset: var(--border-width-medium);
+}
+
+.paper-slots .slot-list__slot.slot-list__slot--selected:focus-visible {
+  outline-color: var(--ink-1);
+}
+
+/* How many starts an hour holds stays in its accessible name; shown, the
+   small number beside every hour only adds noise. */
+.paper-slots .slot-list__hour-count {
+  display: none;
+}
+
+/* The opened hour: edged in the accent, with a pointer down to its row. */
+.paper-slots .slot-list__slot--hour.slot-list__slot--expanded {
+  border-color: var(--rd-edge-strong);
+  background: var(--paper-tint);
+  color: var(--ink-1);
+  font-weight: var(--font-weight-semibold);
+}
+
+.paper-slots .slot-list__slot--hour.slot-list__slot--expanded::after {
+  content: "";
+  position: absolute;
+  top: calc(100% + var(--border-width-thin));
+  left: 50%;
+  width: 1.125rem;
+  height: var(--space-xs);
+  background: var(--paper-tint);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  transform: translateX(-50%);
+}
+
+/* The quarter hours: a band across the raster, in the raster's columns,
+   in the row under the opened hour. */
+.paper-slots .slot-list__grid--minutes {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  grid-template-columns: subgrid;
+  gap: var(--space-xs);
+  margin: 0;
+  padding: var(--space-xs);
+  border: 0;
+  border-radius: var(--rd-radius-tile);
+  background: var(--paper-tint);
+}
+
+.paper-slots .slot-list__grid--minutes .slot-list__slot:not(.slot-list__slot--selected) {
+  background: var(--rd-glass);
+}
+
+.paper-slots .slot-list__grid--minutes .slot-list__slot:not(.slot-list__slot--selected):hover {
+  background: var(--paper-tint-strong);
+}
+
+/* The band's row: after the row that holds the opened hour. */
+@container scheduling (max-width: 33.99rem) {
+  /* A narrow card: the month's arrows take a row of their own, at its ends. */
+  .paper-calendar__nav {
+    flex: 1 0 100%;
+  }
+
+  .paper-calendar__month {
+    flex: 1;
+  }
+
+  .paper-slots .slot-list__period:has(.slot-list__slot--expanded:nth-child(n + 5)) .slot-list__grid--minutes {
+    grid-row: 4;
+  }
+
+  .paper-slots .slot-list__period:has(.slot-list__slot--expanded:nth-child(n + 9)) .slot-list__grid--minutes {
+    grid-row: 5;
+  }
+}
+
+/* Seven columns with the calendar's own spacing: an hour stands exactly
+   under a weekday's column. */
+@container scheduling (min-width: 34rem) {
+  .paper-slots .slot-list__period {
+    --rd-time-columns: 7;
+    gap: var(--space-xs) var(--space-2xs);
+  }
+
+  .paper-slots .slot-list__grid--minutes {
+    column-gap: var(--space-2xs);
+  }
+
+  .paper-slots .slot-list__period:has(.slot-list__slot--expanded:nth-child(n + 8)) .slot-list__grid--minutes {
+    grid-row: 4;
+  }
+}
+
+/* --- Prompt, loading, empty and error: one quiet tile --- */
+
+.paper-slots .slot-list__prompt,
+.paper-slots .slot-list__loading,
+.paper-slots .slot-list__empty,
+.paper-slots .slot-list__error {
+  padding: var(--space-lg) var(--space-md);
+  border-color: var(--border-medium);
+  border-radius: var(--rd-radius-tile);
+  background: var(--surface-subtle);
+  font-size: var(--theme-font-size-sm);
+}
+
+.paper-slots .slot-list__empty p:first-child {
+  color: var(--ink-1);
+  font-weight: var(--font-weight-medium);
+}
+
+.paper-slots .slot-list__error {
+  border-color: var(--theme-danger);
+  background: color-mix(in srgb, var(--theme-danger) 8%, transparent);
+}
+
+/* --- A wide card: the details as a panel beside calendar and times --- */
+
+@container scheduling (min-width: 54rem) {
+  .paper-schedule:not(.paper-schedule--week) {
+    grid-template-columns: var(--paper-details-width) minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    column-gap: var(--space-xl);
+  }
+
+  .paper-schedule:not(.paper-schedule--week) > .paper-details {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    align-self: start;
+    gap: var(--space-2xs);
+    padding: var(--space-lg);
+    border: var(--border-width-thin) solid var(--border-subtle);
+    border-radius: var(--rd-radius-tile);
+    background: var(--surface-subtle);
+  }
+
+  .paper-schedule:not(.paper-schedule--week) > .paper-picker > *,
+  .paper-schedule:not(.paper-schedule--week) > :is(.paper-series, .paper-book) {
+    grid-column: 2;
+  }
+
+  .paper-details .paper-facts {
+    flex-direction: column;
+  }
+
+  .paper-details > .paper-timezone {
+    margin-top: var(--space-md);
+    padding-top: var(--space-md);
+    border-top: var(--border-width-thin) solid var(--border-subtle);
+  }
+
+  .paper-timezone .tz-picker {
+    width: 100%;
+  }
+}
+
+/* ==========================================================================
+   4  Details: the chosen time, the form, the submit
+   ========================================================================== */
+
+/* Once a time is picked, the details take the picker's place at every
+   width; "Change time" brings the picker back (Paper does so on a wide card
+   only). The step is short, and the calendar no longer pushes the form away. */
+.paper-card--booking .paper-schedule:not(.paper-schedule--week):has(> .paper-book) > .paper-picker {
+  display: none;
+}
+
+.paper-schedule:not(.paper-schedule--week) > .paper-book {
+  max-width: var(--paper-book-width);
+  gap: var(--space-lg);
+  padding-top: var(--space-lg);
+  border-top: var(--border-width-thin) solid var(--border-subtle);
+}
+
+.paper-card--booking .paper-schedule:not(.paper-schedule--week) > .paper-book {
+  padding-top: 0;
+  border-top: 0;
+}
+
+/* On a card too narrow for the side panel the details shrink to the
+   meeting's name and facts while the form is open; the description and the
+   timezone come back with the picker. */
+@container scheduling (max-width: 53.99rem) {
+  .paper-card--booking .paper-schedule:not(.paper-schedule--week):has(> .paper-book) > .paper-details > :is(.paper-details__description, .paper-timezone) {
+    display: none;
+  }
+}
+
+.paper-book__title {
+  font-size: var(--theme-font-size-xl);
+}
+
+/* The summary: the chosen day and time on a tinted tile, the change beside it. */
+.paper-book__when:not(.paper-book__when--end) {
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs) var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border: var(--border-width-thin) solid var(--rd-edge);
+  border-radius: var(--rd-radius-tile);
+  background: var(--paper-selected-surface);
+  font-size: var(--theme-font-size-md);
+  line-height: 1.4;
+}
+
+.paper-book__when:not(.paper-book__when--end) > span {
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+
+.paper-book__when-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0;
+  color: var(--theme-primary);
+}
+
+.paper-book__change {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--min-touch-target);
+  margin: 0;
+  padding: 0 var(--space-md);
+  border: var(--border-width-thin) solid var(--rd-edge-strong);
+  border-radius: var(--radius-control);
+  background: var(--rd-well);
+  color: var(--ink-1);
+  font-size: var(--theme-font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+}
+
+.paper-book__change:hover {
+  background: var(--paper-tint);
+}
+
+@media (pointer: coarse) {
+  .paper-book__change {
+    margin-block: 0;
+  }
+}
+
+.paper-book__when--end {
+  font-size: var(--theme-font-size-sm);
+}
+
+/* Fields: wells in the glass, 16px text (no zoom on a phone). */
+.paper-theme-wrapper .label {
+  margin-bottom: var(--space-xs);
+  font-size: var(--theme-font-size-sm);
+}
+
+.paper-theme-wrapper .input,
+.paper-theme-wrapper .guest-add__input,
+.paper-theme-wrapper .location-phone__input {
+  border-color: var(--border-medium);
+  background: var(--rd-well);
+  font-size: var(--theme-font-size-base);
+}
+
+.paper-theme-wrapper .input:hover {
+  border-color: var(--rd-edge-strong);
+}
+
+.paper-theme-wrapper .input:focus {
+  border-color: var(--theme-primary);
+}
+
+.paper-theme-wrapper .input.input-error {
+  border-color: var(--theme-danger);
+}
+
+.paper-theme-wrapper textarea.input {
+  min-height: 7rem;
+  line-height: 1.5;
+}
+
+.paper-booking-form,
+.paper-booking-form__contact {
+  gap: var(--space-md) var(--space-lg);
+}
+
+/* The institution or company (rd-institution-title.patch) is a field like
+   name and email, in the same well with the same edge and focus ring (the
+   .input rules above). It takes the whole row under them, as the message
+   does, so a long school or company name stays readable in one line. */
+.paper-booking-form > .booking-form__institution {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+.paper-theme-wrapper .recaptcha-notice,
+.paper-theme-wrapper .form-field-error {
+  font-size: var(--theme-font-size-xs);
+}
+
+/* The line under the form that says who uses the details: quiet, at the
+   form's edge, its link a full touch target. */
+.paper-theme-wrapper .booking-privacy-notice {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: var(--theme-font-size-xs);
+  line-height: 1.6;
+  text-align: start;
+}
+
+.paper-theme-wrapper .booking-privacy-notice a {
+  display: inline-block;
+  margin-block: -0.75rem;
+  padding-block: 0.75rem;
+  color: var(--theme-primary);
+}
+
+/* Buttons: the one main action is the filled accent, as on the website. */
+.paper-button {
+  font-size: var(--theme-font-size-base);
+}
+
+.paper-button--primary {
+  border-color: var(--theme-primary-solid);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.2), transparent 60%),
+    var(--theme-primary-solid);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.4),
+    0 0 1.25rem color-mix(in srgb, var(--theme-primary) 26%, transparent);
+}
+
+.paper-button--primary:hover:not(:disabled) {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.2), transparent 60%),
+    var(--theme-primary-solid-hover);
+}
+
+.paper-button--primary:disabled {
+  box-shadow: none;
+}
+
+.paper-button--secondary,
+.paper-theme-wrapper .guest-add__button {
+  border-color: var(--rd-edge-strong);
+  background: var(--rd-well);
+}
+
+.paper-button--secondary:hover:not(:disabled),
+.paper-theme-wrapper .guest-add__button:hover {
+  background: var(--paper-tint);
+}
+
+.paper-button--quiet {
+  color: var(--ink-1);
+}
+
+.paper-actions {
+  border-top-color: var(--border-subtle);
+}
+
+.paper-book .paper-actions {
+  justify-content: flex-start;
+  margin-top: 0;
+}
+
+.paper-book .paper-actions .paper-button--primary {
+  min-width: min(100%, 16rem);
+}
+
+@container scheduling (max-width: 30rem) {
+  .paper-book .paper-actions .paper-button,
+  .paper-confirmation__actions .paper-button {
+    width: 100%;
+  }
+}
+
+/* ==========================================================================
+   5  Confirmation, states, legal links
+   ========================================================================== */
+
+.paper-confirmation__header {
+  gap: var(--space-md);
+}
+
+.paper-confirmation__badge {
+  width: 3.5rem;
+  height: 3.5rem;
+  border: var(--border-width-thin) solid color-mix(in srgb, var(--theme-success) 45%, transparent);
+  background: color-mix(in srgb, var(--theme-success) 12%, transparent);
+}
+
+.paper-confirmation__badge--pending {
+  border-color: var(--notice-warning-border);
+}
+
+.paper-confirmation__message {
+  font-size: var(--theme-font-size-md);
+  line-height: 1.55;
+}
+
+.paper-confirmation__details,
+.paper-card .manage-page__details {
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  border-color: var(--rd-edge);
+  border-radius: var(--rd-radius-tile);
+  background: var(--paper-selected-surface);
+}
+
+.paper-confirmation__meeting-name {
+  font-family: var(--theme-font-heading);
+  font-size: var(--theme-font-size-lg);
+  font-weight: var(--font-weight-medium);
+}
+
+.paper-confirmation__details .paper-facts {
+  gap: var(--space-sm);
+  font-size: var(--theme-font-size-base);
+}
+
+.paper-confirmation__sent,
+.paper-confirmation__help {
+  font-size: var(--theme-font-size-sm);
+}
+
+.paper-badge {
+  padding: var(--space-3xs) var(--space-sm);
+  border: var(--border-width-thin) solid var(--rd-edge);
+  color: var(--ink-1);
+}
+
+.paper-empty {
+  border-radius: var(--rd-radius-tile);
+  background: var(--surface-subtle);
+}
+
+.paper-language .lang-switcher :is(button, a) {
+  min-height: var(--min-touch-target);
+}
+
+/* The legal links: quiet text under the card, each a full touch target. */
+.paper-page .legal-links {
+  gap: 0 var(--space-xs);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink-2);
+}
+
+.paper-page .legal-links__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--min-touch-target);
+  padding: 0 var(--space-xs);
+}
+
+.paper-page .legal-links__link:hover {
+  color: var(--ink-1);
+}
+
+/* ==========================================================================
+   6  Embedded in revisiondynamics.com
+   ========================================================================== */
+
+/* The website embeds this page inside its own glass card and shows the
+   organiser, the appointment's name and its description right above the
+   frame, and the legal notice and privacy policy in its own footer. So in an
+   embed the page is transparent, the card gives up its own face, edge and
+   padding, and what the host page already says is left out (the name stays
+   in the document for screen readers; the form keeps its privacy line). The frame's colour
+   scheme matches the host page (`?colour-mode=`), which is what lets the
+   browser paint it transparent. */
+html.paper-theme[data-embedded],
+html.paper-theme[data-embedded] > body,
+html.paper-theme[data-embedded] .paper-theme-wrapper,
+html.paper-theme[data-embedded] .paper-page {
+  background: transparent;
+}
+
+html.paper-theme[data-embedded] .paper-page .content-area {
+  padding: 0;
+}
+
+/* A hairline of room on every side keeps the focus rings inside the frame. */
+html.paper-theme[data-embedded] .paper-card {
+  width: 100%;
+  padding: var(--space-2xs);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+html.paper-theme[data-embedded] .paper-details .paper-avatar,
+html.paper-theme[data-embedded] .paper-details__description,
+html.paper-theme[data-embedded] .legal-links {
+  display: none;
+}
+
+html.paper-theme[data-embedded] .paper-details :is(.paper-details__organiser, .paper-details__title) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+html.paper-theme[data-embedded] .paper-details .paper-facts {
+  margin-top: 0;
+}
+
+/* The timezone picker stands above the calendar now, so its panel opens
+   downward over it (Paper's embed rule opened it upward, out of the frame). */
+html.paper-theme[data-embedded] .paper-timezone .tz-picker__panel {
+  top: 100%;
+  bottom: auto;
+  margin-top: var(--space-2xs);
+  margin-bottom: 0;
+}
+
+/* The host page keeps a fixed navigation bar over the frame: what is brought
+   to the top of the view (the details' heading once a time is picked, the
+   times once a day is picked) stops below it. */
+html.paper-theme[data-embedded] :is(.paper-book__title, .slot-list, .paper-slots__day) {
+  scroll-margin-top: 6.5rem;
+}
+
+/* Without a face of its own the opened field shows the host's glass. */
+html.paper-theme[data-embedded] .paper-slots .slot-list__grid--minutes .slot-list__slot:not(.slot-list__slot--selected) {
+  background: var(--rd-well);
+}
+
+@container scheduling (min-width: 54rem) {
+  html.paper-theme[data-embedded] .paper-details .paper-facts {
+    gap: var(--space-sm);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .calendar-day::before,
+  .paper-slots .slot-list__slot {
+    transition: none;
+  }
+}

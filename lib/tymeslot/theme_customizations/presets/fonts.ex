@@ -27,6 +27,8 @@ defmodule Tymeslot.ThemeCustomizations.Presets.Fonts do
     "system" => %{name: dgettext_noop("dashboard_appearance", "System")},
     "inter" => %{name: "Inter"},
     "plex" => %{name: "IBM Plex Sans"},
+    # Revision Dynamics: Outfit for text, Urbanist for headings (rd-brand.patch).
+    "revision" => %{name: "Outfit & Urbanist"},
     "classic" => %{name: dgettext_noop("dashboard_appearance", "Classic")},
     "literary" => %{name: dgettext_noop("dashboard_appearance", "Literary")},
     "editorial" => %{name: dgettext_noop("dashboard_appearance", "Editorial")},

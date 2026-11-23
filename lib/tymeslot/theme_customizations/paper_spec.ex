@@ -24,8 +24,8 @@ defmodule Tymeslot.ThemeCustomizations.PaperSpec do
   alias Tymeslot.ThemeCustomizations.Options.Radius
   alias Tymeslot.ThemeCustomizations.Spec
 
-  @palettes ~w(paper_turquoise paper_arctic paper_purple paper_sunset paper_ocean paper_forest paper_rose paper_monochrome)
-  @fonts ~w(system inter plex)
+  @palettes ~w(paper_revision paper_turquoise paper_arctic paper_purple paper_sunset paper_ocean paper_forest paper_rose paper_monochrome)
+  @fonts ~w(system inter plex revision)
 
   @impl Spec
   def option_groups,

@@ -50,7 +50,7 @@ defmodule Tymeslot.Emails.Shared.Meeting.Attendee do
           #{attendee_row(dgettext("emails", "Name"), safe_name)}
           #{attendee_email_row(intent, safe_email)}
           #{attendee_optional_row(dgettext("emails", "Phone"), attendee[:phone])}
-          #{attendee_optional_row(dgettext("emails", "Company"), attendee[:company])}
+          #{attendee_optional_row(dgettext("emails", "Institution or company"), attendee[:company])}
           #{attendee_optional_row(dgettext("emails", "Timezone"), attendee[:timezone])}
         </mj-table>
       </mj-column>
@@ -68,9 +68,15 @@ defmodule Tymeslot.Emails.Shared.Meeting.Attendee do
   def counterpart_section(intent, %{host_managed: true} = details),
     do: guests_section(intent, details.guests)
 
+  # The institution or company the booker gave (`Tymeslot.Bookings.Institution`)
+  # is shown under their name; a booking without one shows no row.
   def counterpart_section(intent, details),
     do:
-      attendee_info_section(intent, %{name: details.attendee_name, email: details.attendee_email})
+      attendee_info_section(intent, %{
+        name: details.attendee_name,
+        email: details.attendee_email,
+        company: details[:attendee_company]
+      })
 
   defp guests_section(intent, guests) do
     """

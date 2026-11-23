@@ -222,11 +222,6 @@ msgstr "Teilnehmerinformationen"
 
 #: lib/tymeslot/emails/shared/meeting/attendee.ex
 #, elixir-autogen, elixir-format
-msgid "Company"
-msgstr "Unternehmen"
-
-#: lib/tymeslot/emails/shared/meeting/attendee.ex
-#, elixir-autogen, elixir-format
 msgid "Email"
 msgstr "E-Mail"
 
@@ -598,3 +593,13 @@ msgstr "Videoanruf:"
 #, elixir-autogen, elixir-format
 msgid "Booked through your %{page} page"
 msgstr "Gebucht über Ihre Seite „%{page}“"
+
+#: lib/tymeslot/emails/shared/meeting/attendee.ex
+#, elixir-autogen, elixir-format
+msgid "Institution or company"
+msgstr "Einrichtung oder Unternehmen"
+
+#: lib/tymeslot/emails/shared/text_body_helper.ex
+#, elixir-autogen, elixir-format
+msgid "Institution or company:"
+msgstr "Einrichtung oder Unternehmen:"

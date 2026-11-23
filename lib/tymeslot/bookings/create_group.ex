@@ -12,6 +12,7 @@ defmodule Tymeslot.Bookings.CreateGroup do
 
   alias Tymeslot.Bookings.Activation
   alias Tymeslot.Bookings.Errors
+  alias Tymeslot.Bookings.Institution
   alias Tymeslot.Bookings.Policy
   alias Tymeslot.Bookings.SeatEffects
   alias Tymeslot.Bookings.Telemetry
@@ -207,7 +208,7 @@ defmodule Tymeslot.Bookings.CreateGroup do
         name: form_data["name"],
         email: form_data["email"],
         phone: Map.get(form_data, "phone"),
-        company: Map.get(form_data, "company"),
+        company: Institution.normalise(Map.get(form_data, "company")),
         message: Map.get(form_data, "message"),
         timezone: booking_data.user_timezone,
         locale: booking_data.attendee_locale,

@@ -65,6 +65,7 @@ defmodule Tymeslot.Scheduling.RescheduleContext do
       form_data: %{
         "name" => meeting.attendee_name,
         "email" => meeting.attendee_email,
+        "company" => meeting.attendee_company || "",
         "message" => meeting.attendee_message || ""
       },
       window_until: BookingSeries.window_until(meeting)

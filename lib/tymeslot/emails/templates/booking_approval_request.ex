@@ -62,7 +62,7 @@ defmodule Tymeslot.Emails.Templates.BookingApprovalRequest do
       deadline_text = deadline_sentence(meeting, clock, locale)
 
       mjml_content = """
-      #{MeetingComponents.attendee_info_section(@intent, %{name: meeting.attendee_name, email: meeting.attendee_email})}
+      #{MeetingComponents.attendee_info_section(@intent, %{name: meeting.attendee_name, email: meeting.attendee_email, company: meeting.attendee_company})}
 
       #{MeetingComponents.attendee_message_box(@intent, meeting.attendee_message)}
 

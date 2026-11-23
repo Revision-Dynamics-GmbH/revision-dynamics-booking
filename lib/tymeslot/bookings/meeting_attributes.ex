@@ -11,6 +11,7 @@ defmodule Tymeslot.Bookings.MeetingAttributes do
   alias Tymeslot.Availability.Schedules
   alias Tymeslot.Bookings.BookingTitle
   alias Tymeslot.Bookings.BuildParams
+  alias Tymeslot.Bookings.Institution
   alias Tymeslot.Bookings.MeetingLinks
   alias Tymeslot.Clock
   alias Tymeslot.ContentTranslations.AttendeeTexts
@@ -270,10 +271,17 @@ defmodule Tymeslot.Bookings.MeetingAttributes do
   # dashboard entry, so it is rendered in the organiser's language, matching
   # the event description `CalendarEventBuilder` writes alongside it. Mail to
   # the booker renders it again in theirs (`BookingTitle.localise/1`).
+  # A booker who named their institution titles it
+  # "<meeting type> x <institution>" (`BookingTitle.organiser_title/3`),
+  # which `summary` carries to the Teams meeting too.
   defp title_attributes(%BuildParams{} = params, meeting_type_name) do
     title =
       RecipientLocale.with_user_id_locale(params.organizer_user_id, fn ->
-        BookingTitle.render(meeting_type_name, params.form_data["name"])
+        BookingTitle.organiser_title(
+          meeting_type_name,
+          params.form_data["name"],
+          params.form_data["company"]
+        )
       end)
 
     %{title: title, summary: title}
@@ -281,13 +289,14 @@ defmodule Tymeslot.Bookings.MeetingAttributes do
 
   # Who the booking is for, as they gave it. `attendee_phone` is deliberately
   # absent: it is set by `location_attributes/3` when, and only when, the
-  # chosen location asked the booker for a number.
+  # chosen location asked the booker for a number. The institution is kept
+  # as the title names it (`Institution.normalise/1`), nil when none was given.
   defp attendee_attributes(%BuildParams{form_data: form_data} = params, user_timezone) do
     %{
       attendee_name: form_data["name"],
       attendee_email: form_data["email"],
       attendee_message: form_data["message"],
-      attendee_company: nil,
+      attendee_company: Institution.normalise(form_data["company"]),
       attendee_timezone: Timezones.normalize(user_timezone),
       attendee_locale: params.attendee_locale || default_locale()
     }

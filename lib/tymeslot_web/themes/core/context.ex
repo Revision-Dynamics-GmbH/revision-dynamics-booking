@@ -21,7 +21,10 @@ defmodule TymeslotWeb.Themes.Core.Context do
           module: module(),
           preview_mode: boolean(),
           layout: layout(),
-          overrides: %{optional(:primary_color) => String.t()}
+          overrides: %{
+            optional(:primary_color) => String.t(),
+            optional(:colour_mode) => String.t()
+          }
         }
 
   defstruct theme_id: nil,
@@ -94,14 +97,26 @@ defmodule TymeslotWeb.Themes.Core.Context do
   # `?primary-color=`). It overrides the saved palette for this page view only:
   # nothing is persisted, and the theme's spec recomputes the contrast pairs
   # for it.
-  defp apply_overrides(context, %{"primary-color" => value}) when is_binary(value) do
+  defp apply_overrides(context, params) do
+    overrides = %{} |> put_primary_colour(params) |> put_colour_mode(params)
+    %{context | overrides: overrides}
+  end
+
+  defp put_primary_colour(overrides, %{"primary-color" => value}) when is_binary(value) do
     case Colour.cast_hex(value) do
-      {:ok, hex} -> %{context | overrides: %{primary_color: hex}}
-      :error -> context
+      {:ok, hex} -> Map.put(overrides, :primary_color, hex)
+      :error -> overrides
     end
   end
 
-  defp apply_overrides(context, _params), do: context
+  defp put_primary_colour(overrides, _params), do: overrides
+
+  # The host page's light or dark choice (`?colour-mode=`, rd-brand.patch), for
+  # themes with a colour mode. Anything but the two modes is ignored.
+  defp put_colour_mode(overrides, %{"colour-mode" => mode}) when mode in ["light", "dark"],
+    do: Map.put(overrides, :colour_mode, mode)
+
+  defp put_colour_mode(overrides, _params), do: overrides
 
   # Layout is opt-in via an explicit `?layout=column` param. "column" forces
   # the wide-canvas layout; every other value (including "default", an absent

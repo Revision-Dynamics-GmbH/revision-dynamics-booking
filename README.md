@@ -1,3 +1,5 @@
+> **Hinweis:** Dies ist die angepasste Fassung, mit der Revision Dynamics seine Terminbuchung betreibt, abgeleitet von Tymeslot 1.46.0. Keine offizielle Tymeslot-Version. Änderungen und Kontakt: [REVISION-DYNAMICS.md](REVISION-DYNAMICS.md).
+
 <p align="center">
   <a href="https://tymeslot.app?utm_source=github&utm_medium=readme&utm_campaign=core">
     <picture>
