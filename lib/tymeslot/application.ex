@@ -175,7 +175,7 @@ defmodule Tymeslot.Application do
           # the queue against stopped breakers and lose it.
           WriteGuardianSupervisor,
           TymeslotWeb.Endpoint
-        ] ++ startup_check_children()
+        ] ++ startup_check_children() ++ TymeslotWeb.RdVisitInternal.children()
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options

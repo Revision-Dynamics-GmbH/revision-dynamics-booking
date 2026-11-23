@@ -82,6 +82,7 @@ defmodule Tymeslot.Bookings.MeetingLinks do
     |> username_fn.()
     |> build(uid)
     |> Map.put(:view_url, view_url(meeting))
+    |> without_reschedule(meeting)
   end
 
   # Without a uid there is nothing to link to; whatever the map carries stands.
@@ -246,5 +247,11 @@ defmodule Tymeslot.Bookings.MeetingLinks do
       approve_url: review_url <> "?intent=approve",
       decline_url: review_url <> "?intent=decline"
     }
+  end
+
+  # An on-site visit is moved by booking again on the website, which plans
+  # the drive (Revision Dynamics, `Tymeslot.RdVisit`); cancelling stays.
+  defp without_reschedule(links, meeting) do
+    if Tymeslot.RdVisit.visit?(meeting), do: %{links | reschedule_url: nil}, else: links
   end
 end

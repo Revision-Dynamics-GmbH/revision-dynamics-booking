@@ -249,7 +249,11 @@ defmodule Tymeslot.Bookings.Policy do
   """
   @spec can_booker_move_meeting?(map()) :: :ok | {:error, booker_move_refusal()}
   def can_booker_move_meeting?(meeting) do
-    if HostManaged.managed?(meeting), do: {:error, :managed_by_host}, else: :ok
+    # An on-site visit's time depends on the drive there and back, which
+    # only the website's booking knows (Revision Dynamics, `Tymeslot.RdVisit`).
+    if HostManaged.managed?(meeting) or Tymeslot.RdVisit.visit?(meeting),
+      do: {:error, :managed_by_host},
+      else: :ok
   end
 
   @doc """

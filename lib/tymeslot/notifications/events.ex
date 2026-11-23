@@ -344,6 +344,9 @@ defmodule Tymeslot.Notifications.Events do
     # Webhooks, Telegram and Slack; none of them fails the cancellation.
     if integrations?(opts), do: dispatch_integrations(:meeting_cancelled, meeting)
 
+    # An on-site visit's drive there and back leaves the calendar with it.
+    Tymeslot.RdVisit.release_travel(meeting)
+
     result
   end
 
@@ -367,6 +370,9 @@ defmodule Tymeslot.Notifications.Events do
 
     # Webhooks, Telegram and Slack; none of them fails the reschedule.
     dispatch_integrations(:meeting_rescheduled, updated_meeting)
+
+    # An on-site visit's drive was planned for the old time.
+    Tymeslot.RdVisit.release_travel(original_meeting)
 
     result
   end
