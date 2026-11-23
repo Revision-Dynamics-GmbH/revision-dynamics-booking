@@ -182,12 +182,12 @@ msgstr ""
 
 #: lib/tymeslot_web/controllers/error_html/404.html.heex
 #, elixir-autogen, elixir-format
-msgid "The link may be broken, or the page may have moved."
+msgid "The link may be incomplete or out of date. You can book an appointment on our website."
 msgstr ""
 
 #: lib/tymeslot_web/controllers/error_html/404.html.heex
 #, elixir-autogen, elixir-format
-msgid "This page doesn't exist"
+msgid "This page does not exist."
 msgstr ""
 
 #: lib/tymeslot/integrations/calendar/calendar_integration_schema.ex
@@ -920,4 +920,29 @@ msgstr ""
 #: lib/tymeslot/meeting_types/series_settings.ex
 #, elixir-autogen, elixir-format
 msgid "Meeting types that ask invitees to confirm their email cannot be booked as a series."
+msgstr ""
+
+#. Revision Dynamics (rd-mail-brand.patch)
+#, elixir-format
+msgid "Book an appointment"
+msgstr ""
+
+#. Revision Dynamics (rd-mail-brand.patch)
+#, elixir-format
+msgid "Contact"
+msgstr ""
+
+#. Revision Dynamics (rd-mail-brand.patch)
+#, elixir-format
+msgid "Error %{status}"
+msgstr ""
+
+#. Revision Dynamics (rd-mail-brand.patch)
+#, elixir-format
+msgid "Something went wrong."
+msgstr ""
+
+#. Revision Dynamics (rd-mail-brand.patch)
+#, elixir-format
+msgid "Please try again in a moment. If it happens again, write to us."
 msgstr ""

@@ -27,54 +27,43 @@ defmodule Tymeslot.Emails.Shared.Meeting.VideoSection do
     end
   end
 
-  defp join_section(intent, safe_url, opts) do
-    title = Keyword.get(opts, :title, dgettext("emails", "Join Video Meeting"))
-    button_text = Keyword.get(opts, :button_text, dgettext("emails", "Join Meeting"))
+  # Revision Dynamics (rd-mail-brand.patch): a sentence that says what the
+  # button does, then the email's one primary button in the product tone
+  # (`Tokens.tone/0`), as the website's `.btn`.
+  defp join_section(_intent, safe_url, opts) do
+    title = Keyword.get(opts, :title, dgettext("emails", "Join online"))
+    button_text = Keyword.get(opts, :button_text, dgettext("emails", "Join online"))
 
     safe_title = Sanitise.sanitize_for_email(title)
     safe_button_text = Sanitise.sanitize_for_email(button_text)
 
-    tokens = Styles.intent(intent)
+    product = Tokens.tone()
 
     Stack.spaced("""
-    <mj-section
-      background-color="#{tokens.tint}"
-      border-left="4px solid #{tokens.accent}"
-      border-radius="#{Styles.radius(:md)}"
-      padding="18px 20px"
-      css-class="mobile-card"
-    >
+    <mj-section padding="20px 0 4px 0" background-color="#{Styles.surface()}">
       <mj-column>
         <mj-text
-          font-size="11px"
-          font-weight="700"
-          color="#{tokens.accent_ink}"
-          letter-spacing="0.12em"
-          text-transform="uppercase"
-          padding="0 0 4px 0"
-          css-class="mobile-eyebrow"
-        >
-          #{dgettext("emails", "Video call")}
-        </mj-text>
-        <mj-text
-          font-size="16px"
-          font-weight="700"
-          color="#{tokens.accent_ink}"
-          padding="0 0 12px 0"
-          line-height="1.35"
+          font-size="#{Styles.font_size(:md)}"
+          color="#{Tokens.ink_soft()}"
+          padding="0 0 14px 0"
+          line-height="1.6"
+          align="left"
+          css-class="mobile-text"
         >
           #{safe_title}
         </mj-text>
         <mj-button
           href="#{safe_url}"
-          background-color="#{tokens.accent_deep}"
-          color="#{Styles.button_text_color(tokens.accent_deep)}"
-          font-weight="700"
-          font-size="15px"
+          background-color="#{product.solid}"
+          color="#{product.on}"
+          font-family="#{Tokens.heading_font_family()}"
+          font-weight="600"
+          font-size="17px"
+          line-height="1.1"
           align="left"
           width="auto"
-          inner-padding="13px 24px"
-          border-radius="#{Styles.radius(:pill)}"
+          inner-padding="#{Styles.button_padding(:medium)}"
+          border-radius="#{Styles.radius(:md)}"
           css-class="mobile-button"
         >
           #{safe_button_text}
@@ -96,14 +85,14 @@ defmodule Tymeslot.Emails.Shared.Meeting.VideoSection do
     tokens = Styles.intent(intent)
 
     """
-    <mj-section padding="0 0 10px 0">
+    <mj-section padding="8px 0 16px 0">
       <mj-column>
         <mj-text
-          align="center"
+          align="left"
           padding="0"
           font-size="0"
         >
-          <span style="display: inline-block; padding: 10px 22px; border-radius: #{Styles.radius(:pill)}; background: #{tokens.tint}; color: #{tokens.accent_ink}; font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;">#{label}</span>
+          <span style="display: inline-block; padding: 6px 12px; border-radius: #{Styles.radius(:sm)}; background: #{tokens.tint}; color: #{tokens.accent_ink}; font-size: 13px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;">#{label}</span>
         </mj-text>
       </mj-column>
     </mj-section>

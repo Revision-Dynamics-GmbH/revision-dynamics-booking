@@ -71,10 +71,10 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmationGuestTest do
       email = AppointmentConfirmation.render(:guest, "greg@example.com", details)
 
       assert email.html_body =~ "https://meet.example.com/room-123"
-      assert email.html_body =~ "Join when you&#39;re ready"
-      assert email.html_body =~ "Join Meeting"
+      assert email.html_body =~ "At the agreed time, join online here:"
+      assert email.html_body =~ "Join online"
       assert email.text_body =~ "https://meet.example.com/room-123"
-      assert email.text_body =~ "JOIN VIDEO MEETING"
+      assert email.text_body =~ "JOIN ONLINE"
     end
 
     # The participant URL is minted with the booker's name and email baked in;
@@ -132,8 +132,8 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmationGuestTest do
 
       email = AppointmentConfirmation.render(:guest, "greg@example.com", details)
 
-      refute email.html_body =~ "Join Meeting"
-      refute email.text_body =~ "JOIN VIDEO MEETING"
+      refute email.html_body =~ "Join online"
+      refute email.text_body =~ "JOIN ONLINE"
     end
 
     test "includes an ICS calendar attachment" do

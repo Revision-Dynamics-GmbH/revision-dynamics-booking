@@ -925,3 +925,13 @@ msgstr "Instituce nebo firma"
 #, elixir-autogen, elixir-format
 msgid "Enter your institution or company"
 msgstr "Zadejte instituci nebo firmu"
+
+#. Revision Dynamics (rd-mail-brand.patch)
+#, elixir-format
+msgid "Source code of our version"
+msgstr "Source code of our version"
+
+#. Revision Dynamics (rd-mail-brand.patch)
+#, elixir-format
+msgid "The booking service is based on Tymeslot, free software under the AGPL-3.0."
+msgstr "The booking service is based on Tymeslot, free software under the AGPL-3.0."

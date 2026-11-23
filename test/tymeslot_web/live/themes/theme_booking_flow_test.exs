@@ -591,7 +591,7 @@ defmodule TymeslotWeb.Live.Themes.ThemeBookingFlowTest do
         |> element("[data-testid='keep-meeting']")
         |> render_click()
 
-        assert render(view) =~ "Meeting Confirmed"
+        assert render(view) =~ "Appointment kept"
       end
 
       @tag :capture_log

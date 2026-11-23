@@ -1,27 +1,27 @@
 defmodule Tymeslot.Emails.Shared.Stage do
   @moduledoc """
-  The **stage band** — Tymeslot's 2026 signature opening for every email.
+  The **stage** — the opening of every email's card.
 
-  A stage band is a full-width section coloured by an intent gradient. It carries
-  three typographic elements:
+  Revision Dynamics (rd-mail-brand.patch): the shared mail design opens the
+  card with a 4px accent rule in the product tone, then three typographic
+  elements on the white card, left-aligned as on the website:
 
-  1. A tiny **eyebrow** label (e.g. "Confirmed", "Heads up", "Cancelled")
-  2. A bold **title** (the headline of the email)
-  3. An optional **subtitle** (context or personalisation)
+  1. An **eyebrow** in spaced capitals (13px), naming product and occasion
+     ("HumanOS · Confirmed"); coloured by the intent, so a cancellation or an
+     alert reads as one before a word is read
+  2. The **title** (Urbanist 500, 30px, 26px on a phone), a statement rather
+     than an exclamation
+  3. An optional **lead** (18px, 16px on a phone)
 
-  The intent (`:confirmed`, `:alert`, `:cancelled`) drives the band colour
-  and the ink contrast — picked from `Tymeslot.Emails.Shared.Styles.intent/1`.
-
-  Stage bands are used by both the transactional layout (as the very first
-  element, above the organiser strip) and the system layout (as the header,
-  replacing the centred logo).
+  The intent (`:confirmed`, `:alert`, `:cancelled`) picks the eyebrow's
+  colour (`Tymeslot.Emails.Shared.Styles.intent/1`); the rule always carries
+  the product tone (`Tymeslot.Emails.Shared.Styles.Tone`).
   """
 
   alias Tymeslot.Emails.Shared.{Sanitise, Styles}
+  alias Tymeslot.Emails.Shared.Styles.{Tokens, Tone}
 
-  # Decorative divider overlay — a translucent white line at the top of
-  # coloured stage bands. Keeps visual separation on any intent background.
-  @band_border_overlay "rgba(255, 255, 255, 0.14)"
+  use Gettext, backend: TymeslotWeb.Gettext
 
   @doc """
   The stage option `key` (`:intent` or `:eyebrow`) from `opts`, a keyword
@@ -44,7 +44,7 @@ defmodule Tymeslot.Emails.Shared.Stage do
   end
 
   @doc """
-  Renders a stage band section.
+  Renders the stage section.
 
   `intent` is an atom — see `Styles.intent/1`.
 
@@ -54,7 +54,8 @@ defmodule Tymeslot.Emails.Shared.Stage do
   @spec stage_band(atom(), String.t(), String.t(), String.t() | nil) :: String.t()
   def stage_band(intent, eyebrow, title, subtitle \\ nil) do
     tokens = Styles.intent(intent)
-    safe_eyebrow = Sanitise.sanitize_for_email(eyebrow)
+    product = Tokens.tone()
+    safe_eyebrow = Sanitise.sanitize_for_email(eyebrow_with_product(eyebrow))
     safe_title = Sanitise.sanitize_for_email(title)
 
     subtitle_block =
@@ -62,17 +63,20 @@ defmodule Tymeslot.Emails.Shared.Stage do
         nil ->
           ""
 
+        "" ->
+          ""
+
         s ->
           safe_subtitle = Sanitise.sanitize_for_email(s)
 
           """
           <mj-text
-            padding="12px 0 0 0"
-            color="#{tokens.band_text}"
-            font-size="15px"
-            line-height="1.55"
+            padding="16px 0 0 0"
+            color="#{Tokens.ink_soft()}"
+            font-size="#{Tokens.font_size(:lg)}"
+            line-height="1.6"
             align="left"
-            css-class="mobile-text"
+            css-class="rd-lead mobile-text"
           >
             #{safe_subtitle}
           </mj-text>
@@ -81,33 +85,35 @@ defmodule Tymeslot.Emails.Shared.Stage do
 
     """
     <mj-section
-      background-color="#{tokens.band_color}"
-      padding="32px 32px 28px 32px"
-      border-radius="20px 20px 0 0"
-      border-top="1px solid #{@band_border_overlay}"
+      background-color="#{Tokens.surface()}"
+      padding="32px 36px 8px 36px"
+      border-top="4px solid #{product.accent}"
+      border-radius="15px 15px 0 0"
       css-class="stage-band"
     >
       <mj-column>
         <mj-text
           padding="0 0 14px 0"
-          color="#{tokens.band_text}"
-          font-size="11px"
-          font-weight="700"
+          color="#{tokens.accent_deep}"
+          font-size="#{Tokens.font_size(:eyebrow)}"
+          font-weight="500"
           align="left"
-          letter-spacing="0.18em"
+          line-height="1.2"
+          letter-spacing="0.14em"
           text-transform="uppercase"
           css-class="stage-band-eyebrow mobile-eyebrow"
         >
-          #{dot()} #{safe_eyebrow}
+          #{safe_eyebrow}
         </mj-text>
         <mj-text
           padding="0"
-          color="#{tokens.band_text}"
+          color="#{Tokens.ink()}"
+          font-family="#{Tokens.heading_font_family()}"
           font-size="#{Styles.font_size(:display)}"
-          font-weight="800"
+          font-weight="500"
           align="left"
-          line-height="1.08"
-          letter-spacing="-0.025em"
+          line-height="1.15"
+          letter-spacing="0"
           css-class="stage-band-title mobile-heading"
         >
           #{safe_title}
@@ -118,7 +124,19 @@ defmodule Tymeslot.Emails.Shared.Stage do
     """
   end
 
-  defp dot do
-    ~s(<span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: currentColor; vertical-align: middle; margin-right: 8px; opacity: 0.6;"></span>)
+  # The eyebrow names the product first when the email is about one, as the
+  # website's section kickers do: "HumanOS · Confirmed".
+  defp eyebrow_with_product(eyebrow) do
+    case product_name(Tone.current()) do
+      nil -> eyebrow
+      name -> "#{name} · #{eyebrow}"
+    end
   end
+
+  @doc "The product a tone stands for, as its name is written everywhere; nil for cyan."
+  @spec product_name(Tone.t()) :: String.t() | nil
+  def product_name(:orange), do: "HumanOS"
+  def product_name(:blue), do: "OrganisationOS"
+  def product_name(:violet), do: "Education Lab"
+  def product_name(_cyan), do: nil
 end

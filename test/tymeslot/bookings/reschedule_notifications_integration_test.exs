@@ -134,8 +134,8 @@ defmodule Tymeslot.Bookings.RescheduleNotificationsIntegrationTest do
 
       delivered = delivered_emails()
 
-      assert delivered[meeting.organizer_email].subject =~ "Rescheduled"
-      assert delivered[meeting.attendee_email].subject =~ "Rescheduled"
+      assert delivered[meeting.organizer_email].subject =~ "Appointment moved"
+      assert delivered[meeting.attendee_email].subject =~ "Appointment moved"
     end
 
     test "the organiser email says the attendee moved the meeting", %{
@@ -148,8 +148,8 @@ defmodule Tymeslot.Bookings.RescheduleNotificationsIntegrationTest do
 
       organizer = delivered_emails()[meeting.organizer_email]
 
-      assert organizer.text_body =~ "has moved your meeting"
-      refute organizer.text_body =~ "You moved this meeting in your calendar."
+      assert organizer.text_body =~ "has moved the appointment"
+      refute organizer.text_body =~ "You moved this appointment in your calendar."
     end
 
     test "both emails state the slot the meeting moved away from", %{
@@ -164,8 +164,8 @@ defmodule Tymeslot.Bookings.RescheduleNotificationsIntegrationTest do
 
       delivered = delivered_emails()
 
-      assert delivered[meeting.attendee_email].text_body =~ "Previously scheduled for"
-      assert delivered[meeting.organizer_email].text_body =~ "Previously scheduled for"
+      assert delivered[meeting.attendee_email].text_body =~ "Previously scheduled"
+      assert delivered[meeting.organizer_email].text_body =~ "Previously scheduled"
     end
 
     test "the attendee email carries a SEQUENCE-bumped ICS so calendars replace the old slot",

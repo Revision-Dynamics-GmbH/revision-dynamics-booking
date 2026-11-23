@@ -2,6 +2,13 @@ defmodule Tymeslot.Emails.Shared.MjmlEmail do
   @moduledoc """
   Base MJML template for Tymeslot transactional emails (2026 redesign).
 
+  Revision Dynamics (rd-mail-brand.patch): rendered in the shared Revision
+  Dynamics mail design. The head is the Revision Dynamics wordmark, the stage
+  opens a white card with a rule in the product tone, and the foot carries
+  contact, company and register details, imprint and privacy links and the
+  AGPL source notice (`RdIdentity`). The organiser strip is gone: the stage's
+  lead names who the meeting is with.
+
   ## Anatomy
 
   Every transactional email now opens with a **stage band** — a full-width
@@ -22,8 +29,8 @@ defmodule Tymeslot.Emails.Shared.MjmlEmail do
 
   alias Swoosh.Attachment
   alias Tymeslot.Emails.Branding
-  alias Tymeslot.Emails.Shared.{AvatarHelper, Frame, Sanitise, Stage, Styles, Urls}
-  alias Tymeslot.Emails.Shared.Styles.{CSS, Tokens}
+  alias Tymeslot.Emails.Shared.{Frame, RdIdentity, Sanitise, Stage}
+  alias Tymeslot.Emails.Shared.Styles.Tokens
   alias Tymeslot.Mailer
   alias Tymeslot.Mailer.Providers
 
@@ -77,10 +84,9 @@ defmodule Tymeslot.Emails.Shared.MjmlEmail do
   @type tracking :: Providers.tracking()
 
   @doc """
-  Creates a base Swoosh email pre-configured for the given tracking category
-  and with the Tymeslot logo attached inline (CID `tymeslot-logo.png`) so the
-  system layout's logo header renders identically in every email client
-  without needing an external URL.
+  Creates a base Swoosh email pre-configured for the given tracking category.
+  Upstream also attached the Tymeslot logo inline here; this version does not
+  (see the Revision Dynamics note below).
 
   Defaults to `:transactional` — the safe choice for any email tied to a
   specific user action (booking confirmation, password reset, receipt).
@@ -89,6 +95,12 @@ defmodule Tymeslot.Emails.Shared.MjmlEmail do
   category is only stashed on the email here; `Tymeslot.Mailer.deliver/2`
   translates it into provider options at delivery time.
   """
+  #
+  # Revision Dynamics (rd-mail-brand.patch): the wordmark is an absolute image
+  # URL on revisiondynamics.com (`RdIdentity.header_mjml/0`), so nothing is
+  # attached inline. The plain-text foot is stashed here, in the email's
+  # language, and appended to the text body by `finalize/1` when the email
+  # is delivered.
   @spec base_email(keyword()) :: Swoosh.Email.t()
   def base_email(opts \\ []) do
     tracking = Keyword.get(opts, :tracking, :transactional)
@@ -96,8 +108,37 @@ defmodule Tymeslot.Emails.Shared.MjmlEmail do
     new()
     |> from({fetch_from_name(), fetch_from_email()})
     |> Mailer.put_tracking(tracking)
-    |> attach_logo()
+    |> put_private(:rd_text_footer, %{
+      guest: RdIdentity.footer_text(:guest),
+      host: RdIdentity.footer_text(:host)
+    })
   end
+
+  @doc """
+  Revision Dynamics (rd-mail-brand.patch): appends the plain-text foot
+  that `base_email/1` stashed to the text body, for the audience whose foot
+  the HTML part carries (`RdIdentity.footer_audience/1`). Idempotent; an email without a
+  text body or without a stashed foot is returned unchanged.
+  `Tymeslot.Emails.Delivery.deliver/2` calls it for every email.
+  """
+  @spec finalize(Swoosh.Email.t()) :: Swoosh.Email.t()
+  def finalize(%Swoosh.Email{private: %{rd_text_footer_applied: true}} = email), do: email
+
+  def finalize(%Swoosh.Email{text_body: body, private: %{rd_text_footer: %{} = feet}} = email)
+      when is_binary(body) and body != "" do
+    # The foot the HTML part carries decides the plain-text one.
+    foot = Map.fetch!(feet, RdIdentity.footer_audience(email.html_body))
+
+    # Templates assemble their plain text from optional blocks; runs of empty
+    # lines left by absent blocks collapse to one.
+    body = body |> String.replace(~r/\n[ \t]*(\n[ \t]*){2,}/, "\n\n") |> String.trim_trailing()
+
+    email
+    |> text_body(body <> "\n\n" <> foot)
+    |> put_private(:rd_text_footer_applied, true)
+  end
+
+  def finalize(email), do: email
 
   @doc """
   Sets `Reply-To` to the other party of a booking, so that a reply reaches
@@ -205,126 +246,42 @@ defmodule Tymeslot.Emails.Shared.MjmlEmail do
     stage_eyebrow = Stage.fetch_required!(organizer_details, :eyebrow)
 
     raw_organizer_name = organizer_details[:name] || fetch_from_name()
-    organizer_name = Sanitise.sanitize_for_email(raw_organizer_name)
-
-    organizer_avatar =
-      AvatarHelper.avatar_mjml(organizer_details[:avatar_url], raw_organizer_name)
-
-    organizer_title =
-      Sanitise.sanitize_for_email(organizer_details[:title] || Branding.brand_name())
 
     stage_title = organizer_details[:stage_title] || raw_organizer_name
     stage_subtitle = organizer_details[:stage_subtitle]
 
-    Frame.wrap(%{
-      title: dgettext("emails", "Message from %{name}", name: organizer_name),
-      preview:
+    # Revision Dynamics: the inbox preview complements the subject (a
+    # template may pass `:preview`), otherwise it repeats the stage's lead.
+    preview =
+      organizer_details[:preview] || stage_subtitle ||
         dgettext("emails", "%{name} via %{brand}",
-          name: organizer_name,
-          brand: Sanitise.sanitize_for_email(Branding.brand_name())
-        ),
+          name: raw_organizer_name,
+          brand: Branding.brand_name()
+        )
+
+    Frame.wrap(%{
+      title: Sanitise.sanitize_for_email(stage_title),
+      preview: Sanitise.sanitize_for_email(preview),
       pre_card: logo_header(),
       stage: Stage.stage_band(intent, stage_eyebrow, stage_title, stage_subtitle),
-      header: organizer_strip(organizer_avatar, organizer_name, organizer_title),
+      header: "",
       body: content,
-      footer: footer_strip()
+      footer: footer_strip(organizer_details[:audience] || :guest)
     })
   end
 
   @doc """
-  The shared inline-logo header rendered above the stage band. Used by both
-  the transactional and system layouts so every email references the
-  attached logo via `cid:#{@logo_cid}` and never falls back to a plain
-  attachment.
+  The head rendered above the card: the Revision Dynamics wordmark, linked to
+  the website (`RdIdentity.header_mjml/0`). Used by both the transactional
+  and system layouts.
   """
   @spec logo_header() :: String.t()
-  def logo_header do
-    """
-    <mj-section
-      padding="4px 0 22px 0"
-      background-color="#{Styles.canvas()}"
-      css-class="email-canvas"
-    >
-      <mj-column>
-        <mj-image
-          src="cid:#{@logo_cid}"
-          alt="#{Sanitise.sanitize_for_email(Branding.brand_name())}"
-          href="#{Urls.get_app_url()}"
-          width="150px"
-          align="center"
-          padding="0"
-          border="0"
-          css-class="#{CSS.logo_plate_class()}"
-        />
-      </mj-column>
-    </mj-section>
-    """
-  end
+  def logo_header, do: RdIdentity.header_mjml()
 
-  defp organizer_strip(avatar, name, title) do
-    """
-    <mj-section
-      padding="18px 28px 14px 28px"
-      background-color="#{Styles.surface()}"
-      border-bottom="1px solid #{Styles.hairline()}"
-      css-class="email-surface email-hairline-bottom"
-    >
-      <mj-group>
-        <mj-column width="16%" vertical-align="middle">
-          #{avatar}
-        </mj-column>
-        <mj-column width="84%" vertical-align="middle">
-          <mj-text
-            font-size="15px"
-            font-weight="700"
-            padding="0 0 2px 8px"
-            align="left"
-            line-height="1.2"
-            color="#{Styles.ink()}"
-            css-class="email-ink"
-          >
-            #{name}
-          </mj-text>
-          <mj-text
-            font-size="12px"
-            color="#{Styles.ink_muted()}"
-            padding="0 0 0 8px"
-            align="left"
-            line-height="1.3"
-            letter-spacing="0.02em"
-            css-class="email-ink-muted"
-          >
-            #{title}
-          </mj-text>
-        </mj-column>
-      </mj-group>
-    </mj-section>
-    """
-  end
-
-  defp footer_strip do
-    """
-    <mj-section
-      background-color="#{Styles.canvas_soft()}"
-      border-radius="0 0 20px 20px"
-      padding="18px 28px"
-      css-class="email-canvas-soft"
-    >
-      <mj-column>
-        <mj-text
-          color="#{Styles.ink_muted()}"
-          font-size="12px"
-          align="center"
-          line-height="1.6"
-          letter-spacing="0.02em"
-          css-class="email-ink-muted"
-        >
-          #{dgettext("emails", "Sent with care by")}
-          <a href="#{Urls.get_app_url()}" class="wordmark email-ink-link" style="color: #{Styles.ink()}; text-decoration: none; font-weight: 800;">Tymeslot</a>
-          · #{dgettext("emails", "scheduling that respects your time")}
-        </mj-text>
-      </mj-column>
-    </mj-section>
-    """
-  end
+  @doc """
+  The foot rendered below the card (`RdIdentity.footer_mjml/1`). A template
+  addressed to the host passes `audience: :host` with its organiser details.
+  """
+  @spec footer_strip(RdIdentity.audience()) :: String.t()
+  def footer_strip(audience \\ :guest), do: RdIdentity.footer_mjml(audience)
 end

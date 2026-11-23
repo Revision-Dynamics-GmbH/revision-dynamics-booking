@@ -169,11 +169,11 @@ defmodule Tymeslot.Polls.ConfirmGuestLocalesTest do
 
     emails = guest_emails()
 
-    assert emails[@ben].text_body =~ "Hallo Ben Ito"
+    assert emails[@ben].text_body =~ "Sehr geehrte/r Ben Ito"
     assert emails[@ben].text_body =~ "Uhrzeit: #{local_time(meeting.start_time, :ben)}"
     assert emails[@ben].text_body =~ "(America/New_York)"
 
-    assert emails[@ada].text_body =~ "Hi Ada Lind"
+    assert emails[@ada].text_body =~ "Dear Ada Lind"
     assert emails[@ada].text_body =~ "Time: #{local_time(meeting.start_time, :ada)}"
   end
 
@@ -188,12 +188,12 @@ defmodule Tymeslot.Polls.ConfirmGuestLocalesTest do
 
     emails = guest_emails()
 
-    assert emails[@ben].text_body =~ "Hallo Ben Ito"
+    assert emails[@ben].text_body =~ "Sehr geehrte/r Ben Ito"
     assert emails[@ben].text_body =~ "Uhrzeit: #{local_time(new_start, :ben)}"
     assert emails[@ben].text_body =~ "(America/New_York)"
     refute emails[@ben].text_body =~ "Europe/London"
 
-    assert emails[@ada].text_body =~ "Hi Ada Lind"
+    assert emails[@ada].text_body =~ "Dear Ada Lind"
     assert emails[@ada].text_body =~ "Time: #{local_time(new_start, :ada)}"
   end
 
@@ -208,9 +208,9 @@ defmodule Tymeslot.Polls.ConfirmGuestLocalesTest do
 
     emails = guest_emails()
 
-    assert emails[@ben].text_body =~ "Hallo Ben Ito"
+    assert emails[@ben].text_body =~ "Sehr geehrte/r Ben Ito"
     assert emails[@ben].text_body =~ "(America/New_York)"
-    assert emails[@ada].text_body =~ "Hi Ada Lind"
+    assert emails[@ada].text_body =~ "Dear Ada Lind"
     assert emails[@ada].text_body =~ "(Europe/London)"
   end
 

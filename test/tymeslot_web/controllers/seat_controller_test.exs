@@ -192,7 +192,7 @@ defmodule TymeslotWeb.SeatControllerTest do
 
       conn = post(conn, ~p"/seat/#{leaver.management_token}/cancel")
 
-      assert html_response(conn, 200) =~ "Video Call"
+      assert html_response(conn, 200) =~ "Online meeting (Microsoft Teams)"
     end
 
     test "an unknown token shows the invalid page", %{conn: conn} do

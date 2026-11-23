@@ -41,7 +41,7 @@ defmodule Tymeslot.Emails.Templates.BookingEmailVerification do
   def render(%Meeting{} = meeting, verify_url) when is_binary(verify_url) do
     locale = RecipientLocale.attendee_locale(meeting)
 
-    Gettext.with_locale(TymeslotWeb.Gettext, locale, fn ->
+    TemplateHelper.with_locale_and_tone(locale, meeting, fn ->
       meeting = %{meeting | title: BookingTitle.localise(meeting)}
       attendee_time = TimezoneHelper.convert_to_attendee_timezone(meeting)
       details = meeting_details(meeting, attendee_time)
@@ -72,6 +72,7 @@ defmodule Tymeslot.Emails.Templates.BookingEmailVerification do
             name: meeting.attendee_name
           ),
           intent: @intent,
+          audience: :guest,
           eyebrow: dgettext("emails_booking_requests", "Not confirmed"),
           stage_title: heading(),
           stage_subtitle:

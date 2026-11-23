@@ -53,7 +53,7 @@ defmodule Tymeslot.Emails.Templates.BookingApprovalRequest do
   @spec render(variant(), Meeting.t(), map(), String.t(), keyword()) :: Swoosh.Email.t()
   def render(variant, %Meeting{} = meeting, urls, locale, opts \\ [])
       when variant in [:request, :nudge] do
-    Gettext.with_locale(TymeslotWeb.Gettext, locale, fn ->
+    TemplateHelper.with_locale_and_tone(locale, meeting, fn ->
       kind = if rescheduled?(meeting), do: :reschedule, else: :booking
       clock = HostClock.for_meeting(meeting, locale)
       host_time = DateTimeUtils.convert_to_timezone(meeting.start_time, clock.timezone)

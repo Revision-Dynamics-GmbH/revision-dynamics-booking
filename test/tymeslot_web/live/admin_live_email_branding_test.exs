@@ -63,7 +63,9 @@ defmodule TymeslotWeb.AdminLiveEmailBrandingTest do
 
       assert html =~ "Email accent colour updated."
       assert AppSettings.get(:email_brand_accent) == "#7c3aed"
-      assert %{accent: "#7c3aed"} = Tokens.intent(:confirmed)
+      # Revision Dynamics (rd-mail-brand.patch): the emails take the product
+      # tone of the meeting, so the stored accent does not reach them.
+      assert %{accent: "#0aa5cc"} = Tokens.intent(:confirmed)
     end
 
     test "an uppercase hex is normalised before it is stored", %{conn: conn} do
@@ -93,7 +95,7 @@ defmodule TymeslotWeb.AdminLiveEmailBrandingTest do
       render_submit(accent_form(lv), %{"key" => "email_brand_accent", "value" => ""})
 
       assert AppSettings.get(:email_brand_accent) == nil
-      assert %{accent: "#14b8a6"} = Tokens.intent(:confirmed)
+      assert %{accent: "#0aa5cc"} = Tokens.intent(:confirmed)
     end
 
     test "a low-contrast colour renders a warning rather than being rejected", %{conn: conn} do
@@ -188,7 +190,7 @@ defmodule TymeslotWeb.AdminLiveEmailBrandingTest do
         |> render_submit(%{"key" => "email_brand_name", "value" => String.duplicate("a", 61)})
 
       assert html =~ "That value is too long."
-      assert Branding.brand_name() == "Tymeslot"
+      assert Branding.brand_name() == "Revision Dynamics"
     end
 
     test "submitting the built-in default unchanged still acknowledges the save", %{conn: conn} do
@@ -197,11 +199,11 @@ defmodule TymeslotWeb.AdminLiveEmailBrandingTest do
       html =
         lv
         |> form("#admin-setting-form-email_brand_name")
-        |> render_submit(%{"key" => "email_brand_name", "value" => "Tymeslot"})
+        |> render_submit(%{"key" => "email_brand_name", "value" => "Revision Dynamics"})
 
       assert_push_event(lv, "ts:setting-saved", %{key: "email_brand_name"})
       refute html =~ "Email brand name updated."
-      assert Branding.brand_name() == "Tymeslot"
+      assert Branding.brand_name() == "Revision Dynamics"
     end
   end
 

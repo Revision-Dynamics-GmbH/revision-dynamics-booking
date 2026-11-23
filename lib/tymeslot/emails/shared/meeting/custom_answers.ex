@@ -43,8 +43,8 @@ defmodule Tymeslot.Emails.Shared.Meeting.CustomAnswers do
       <mj-section padding="8px 0 20px 0">
         <mj-column>
           <mj-text
-            font-size="11px"
-            font-weight="700"
+            font-size="13px"
+            font-weight="500"
             color="#{Styles.ink_muted()}"
             letter-spacing="0.14em"
             text-transform="uppercase"

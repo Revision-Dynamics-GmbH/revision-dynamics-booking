@@ -42,8 +42,8 @@ defmodule Tymeslot.Emails.Shared.Meeting.Notes do
     >
       <mj-column>
         <mj-text
-          font-size="11px"
-          font-weight="700"
+          font-size="13px"
+          font-weight="500"
           color="#{tokens.accent_ink}"
           letter-spacing="0.12em"
           text-transform="uppercase"

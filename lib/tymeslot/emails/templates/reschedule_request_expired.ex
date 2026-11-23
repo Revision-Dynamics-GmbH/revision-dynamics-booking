@@ -40,7 +40,7 @@ defmodule Tymeslot.Emails.Templates.RescheduleRequestExpired do
 
   @spec render(Meeting.t(), String.t()) :: Swoosh.Email.t()
   def render(%Meeting{} = meeting, locale) do
-    Gettext.with_locale(TymeslotWeb.Gettext, locale, fn ->
+    TemplateHelper.with_locale_and_tone(locale, meeting, fn ->
       clock = HostClock.for_meeting(meeting, locale)
       host_time = DateTimeUtils.convert_to_timezone(meeting.start_time, clock.timezone)
       details = meeting_details(meeting, host_time, clock)

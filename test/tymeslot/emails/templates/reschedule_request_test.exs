@@ -138,7 +138,7 @@ defmodule Tymeslot.Emails.Templates.RescheduleRequestTest do
 
         assert %Swoosh.Email{} = email
         assert email.html_body =~ type
-        assert email.text_body =~ "Type: #{type}"
+        assert email.text_body =~ "Meeting: #{type}"
       end
     end
 

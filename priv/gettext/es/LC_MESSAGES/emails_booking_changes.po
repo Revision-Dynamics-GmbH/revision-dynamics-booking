@@ -140,19 +140,13 @@ msgstr "Reservar otro horario"
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
 #, elixir-autogen, elixir-format
-msgid "CANCELLED APPOINTMENT DETAILS:"
+msgid "CANCELLED APPOINTMENT:"
 msgstr "DATOS DE LA CITA CANCELADA:"
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
 #, elixir-autogen, elixir-format
 msgid "CANCELLED SPOT:"
 msgstr "LUGAR CANCELADO:"
-
-#: lib/tymeslot/emails/templates/appointment_cancellation.ex
-#: lib/tymeslot/emails/templates/seat_update_for_organizer.ex
-#, elixir-autogen, elixir-format
-msgid "Cancelled"
-msgstr "Reunión cancelada"
 
 #: lib/tymeslot/emails/templates/appointment_cancellation/refund_notice.ex
 #, elixir-autogen, elixir-format
@@ -211,7 +205,7 @@ msgstr "Hola %{guest}: se canceló la reunión con %{organizer} a la que %{booke
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
 #, elixir-autogen, elixir-format
-msgid "Hi %{guest},"
+msgid "Dear %{guest},"
 msgstr "Hola %{guest}:"
 
 #: lib/tymeslot/emails/templates/booking_payment_refunded.ex
@@ -221,7 +215,10 @@ msgstr "Hola %{name}: se te devolvieron %{amount} de tu pago de %{original}."
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
 #, elixir-autogen, elixir-format
-msgid "Hi %{name} - our appointment has been cancelled. I'm sorry for the inconvenience."
+msgid ""
+"Dear %{name},\n"
+"\n"
+"the following appointment has been cancelled and will not take place."
 msgstr "Hola %{name}: se canceló nuestra cita. Disculpa las molestias."
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
@@ -236,7 +233,7 @@ msgstr "Hola %{name}: se te devolvió todo el pago de %{amount}."
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
 #, elixir-autogen, elixir-format
-msgid "Hi %{name},"
+msgid "Dear %{name},"
 msgstr "Hola %{name}:"
 
 #: lib/tymeslot/emails/templates/booking_payment_refunded.ex
@@ -279,11 +276,6 @@ msgstr "Si la reunión no se realiza, cancélala en Tymeslot. Así se avisa al a
 msgid "If you added the meeting to your calendar, the attached file removes it there."
 msgstr "Si agregaste la reunión a tu calendario, el archivo adjunto la quita de allí."
 
-#: lib/tymeslot/emails/templates/appointment_cancellation.ex
-#, elixir-autogen, elixir-format
-msgid "If you have any questions, please don't hesitate to reach out."
-msgstr "Si tienes preguntas, escríbeme."
-
 #: lib/tymeslot/emails/templates/booking_payment_refunded.ex
 #, elixir-autogen, elixir-format
 msgid "If you have any questions, please reply to this email and %{name} will be happy to help."
@@ -312,8 +304,9 @@ msgid "Meeting"
 msgstr "Reunión"
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
+#: lib/tymeslot/emails/templates/seat_update_for_organizer.ex
 #, elixir-autogen, elixir-format
-msgid "Meeting Cancelled"
+msgid "Appointment cancelled"
 msgstr "Reunión cancelada"
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
@@ -333,7 +326,7 @@ msgstr "Reunión reprogramada en el calendario externo"
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
 #, elixir-autogen, elixir-format
-msgid "Meeting cancelled"
+msgid "The appointment has been cancelled."
 msgstr "Reunión cancelada"
 
 #: lib/tymeslot/emails/templates/external_booking_change.ex
@@ -343,7 +336,7 @@ msgstr "Hora de finalización actualizada desde tu calendario"
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
 #, elixir-autogen, elixir-format
-msgid "Meeting with:"
+msgid "Appointment with:"
 msgstr "Reunión con:"
 
 #: lib/tymeslot/emails/templates/booking_payment_refunded.ex
@@ -453,7 +446,7 @@ msgstr "Reprogramada"
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
 #, elixir-autogen, elixir-format
-msgid "Schedule New Appointment"
+msgid "Book a new time"
 msgstr "Reservar una cita nueva"
 
 #: lib/tymeslot/emails/templates/seat_update_for_organizer.ex
@@ -493,7 +486,7 @@ msgstr "Se canceló la cita con %{name}."
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
 #, elixir-autogen, elixir-format
-msgid "The attendee has been notified of the cancellation."
+msgid "The booker has been told about the cancellation."
 msgstr "Se avisó al asistente de la cancelación."
 
 #: lib/tymeslot/emails/templates/external_booking_change.ex
@@ -565,7 +558,7 @@ msgstr "Te enviamos este aviso automáticamente porque hubo un cambio en tu cale
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
 #, elixir-autogen, elixir-format
-msgid "This time slot is now available for booking again."
+msgid "If you added the appointment to your calendar, you can use the attached file to mark it as cancelled there."
 msgstr "Este horario vuelve a estar disponible para reservar."
 
 #: lib/tymeslot/emails/templates/event_update_notification.ex
@@ -606,7 +599,7 @@ msgstr "Ver la reunión:"
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
 #, elixir-autogen, elixir-format
-msgid "Visit:"
+msgid "Link:"
 msgstr "Visita:"
 
 #: lib/tymeslot/emails/templates/external_booking_change.ex
@@ -630,7 +623,7 @@ msgstr[1] "Enviamos a %{count} invitados la nueva hora de finalización, con el 
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
 #, elixir-autogen, elixir-format
-msgid "We're writing to confirm that your appointment has been cancelled."
+msgid "the following appointment has been cancelled and will not take place."
 msgstr "Te confirmamos que tu cita quedó cancelada."
 
 #: lib/tymeslot/emails/templates/event_update_notification.ex
@@ -650,7 +643,7 @@ msgstr "¿Quieres reservar otro horario?"
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
 #, elixir-autogen, elixir-format
-msgid "Would you like to schedule a new appointment?"
+msgid "Would you like to book a new time?"
 msgstr "¿Quieres reservar una cita nueva?"
 
 #: lib/tymeslot/emails/templates/external_booking_change.ex
@@ -675,7 +668,7 @@ msgstr "Se te devolvió el pago."
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
 #, elixir-autogen, elixir-format
-msgid "with %{name}"
+msgid "Appointment with %{name}"
 msgstr "con %{name}"
 
 #: lib/tymeslot/emails/templates/booking_payment_refunded.ex

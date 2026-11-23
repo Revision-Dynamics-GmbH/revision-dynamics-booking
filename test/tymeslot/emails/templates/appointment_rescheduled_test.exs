@@ -41,8 +41,8 @@ defmodule Tymeslot.Emails.Templates.AppointmentRescheduledTest do
       details = build_reschedule_details()
       email = AppointmentRescheduled.render(:attendee, "attendee@example.com", details)
 
-      assert email.subject =~ "Rescheduled"
-      assert email.subject =~ details.organizer_name
+      assert email.subject =~ "Appointment moved"
+      assert email.subject =~ details.meeting_type
       assert email.subject =~ Formatting.format_date_short(details.date, "en")
     end
 
@@ -57,9 +57,9 @@ defmodule Tymeslot.Emails.Templates.AppointmentRescheduledTest do
       details = build_reschedule_details()
       email = AppointmentRescheduled.render(:attendee, "attendee@example.com", details)
 
-      assert email.html_body =~ "Previously scheduled for"
+      assert email.html_body =~ "Previously scheduled"
       assert email.html_body =~ Formatting.format_date(@original_start, "en")
-      assert email.text_body =~ "Previously scheduled for"
+      assert email.text_body =~ "Previously scheduled"
       assert email.text_body =~ Formatting.format_date(@original_start, "en")
     end
 
@@ -115,7 +115,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentRescheduledTest do
 
       email = AppointmentRescheduled.render(:attendee, "attendee@example.com", details)
 
-      assert email.html_body =~ "Rescheduled"
+      assert email.html_body =~ "Appointment moved"
       refute email.html_body =~ "Reminders Scheduled"
     end
 
@@ -125,8 +125,8 @@ defmodule Tymeslot.Emails.Templates.AppointmentRescheduledTest do
 
       email = AppointmentRescheduled.render(:attendee, "attendee@example.com", details)
 
-      assert email.html_body =~ "Same link, new time"
-      refute email.html_body =~ "New link for the new time"
+      assert email.html_body =~ "The link to the online meeting stays the same:"
+      refute email.html_body =~ "The new time has a new link:"
     end
 
     # Jitsi with token authentication signs each join link for the meeting's
@@ -139,9 +139,9 @@ defmodule Tymeslot.Emails.Templates.AppointmentRescheduledTest do
 
       email = AppointmentRescheduled.render(:attendee, "attendee@example.com", details)
 
-      assert email.html_body =~ "New link for the new time"
+      assert email.html_body =~ "The new time has a new link:"
       assert email.html_body =~ details.attendee_video_url
-      refute email.html_body =~ "Same link, new time"
+      refute email.html_body =~ "The link to the online meeting stays the same:"
     end
 
     test "makes no claim about the join link when the previous one is unknown" do
@@ -150,8 +150,8 @@ defmodule Tymeslot.Emails.Templates.AppointmentRescheduledTest do
       email = AppointmentRescheduled.render(:attendee, "attendee@example.com", details)
 
       assert email.html_body =~ details.attendee_video_url
-      refute email.html_body =~ "Same link, new time"
-      refute email.html_body =~ "New link for the new time"
+      refute email.html_body =~ "The link to the online meeting stays the same:"
+      refute email.html_body =~ "The new time has a new link:"
     end
 
     test "renders without the previously-scheduled line when no original slot is given" do
@@ -164,9 +164,9 @@ defmodule Tymeslot.Emails.Templates.AppointmentRescheduledTest do
 
       email = AppointmentRescheduled.render(:attendee, "attendee@example.com", details)
 
-      assert email.html_body =~ "Rescheduled"
-      refute email.html_body =~ "Previously scheduled for"
-      refute email.text_body =~ "Previously scheduled for"
+      assert email.html_body =~ "Appointment moved"
+      refute email.html_body =~ "Previously scheduled"
+      refute email.text_body =~ "Previously scheduled"
     end
 
     test "attaches an ICS carrying the revision the reschedule advanced the meeting to" do
@@ -216,7 +216,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentRescheduledTest do
       details = build_reschedule_details()
       email = AppointmentRescheduled.render(:organizer, "organizer@example.com", details)
 
-      assert email.subject =~ "Rescheduled"
+      assert email.subject =~ "Appointment moved"
       assert email.subject =~ details.attendee_name
     end
 
@@ -232,7 +232,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentRescheduledTest do
       email = AppointmentRescheduled.render(:organizer, "organizer@example.com", details)
 
       assert email.html_body =~ details.attendee_name
-      assert email.html_body =~ "Previously scheduled for"
+      assert email.html_body =~ "Previously scheduled"
       assert email.html_body =~ Formatting.format_date(details.date, "en")
     end
 
@@ -267,7 +267,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentRescheduledTest do
 
       email = AppointmentRescheduled.render(:organizer, "organizer@example.com", details)
 
-      assert email.html_body =~ "Rescheduled"
+      assert email.html_body =~ "Appointment moved"
     end
   end
 end

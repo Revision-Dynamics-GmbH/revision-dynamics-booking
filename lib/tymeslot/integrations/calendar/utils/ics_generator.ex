@@ -204,7 +204,9 @@ defmodule Tymeslot.Integrations.Calendar.IcsGenerator do
       "BEGIN:VCALENDAR",
       "VERSION:2.0",
       if(method != :none, do: "METHOD:PUBLISH"),
-      "PRODID:-//Tymeslot//Tymeslot 1.0//EN",
+      # Revision Dynamics (rd-mail-brand.patch): the calendar files a booker
+      # receives name the company's service, not Tymeslot as their product.
+      "PRODID:-//Revision Dynamics//Booking//EN",
       "CALSCALE:GREGORIAN"
     ]
     |> Enum.concat(Enum.flat_map(events, &vevents(&1, method, lang)))
@@ -417,7 +419,7 @@ defmodule Tymeslot.Integrations.Calendar.IcsGenerator do
 
     cond do
       is_binary(meeting_url) and meeting_url != "" ->
-        dgettext("emails", "Video Call")
+        dgettext("emails", "Online meeting (Microsoft Teams)")
 
       is_binary(location) and location != "" ->
         BookingRequestLocation.display(location, Map.get(meeting_details, :location_type))

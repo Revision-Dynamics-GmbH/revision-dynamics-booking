@@ -3,7 +3,6 @@ defmodule Tymeslot.Emails.Shared.ButtonsTest do
   @moduletag :emails
 
   alias Tymeslot.Emails.Shared.Buttons
-  alias Tymeslot.Emails.Shared.Styles
   alias Tymeslot.Utils.Colour
 
   describe "action_button/4" do
@@ -34,26 +33,31 @@ defmodule Tymeslot.Emails.Shared.ButtonsTest do
       refute html_default =~ "mobile-button"
     end
 
-    test "renders on the deep accent variant, not the raw accent, for every intent" do
+    # Revision Dynamics (rd-mail-brand.patch): the one primary button carries
+    # the product tone whatever the intent; signals colour the eyebrow.
+    test "renders on the product tone's solid face for every intent" do
       for intent <- [:confirmed, :alert, :cancelled] do
         html = Buttons.action_button(intent, "Go", "https://example.com")
-        accent_deep = Styles.intent_accent_deep(intent)
-        expected_text = Styles.button_text_color(accent_deep)
+        product = Tymeslot.Emails.Shared.Styles.Tokens.tone()
 
-        assert html =~ ~s(background-color="#{accent_deep}")
-        assert html =~ ~s(color="#{expected_text}")
+        assert html =~ ~s(background-color="#{product.solid}")
+        assert html =~ ~s(color="#{product.on}")
       end
     end
 
-    test "the stock brand button clears 4.5:1 and resolves to light text, not dark ink" do
-      html = Buttons.action_button(:confirmed, "Go", "https://example.com")
-      accent_deep = Styles.intent_accent_deep(:confirmed)
-      expected_text = Styles.button_text_color(accent_deep)
+    test "every product tone's button clears 4.5:1" do
+      for tone <- Tymeslot.Emails.Shared.Styles.Tone.all() do
+        family = Tymeslot.Emails.Shared.Styles.Tone.family(tone)
 
-      assert html =~ ~s(background-color="#{accent_deep}")
-      assert html =~ ~s(color="#{Styles.surface()}")
-      assert expected_text == Styles.surface()
-      assert Colour.contrast_ratio(expected_text, accent_deep) >= 4.5
+        html =
+          Tymeslot.Emails.Shared.Styles.Tone.with_tone(tone, fn ->
+            Buttons.action_button(:confirmed, "Go", "https://example.com")
+          end)
+
+        assert html =~ ~s(background-color="#{family.solid}")
+        assert Colour.contrast_ratio(family.on, family.solid) >= 4.5
+        assert Colour.contrast_ratio(family.dark.on, family.dark.solid) >= 4.5
+      end
     end
   end
 end

@@ -108,8 +108,10 @@ defmodule Tymeslot.Emails.Shared.Styles do
 
   @doc "Button padding by size."
   @spec button_padding(atom()) :: String.t()
-  def button_padding(:large), do: "18px 32px"
-  def button_padding(:small), do: "10px 18px"
+  # Revision Dynamics (rd-mail-brand.patch): 14px x 26px gives the website's
+  # 48px minimum height at 17px type.
+  def button_padding(:large), do: "16px 28px"
+  def button_padding(:small), do: "12px 20px"
   def button_padding(_medium), do: "14px 26px"
 
   @doc "Legacy pill radius used by buttons."
@@ -142,8 +144,8 @@ defmodule Tymeslot.Emails.Shared.Styles do
   @doc "Legacy `<td>` label cell style — uppercase eyebrow."
   @spec table_label_style() :: String.t()
   def table_label_style do
-    "padding: 12px 16px 12px 0; font-weight: 600; color: #{Tokens.ink_muted()}; " <>
-      "width: 38%; min-width: 100px; font-size: 12px; " <>
+    "padding: 12px 16px 12px 0; font-weight: 500; color: #{Tokens.ink_muted()}; " <>
+      "width: 38%; min-width: 100px; font-size: 13px; " <>
       "text-transform: uppercase; letter-spacing: 0.08em;"
   end
 
@@ -151,6 +153,6 @@ defmodule Tymeslot.Emails.Shared.Styles do
   @spec table_value_style() :: String.t()
   def table_value_style do
     "padding: 12px 0; color: #{Tokens.ink()}; word-break: break-word; " <>
-      "font-size: 15px; font-weight: 500;"
+      "font-size: 16px; font-weight: 500;"
   end
 end

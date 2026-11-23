@@ -12,17 +12,15 @@ defmodule TymeslotWeb.FallbackControllerTest do
       assert conn.status == 404
     end
 
-    test "renders the branded 404 page with a link back to the app root", %{conn: conn} do
+    # Revision Dynamics (rd-mail-brand.patch): a self-contained page in the
+    # website's look whose actions lead to the website, where the booking is.
+    test "renders the branded 404 page with a way back to the website", %{conn: conn} do
       body = conn |> get("/invalid/path/to/trigger/fallback") |> response(404)
 
-      # Not the bare Phoenix "Not Found" text — a self-contained, branded page
-      # whose primary action routes to "/", which sends visitors on to auth.
-      # The headline is translated, so HEEx renders it as dynamic content and
-      # escapes the apostrophe; the browser still shows a plain one.
-      assert body =~ "This page doesn&#39;t exist"
+      assert body =~ "This page does not exist."
       assert body =~ "<!DOCTYPE html>"
-      assert body =~ ~s(href="/")
-      assert body =~ "app.css"
+      assert body =~ ~s(href="https://revisiondynamics.com/en/termin")
+      assert body =~ "<title>Page not found · Revision Dynamics</title>"
     end
 
     test "emits no canonical link advertising the missing URL", %{conn: conn} do

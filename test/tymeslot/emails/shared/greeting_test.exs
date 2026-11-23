@@ -7,24 +7,24 @@ defmodule Tymeslot.Emails.Shared.GreetingTest do
 
   describe "html/1" do
     test "uses the user's name when present" do
-      assert Greeting.html(%{name: "Anna"}) == "Hi Anna,"
+      assert Greeting.html(%{name: "Anna"}) == "Dear Anna,"
     end
 
     test "falls back to a neutral greeting when name is nil" do
-      assert Greeting.html(%{name: nil}) == "Hi there,"
+      assert Greeting.html(%{name: nil}) == "Dear Sir or Madam,"
     end
 
     test "falls back to a neutral greeting when name is blank" do
-      assert Greeting.html(%{name: ""}) == "Hi there,"
-      assert Greeting.html(%{name: "   "}) == "Hi there,"
+      assert Greeting.html(%{name: ""}) == "Dear Sir or Madam,"
+      assert Greeting.html(%{name: "   "}) == "Dear Sir or Madam,"
     end
 
     test "falls back to a neutral greeting when the schema lacks a name field" do
-      assert Greeting.html(%{}) == "Hi there,"
+      assert Greeting.html(%{}) == "Dear Sir or Madam,"
     end
 
     test "never falls back to the user's email address" do
-      assert Greeting.html(%{name: nil, email: "user@example.com"}) == "Hi there,"
+      assert Greeting.html(%{name: nil, email: "user@example.com"}) == "Dear Sir or Madam,"
     end
 
     test "HTML-escapes the interpolated name" do
@@ -35,7 +35,9 @@ defmodule Tymeslot.Emails.Shared.GreetingTest do
     end
 
     test "respects the recipient locale" do
-      assert with_locale("de", fn -> Greeting.html(%{name: nil}) end) == "Hallo,"
+      assert with_locale("de", fn -> Greeting.html(%{name: nil}) end) ==
+               "Sehr geehrte Damen und Herren,"
+
       assert with_locale("fr", fn -> Greeting.html(%{name: nil}) end) == "Bonjour,"
       assert with_locale("it", fn -> Greeting.html(%{name: nil}) end) == "Ciao,"
       assert with_locale("uk", fn -> Greeting.html(%{name: nil}) end) == "Вітаю!"
@@ -44,24 +46,26 @@ defmodule Tymeslot.Emails.Shared.GreetingTest do
 
   describe "text/1" do
     test "uses the user's name when present" do
-      assert Greeting.text(%{name: "Anna"}) == "Hi Anna,"
+      assert Greeting.text(%{name: "Anna"}) == "Dear Anna,"
     end
 
     test "falls back to a neutral greeting when name is nil" do
-      assert Greeting.text(%{name: nil}) == "Hi there,"
+      assert Greeting.text(%{name: nil}) == "Dear Sir or Madam,"
     end
 
     test "falls back to a neutral greeting when name is blank" do
-      assert Greeting.text(%{name: ""}) == "Hi there,"
-      assert Greeting.text(%{name: "   "}) == "Hi there,"
+      assert Greeting.text(%{name: ""}) == "Dear Sir or Madam,"
+      assert Greeting.text(%{name: "   "}) == "Dear Sir or Madam,"
     end
 
     test "never falls back to the user's email address" do
-      assert Greeting.text(%{name: nil, email: "user@example.com"}) == "Hi there,"
+      assert Greeting.text(%{name: nil, email: "user@example.com"}) == "Dear Sir or Madam,"
     end
 
     test "respects the recipient locale" do
-      assert with_locale("de", fn -> Greeting.text(%{name: nil}) end) == "Hallo,"
+      assert with_locale("de", fn -> Greeting.text(%{name: nil}) end) ==
+               "Sehr geehrte Damen und Herren,"
+
       assert with_locale("fr", fn -> Greeting.text(%{name: nil}) end) == "Bonjour,"
       assert with_locale("it", fn -> Greeting.text(%{name: nil}) end) == "Ciao,"
       assert with_locale("uk", fn -> Greeting.text(%{name: nil}) end) == "Вітаю!"
@@ -74,20 +78,20 @@ defmodule Tymeslot.Emails.Shared.GreetingTest do
       # name field — so the profile is the only place the name ever lands.
       user = with_profile(build(:user, name: nil), full_name: "Ada Lovelace")
 
-      assert Greeting.text(user) == "Hi Ada Lovelace,"
-      assert Greeting.html(user) == "Hi Ada Lovelace,"
+      assert Greeting.text(user) == "Dear Ada Lovelace,"
+      assert Greeting.html(user) == "Dear Ada Lovelace,"
     end
 
     test "prefers the profile's full name over the name captured at signup" do
       user = with_profile(build(:user, name: "ada-from-github"), full_name: "Ada Lovelace")
 
-      assert Greeting.text(user) == "Hi Ada Lovelace,"
+      assert Greeting.text(user) == "Dear Ada Lovelace,"
     end
 
     test "falls back to the signup name before onboarding sets a full name" do
       user = with_profile(build(:user, name: "Ada from GitHub"), full_name: nil)
 
-      assert Greeting.text(user) == "Hi Ada from GitHub,"
+      assert Greeting.text(user) == "Dear Ada from GitHub,"
     end
 
     test "raises when the profile is not loaded" do
@@ -101,14 +105,14 @@ defmodule Tymeslot.Emails.Shared.GreetingTest do
     test "stays neutral when neither the profile nor the user carries a name" do
       user = with_profile(build(:user, name: nil), full_name: "   ")
 
-      assert Greeting.text(user) == "Hi there,"
-      assert Greeting.html(user) == "Hi there,"
+      assert Greeting.text(user) == "Dear Sir or Madam,"
+      assert Greeting.html(user) == "Dear Sir or Madam,"
     end
 
     test "never falls back to the email address once a profile is loaded" do
       user = with_profile(build(:user, name: nil, email: "ada@example.com"), full_name: nil)
 
-      assert Greeting.text(user) == "Hi there,"
+      assert Greeting.text(user) == "Dear Sir or Madam,"
       refute Greeting.text(user) =~ "ada@example.com"
     end
   end
@@ -133,7 +137,7 @@ defmodule Tymeslot.Emails.Shared.GreetingTest do
       refute html =~ "<script>"
       refute html =~ "&amp;amp;"
       refute html =~ "&amp;#39;"
-      assert html == "Hi O&#39;Brien &amp; Sons &lt;script&gt;alert(1)&lt;/script&gt;,"
+      assert html == "Dear O&#39;Brien &amp; Sons &lt;script&gt;alert(1)&lt;/script&gt;,"
     end
   end
 

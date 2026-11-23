@@ -133,8 +133,8 @@ defmodule Tymeslot.Bookings.RescheduleVideoJoinUrlsTest do
 
       assert attendee_email.html_body =~ stored.attendee_video_url
       refute attendee_email.html_body =~ meeting.attendee_video_url
-      assert attendee_email.html_body =~ "New link for the new time"
-      refute attendee_email.html_body =~ "Same link, new time"
+      assert attendee_email.html_body =~ "The new time has a new link:"
+      refute attendee_email.html_body =~ "The link to the online meeting stays the same:"
     end
   end
 
@@ -335,8 +335,8 @@ defmodule Tymeslot.Bookings.RescheduleVideoJoinUrlsTest do
     assert updated.attendee_video_url == @stored_attendee_url
 
     attendee_email = delivered_emails()[meeting.attendee_email]
-    assert attendee_email.html_body =~ "Same link, new time"
-    refute attendee_email.html_body =~ "New link for the new time"
+    assert attendee_email.html_body =~ "The link to the online meeting stays the same:"
+    refute attendee_email.html_body =~ "The new time has a new link:"
   end
 
   defp stored_room_attrs(integration, provider, meeting_url) do

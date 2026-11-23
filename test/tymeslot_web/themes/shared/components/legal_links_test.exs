@@ -3,6 +3,10 @@ defmodule TymeslotWeb.Themes.Shared.Components.LegalLinksTest do
   The footer every booking page carries: a link for each of the organiser's
   legal links that is set, the legal notice first, each opening in a new tab,
   and nothing at all when neither is set.
+
+  Revision Dynamics (rd-mail-brand.patch): a line saying the service is based
+  on Tymeslot (AGPL-3.0), with a link to the source of this version, follows
+  them and is always there, so the footer always renders.
   """
   use ExUnit.Case, async: true
 
@@ -16,6 +20,7 @@ defmodule TymeslotWeb.Themes.Shared.Components.LegalLinksTest do
 
   @notice "https://example.com/imprint"
   @privacy "https://example.com/privacy"
+  @source "https://github.com/Revision-Dynamics-GmbH/revision-dynamics-booking"
 
   defp render(links) do
     assigns = %{links: links}
@@ -31,11 +36,16 @@ defmodule TymeslotWeb.Themes.Shared.Components.LegalLinksTest do
   test "renders both links in order with new-tab attributes" do
     links = anchors(render(%{legal_notice_url: @notice, privacy_policy_url: @privacy}))
 
-    assert Enum.map(links, &(&1 |> Floki.attribute("href") |> hd())) == [@notice, @privacy]
+    assert Enum.map(links, &(&1 |> Floki.attribute("href") |> hd())) == [
+             @notice,
+             @privacy,
+             @source
+           ]
 
     assert Enum.map(links, &(&1 |> Floki.text() |> String.trim())) == [
              "Legal notice",
-             "Privacy policy"
+             "Privacy policy",
+             "Source code of our version"
            ]
 
     for link <- links do
@@ -47,7 +57,7 @@ defmodule TymeslotWeb.Themes.Shared.Components.LegalLinksTest do
   test "renders only the link that is set" do
     links = anchors(render(%{legal_notice_url: nil, privacy_policy_url: @privacy}))
 
-    assert Enum.map(links, &Floki.attribute(&1, "href")) == [[@privacy]]
+    assert Enum.map(links, &Floki.attribute(&1, "href")) == [[@privacy], [@source]]
   end
 
   test "escapes a URL rather than writing it into the markup" do
@@ -60,9 +70,10 @@ defmodule TymeslotWeb.Themes.Shared.Components.LegalLinksTest do
     refute html =~ "<script>"
   end
 
-  test "renders nothing when both are nil" do
-    refute render(%{legal_notice_url: nil, privacy_policy_url: nil}) =~
-             ~s(data-testid="legal-links")
+  test "renders only the source code link when both are nil" do
+    links = anchors(render(%{legal_notice_url: nil, privacy_policy_url: nil}))
+
+    assert Enum.map(links, &Floki.attribute(&1, "href")) == [[@source]]
   end
 
   test "labels the links in German" do
@@ -71,10 +82,28 @@ defmodule TymeslotWeb.Themes.Shared.Components.LegalLinksTest do
 
     links = anchors(render(%{legal_notice_url: @notice, privacy_policy_url: @privacy}))
 
-    assert Enum.map(links, &(&1 |> Floki.text() |> String.trim())) == ["Impressum", "Datenschutz"]
+    assert Enum.map(links, &(&1 |> Floki.text() |> String.trim())) == [
+             "Impressum",
+             "Datenschutz",
+             "Quellcode unserer Fassung"
+           ]
   end
 
-  test "renders nothing for nil links" do
-    refute render(nil) =~ ~s(data-testid="legal-links")
+  test "renders only the source code link for nil links" do
+    assert Enum.map(anchors(render(nil)), &Floki.attribute(&1, "href")) == [[@source]]
+  end
+
+  test "points the source code link at RD_SOURCE_URL when it is set" do
+    System.put_env("RD_SOURCE_URL", "https://example.com/rd-tymeslot")
+
+    try do
+      links = anchors(render(nil))
+
+      assert Enum.map(links, &Floki.attribute(&1, "href")) == [
+               ["https://example.com/rd-tymeslot"]
+             ]
+    after
+      System.delete_env("RD_SOURCE_URL")
+    end
   end
 end

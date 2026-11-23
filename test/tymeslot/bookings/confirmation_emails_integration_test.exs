@@ -239,8 +239,8 @@ defmodule Tymeslot.Bookings.ConfirmationEmailsIntegrationTest do
           {email.to |> hd() |> elem(1), email.subject}
         end)
 
-      assert subjects["organizer@example.com"] =~ "Neuer Termin"
-      assert subjects["attendee@example.com"] =~ "Appointment Confirmed"
+      assert subjects["organizer@example.com"] =~ "Neue Buchung"
+      assert subjects["attendee@example.com"] =~ "Appointment confirmed"
     end
 
     # The meeting type's description is where the host says what to bring or
@@ -268,7 +268,7 @@ defmodule Tymeslot.Bookings.ConfirmationEmailsIntegrationTest do
 
       for email <- [one, other] do
         assert email.html_body =~ "Bring last quarter&#39;s numbers"
-        assert email.text_body =~ "DESCRIPTION:\nBring last quarter's numbers"
+        assert email.text_body =~ "WHAT IT IS ABOUT:\nBring last quarter's numbers"
       end
     end
 
@@ -338,7 +338,10 @@ defmodule Tymeslot.Bookings.ConfirmationEmailsIntegrationTest do
       assert cancellation_ics =~ "SUMMARY;LANGUAGE=fr:Test Meeting avec Test Attendee"
     end
 
-    test "shows the host's uploaded avatar by absolute URL, which Gmail can fetch", %{
+    # Revision Dynamics (rd-mail-brand.patch): the organiser strip with the
+    # host's photo or initials is gone; the head is the Revision Dynamics
+    # wordmark and the stage names who the meeting is with.
+    test "shows the Revision Dynamics wordmark, never the host's photo or a data URI", %{
       profile: profile,
       meeting_params: meeting_params,
       form_data: form_data
@@ -353,30 +356,10 @@ defmodule Tymeslot.Bookings.ConfirmationEmailsIntegrationTest do
                  "meeting_id" => meeting.id
                })
 
-      avatar_src = ~s(src="http://localhost:4002/uploads/avatars/#{profile.id}/photo.png")
-
       for _recipient <- [:organizer, :attendee] do
         assert_received {:email, email}
-        assert email.html_body =~ avatar_src
-        refute email.html_body =~ "data:image"
-      end
-    end
-
-    test "shows an initials badge, not a data URI image, when the host has no avatar", %{
-      meeting_params: meeting_params,
-      form_data: form_data
-    } do
-      assert {:ok, meeting} = Create.execute(meeting_params, form_data)
-
-      assert :ok =
-               perform_job(EmailWorker, %{
-                 "action" => "send_confirmation_emails",
-                 "meeting_id" => meeting.id
-               })
-
-      for _recipient <- [:organizer, :attendee] do
-        assert_received {:email, email}
-        assert email.html_body =~ ~r{>TO</td>}
+        assert email.html_body =~ "revision-dynamics-wordmark-on-light.png"
+        refute email.html_body =~ "/uploads/avatars/#{profile.id}/photo.png"
         refute email.html_body =~ "data:image"
       end
     end

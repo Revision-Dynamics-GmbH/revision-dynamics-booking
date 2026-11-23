@@ -458,7 +458,11 @@ defmodule Tymeslot.Emails.AppointmentBuilder do
       time_until_friendly: dgettext("emails", "in %{label}", label: reminder_label),
       reminders_enabled: true,
       reminders_summary:
-        dgettext("emails", "Reminder %{label} before the appointment.", label: reminder_label)
+        dgettext(
+          "emails",
+          "You will receive a reminder by email %{label} before the appointment.",
+          label: reminder_label
+        )
     }
   end
 
@@ -485,7 +489,9 @@ defmodule Tymeslot.Emails.AppointmentBuilder do
       time_until_friendly: dgettext("emails", "in %{label}", label: reminder_label),
       reminders_enabled: true,
       reminders_summary:
-        dgettext("emails", "I'll send you a reminder %{label} before our appointment.",
+        dgettext(
+          "emails",
+          "You will receive a reminder by email %{label} before the appointment.",
           label: reminder_label
         )
     }
@@ -538,7 +544,9 @@ defmodule Tymeslot.Emails.AppointmentBuilder do
           time_until_friendly: dgettext("emails", "in %{label}", label: legacy_label),
           reminders_enabled: true,
           reminders_summary:
-            dgettext("emails", "I'll send you a reminder %{label} before our appointment.",
+            dgettext(
+              "emails",
+              "You will receive a reminder by email %{label} before the appointment.",
               label: legacy_label
             )
         }

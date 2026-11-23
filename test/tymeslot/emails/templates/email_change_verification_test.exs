@@ -15,7 +15,7 @@ defmodule Tymeslot.Emails.Templates.EmailChangeVerificationTest do
       html = EmailChangeVerification.render(user, new_email, verification_url).html_body
 
       assert String.starts_with?(html, "<!doctype html>")
-      assert html =~ "Hi Carol White"
+      assert html =~ "Dear Carol White"
       assert html =~ "Confirm your new email"
     end
 

@@ -72,18 +72,18 @@ defmodule TymeslotWeb.Layouts do
     Profiles.uploaded_avatar_path(profile) || ~p"/images/brand/default-avatar.png"
   end
 
-  defp booking_og_image_path(_profile), do: ~p"/images/brand/og-image.png"
+  # Revision Dynamics (rd-mail-brand.patch): the company's icon, not the
+  # Tymeslot brand card.
+  defp booking_og_image_path(_profile), do: ~p"/images/rd/icon.png"
 
   @doc """
   Returns the Twitter card type for a scheduling page.
 
-  A square avatar/photo pairs with the `summary` card; the wide brand fallback
-  (no organiser context) pairs with `summary_large_image`.
+  Revision Dynamics (rd-mail-brand.patch): every share image is square now
+  (avatar, photo or the company's icon), so it is always the `summary` card.
   """
   @spec booking_twitter_card(map()) :: String.t()
-  def booking_twitter_card(assigns) do
-    if assigns[:organizer_profile], do: "summary", else: "summary_large_image"
-  end
+  def booking_twitter_card(_assigns), do: "summary"
 
   @doc """
   Returns the social-share description for a scheduling page, personalised with

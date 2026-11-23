@@ -37,7 +37,7 @@ defmodule Tymeslot.Emails.Shared.Meeting.ActionsBar do
   def meeting_actions_bar(intent, actions) when is_atom(intent) and is_list(actions) do
     case available(actions) do
       [] -> ""
-      offered -> bar(intent, offered)
+      offered -> bar(intent, nil, offered)
     end
   end
 
@@ -45,6 +45,10 @@ defmodule Tymeslot.Emails.Shared.Meeting.ActionsBar do
   The actions bar under a section title, or nothing at all when no action is
   available: a heading such as "Need to make changes?" over an empty row
   would promise actions the email does not offer.
+
+  Revision Dynamics (rd-mail-brand.patch): the title and the links form one
+  left-aligned sentence, as the shared mail design's secondary links do
+  ("Need to make changes? Reschedule · Cancel appointment").
 
   Options: `:footer`, a note rendered under the bar, and only with it.
   """
@@ -57,9 +61,7 @@ defmodule Tymeslot.Emails.Shared.Meeting.ActionsBar do
 
       offered ->
         """
-        #{Text.section_title(title)}
-
-        #{bar(intent, offered)}
+        #{bar(intent, title, offered)}
 
         #{footer(Keyword.get(opts, :footer))}
         """
@@ -69,10 +71,10 @@ defmodule Tymeslot.Emails.Shared.Meeting.ActionsBar do
   defp footer(nil), do: ""
 
   defp footer(note),
-    do: Text.centered_text(note, font_size: "14px", padding: "16px 0 0 0")
+    do: Text.centered_text(note, font_size: "15px", padding: "8px 0 0 0")
 
-  defp bar(intent, actions) do
-    separator = ~s(<span style="color: #{Styles.ink_whisper()}; padding: 0 12px;">·</span>)
+  defp bar(intent, title, actions) do
+    separator = ~s(<span style="color: #{Styles.ink_muted()}; padding: 0 8px;">·</span>)
 
     links =
       Enum.map_join(actions, separator, fn action ->
@@ -80,29 +82,35 @@ defmodule Tymeslot.Emails.Shared.Meeting.ActionsBar do
         safe_url = Sanitise.sanitize_url(action.url)
         color = action_link_color(intent, Map.get(action, :style, :primary))
 
-        ~s(<a href="#{safe_url}" style="color: #{color}; text-decoration: none; font-weight: 600; border-bottom: 1px solid #{Styles.hairline()}; padding-bottom: 1px;">#{safe_text}</a>)
+        ~s(<a href="#{safe_url}" style="color: #{color}; text-decoration: underline; font-weight: 500;">#{safe_text}</a>)
       end)
 
+    lead =
+      case title do
+        nil -> ""
+        title -> Sanitise.sanitize_for_email(title) <> " "
+      end
+
     """
-    <mj-section padding="14px 0 4px 0">
+    <mj-section padding="20px 0 4px 0">
       <mj-column>
         <mj-text
-          align="center"
-          font-size="14px"
-          color="#{Styles.ink_muted()}"
-          letter-spacing="0.02em"
+          align="left"
+          font-size="#{Styles.font_size(:md)}"
+          line-height="1.6"
+          color="#{Styles.ink_soft()}"
+          css-class="mobile-text"
         >
-          #{links}
+          #{lead}#{links}
         </mj-text>
       </mj-column>
     </mj-section>
     """
   end
 
+  # Revision Dynamics: every secondary link reads in the product tone's text
+  # colour; cancelling is a calm link, not an alarm.
   @spec action_link_color(Tokens.intent(), :primary | :secondary | :danger | atom()) ::
           String.t()
-  defp action_link_color(_intent, :danger), do: Styles.intent_accent_deep(:cancelled)
-  defp action_link_color(_intent, :secondary), do: Styles.ink_muted()
-  defp action_link_color(intent, :primary), do: Styles.intent_accent_deep(intent)
-  defp action_link_color(_intent, _other), do: Styles.ink_muted()
+  defp action_link_color(_intent, _style), do: Tokens.tone().accent_deep
 end

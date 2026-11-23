@@ -55,7 +55,7 @@ defmodule TymeslotWeb.Live.Themes.QuillMeetingTest do
     } do
       ThemeMeetingTestCases.test_reschedule_page_navigation(
         view,
-        "Choose New Time",
+        "Choose a new time",
         profile.username,
         meeting.uid
       )

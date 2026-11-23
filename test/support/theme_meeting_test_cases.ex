@@ -76,13 +76,13 @@ defmodule TymeslotWeb.ThemeMeetingTestCases do
   """
   @spec test_cancel_confirmed_page(term()) :: term()
   def test_cancel_confirmed_page(view) do
-    assert render(view) =~ "Meeting Cancelled"
-    assert render(view) =~ "Your meeting has been successfully cancelled"
-    assert render(view) =~ "Cancellation emails have been sent"
+    assert render(view) =~ "Appointment cancelled"
+    assert render(view) =~ "Your appointment has been cancelled"
+    assert render(view) =~ "Everyone involved has received the cancellation"
 
     assert {:error, {redirect_type, %{to: to}}} =
              view
-             |> element("button", "Schedule a New Meeting")
+             |> element("button", "Book a new time")
              |> render_click()
 
     assert redirect_type in [:redirect, :live_redirect]
@@ -94,12 +94,12 @@ defmodule TymeslotWeb.ThemeMeetingTestCases do
   """
   @spec test_reschedule_page_rendering(term()) :: term()
   def test_reschedule_page_rendering(view) do
-    assert render(view) =~ "Reschedule Appointment"
-    assert render(view) =~ "Select a new time for your meeting"
+    assert render(view) =~ "Reschedule appointment"
+    assert render(view) =~ "Choose a new time for your appointment."
   end
 
   @doc """
-  Tests the reschedule page's "Choose New Time" navigation.
+  Tests the reschedule page's "Choose a new time" navigation.
 
   The CTA must return to the organiser's scheduling page carrying the
   `reschedule_meeting_uid` query param — without it the restarted booking
@@ -209,9 +209,9 @@ defmodule TymeslotWeb.ThemeMeetingTestCases do
     assert html =~ translations.cancellation_emails_sent
 
     # English originals must not appear
-    refute html =~ "Meeting Cancelled"
-    refute html =~ "Your meeting has been successfully cancelled."
-    refute html =~ "Cancellation emails have been sent"
+    refute html =~ "Appointment cancelled"
+    refute html =~ "Your appointment has been cancelled."
+    refute html =~ "Everyone involved has received the cancellation"
   end
 
   @doc """
@@ -228,11 +228,11 @@ defmodule TymeslotWeb.ThemeMeetingTestCases do
     assert html =~ translations.yes_cancel
     assert html =~ translations.keep_meeting
 
-    refute html =~ "Cancel Appointment"
-    refute html =~ "Are you sure you want to cancel this appointment?"
+    refute html =~ "Cancel appointment"
+    refute html =~ "Do you really want to cancel this appointment?"
     refute html =~ "A cancellation email will be sent to all participants"
-    refute html =~ "Yes, Cancel Meeting"
-    refute html =~ "Keep Meeting"
+    refute html =~ "Yes, cancel appointment"
+    refute html =~ "Keep appointment"
   end
 
   @doc """
@@ -250,9 +250,9 @@ defmodule TymeslotWeb.ThemeMeetingTestCases do
     assert html =~ translations.look_forward
     assert html =~ translations.done
 
-    refute html =~ "Meeting Confirmed"
-    refute html =~ "Great! Your meeting is still scheduled as planned."
-    refute html =~ "We look forward to seeing you at the scheduled time."
+    refute html =~ "Appointment kept"
+    refute html =~ "Your appointment remains as planned."
+    refute html =~ "Speak to you at the agreed time."
     refute html =~ "Done"
   end
 
@@ -267,8 +267,8 @@ defmodule TymeslotWeb.ThemeMeetingTestCases do
     assert html =~ translations.reschedule_appointment
     assert html =~ translations.select_new_time
 
-    refute html =~ "Reschedule Appointment"
-    refute html =~ "Select a new time for your meeting"
+    refute html =~ "Reschedule appointment"
+    refute html =~ "Choose a new time for your appointment."
   end
 
   # --- Convenience wrappers that set up a view and run translation assertions ---
@@ -297,19 +297,20 @@ defmodule TymeslotWeb.ThemeMeetingTestCases do
   # German translations for each page — German is the test locale because
   # its strings are visually distinct from English in every case.
 
+  # Revision Dynamics (rd-mail-brand.patch): the German page copy.
   defp translated_cancel_confirmed_strings("de") do
     %{
       meeting_cancelled: "Termin abgesagt",
-      successfully_cancelled: "Ihr Termin wurde erfolgreich abgesagt.",
-      cancellation_emails_sent: "Die Absage-E-Mails wurden an alle Teilnehmer versendet."
+      successfully_cancelled: "Ihr Termin ist abgesagt.",
+      cancellation_emails_sent: "Alle Beteiligten haben die Absage per E-Mail erhalten."
     }
   end
 
   defp translated_cancel_kept_strings("de") do
     %{
-      meeting_confirmed: "Termin bestätigt",
-      still_scheduled: "Großartig! Ihr Termin findet weiterhin wie geplant statt.",
-      look_forward: "Wir freuen uns, Sie zur geplanten Zeit zu begrüßen.",
+      meeting_confirmed: "Termin bleibt bestehen",
+      still_scheduled: "Ihr Termin bleibt wie geplant bestehen.",
+      look_forward: "Bis zum vereinbarten Termin.",
       done: "Fertig"
     }
   end
@@ -317,17 +318,17 @@ defmodule TymeslotWeb.ThemeMeetingTestCases do
   defp translated_cancel_strings("de") do
     %{
       cancel_appointment: "Termin absagen",
-      are_you_sure: "Sind Sie sicher, dass Sie diesen Termin absagen möchten?",
-      cancellation_email_warning: "Eine Absage-E-Mail wird an alle Teilnehmer gesendet",
+      are_you_sure: "Möchten Sie diesen Termin wirklich absagen?",
+      cancellation_email_warning: "Alle Beteiligten erhalten die Absage per E-Mail.",
       yes_cancel: "Ja, Termin absagen",
-      keep_meeting: "Termin beibehalten"
+      keep_meeting: "Termin behalten"
     }
   end
 
   defp translated_reschedule_strings("de") do
     %{
       reschedule_appointment: "Termin verschieben",
-      select_new_time: "Wählen Sie eine neue Zeit für Ihren Termin"
+      select_new_time: "Wählen Sie eine neue Zeit für Ihren Termin."
     }
   end
 end

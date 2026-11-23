@@ -4,6 +4,7 @@ defmodule Tymeslot.Emails.Shared.Styles.DarkModeTest do
   @moduletag :emails
 
   alias Tymeslot.Emails.Shared.{Layouts, MjmlEmail, Styles}
+  alias Tymeslot.Emails.Shared.Styles.Tone
   alias Tymeslot.Emails.Shared.Styles.{DarkMode, Tokens}
   alias Tymeslot.Utils.Colour
 
@@ -74,22 +75,25 @@ defmodule Tymeslot.Emails.Shared.Styles.DarkModeTest do
       assert low_contrast_pairs(Styles.dark_mode_styles()) == []
     end
 
-    test "a pale or a dark custom accent still yields readable dark text" do
-      for accent <- ["#f5d90a", "#1e1b4b"] do
-        Application.put_env(:tymeslot, :email_brand_accent, accent)
+    # Revision Dynamics (rd-mail-brand.patch): every product tone.
+    test "every product tone yields readable dark text" do
+      for tone <- Tone.all() do
+        pairs = Tone.with_tone(tone, fn -> low_contrast_pairs(Styles.dark_mode_styles()) end)
 
-        assert low_contrast_pairs(Styles.dark_mode_styles()) == [], accent
+        assert pairs == [], "#{tone}"
       end
     end
 
-    test "a button drawn in dark ink keeps its ink on every intent's accent" do
-      # `button_text_color/1` picks dark ink whenever it outreads the light
-      # surface on a `deep`, so each family's surface keeps that ink in dark mode.
-      css = Styles.dark_mode_styles()
+    test "the primary button takes the tone's dark face and ink" do
+      for tone <- Tone.all() do
+        family = Tone.family(tone)
+        css = Tone.with_tone(tone, &Styles.dark_mode_styles/0)
 
-      for intent <- [:confirmed, :alert, :cancelled] do
-        deep = Tokens.intent_accent_deep(intent)
-        assert css =~ ~s([style*="#{deep}"][style*="color:#{Tokens.ink()}"]), "#{intent}"
+        assert css =~ ~s([bgcolor="#{family.solid}"]), "#{tone}"
+        assert css =~ "{background-color:#{family.dark.solid} !important;}", "#{tone}"
+
+        assert css =~ "{color:#{family.dark.on} !important;}", "#{tone}"
+        assert Colour.contrast_ratio(family.dark.on, family.dark.solid) >= 4.5
       end
     end
   end
@@ -110,14 +114,19 @@ defmodule Tymeslot.Emails.Shared.Styles.DarkModeTest do
   end
 
   # Every `{text, background}` pairing of the stylesheet's dark text colours
-  # with its dark backgrounds that falls under WCAG AA. The hairline is a
-  # 1px divider and carries no text, so it is left out, as is the light ink
-  # the keep-text rules hold on accent buttons, which never meets a dark surface.
+  # with its dark backgrounds that falls under WCAG AA. Revision Dynamics
+  # (rd-mail-brand.patch): the hairlines carry no text, and the button faces
+  # and the accent rule carry only the button's own ink (checked above), so
+  # they are left out, as is that ink.
   defp low_contrast_pairs(css) do
-    texts = css |> dark_values("color") |> List.delete(Tokens.ink())
+    families = [Tone.family(), Tone.signal(:alert), Tone.signal(:cancelled)]
+    faces = Enum.flat_map(families, &[&1.dark.solid, &1.dark.accent])
+
+    texts = (css |> dark_values("color")) -- [Tone.family().dark.on]
 
     backgrounds =
-      css |> dark_values("background-color") |> List.delete(Tokens.dark(:hairline))
+      (css |> dark_values("background-color")) --
+        ([Tokens.dark(:hairline), Tokens.dark(:hairline_soft)] ++ faces)
 
     assert texts != [] and backgrounds != []
 

@@ -313,7 +313,7 @@ defmodule Tymeslot.Emails.AppointmentBuilderTest do
       result = AppointmentBuilder.from_meeting(meeting)
 
       assert result.reminders_summary ==
-               "I'll send you a reminder 30 minutes before our appointment."
+               "You will receive a reminder by email 30 minutes before the appointment."
     end
 
     test "says no reminders are scheduled when every reminder's send time has passed" do

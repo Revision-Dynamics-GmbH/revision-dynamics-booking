@@ -15,6 +15,7 @@ defmodule Tymeslot.Emails.Delivery do
   require Logger
 
   alias Tymeslot.Emails.DeliveryOutsideJobError
+  alias Tymeslot.Emails.Shared.MjmlEmail
   alias Tymeslot.Emails.Shared.Sanitise
   alias Tymeslot.Infrastructure.CircuitBreaker
   alias Tymeslot.Infrastructure.CircuitBreakerSupervisor
@@ -71,7 +72,9 @@ defmodule Tymeslot.Emails.Delivery do
   """
   @spec deliver(Swoosh.Email.t(), keyword()) :: {:ok, any()} | {:error, any()}
   def deliver(email, opts \\ []) do
-    email = sanitise_headers(email)
+    # Revision Dynamics (rd-mail-brand.patch): every plain-text body ends with
+    # the same foot as the HTML (`MjmlEmail.finalize/1`).
+    email = email |> MjmlEmail.finalize() |> sanitise_headers()
 
     with :ok <- check_text_body(email),
          :ok <- check_email_job() do

@@ -56,7 +56,7 @@ defmodule Tymeslot.Emails.Templates.ExternalBookingChange do
       when discrepancy in [:deleted, :modified] do
     locale = RecipientLocale.locale_for_user_id(meeting.organizer_user_id)
 
-    Gettext.with_locale(TymeslotWeb.Gettext, locale, fn ->
+    TemplateHelper.with_locale_and_tone(locale, meeting, fn ->
       owner_time = DateTimeUtils.convert_to_timezone(meeting.start_time, owner_timezone)
       date_short = Formatting.format_date_short(owner_time, locale)
 
@@ -88,7 +88,7 @@ defmodule Tymeslot.Emails.Templates.ExternalBookingChange do
   def render_end_followed(%Meeting{} = meeting, organizer_email, notice, owner_timezone) do
     locale = RecipientLocale.locale_for_user_id(meeting.organizer_user_id)
 
-    Gettext.with_locale(TymeslotWeb.Gettext, locale, fn ->
+    TemplateHelper.with_locale_and_tone(locale, meeting, fn ->
       owner_time = DateTimeUtils.convert_to_timezone(meeting.start_time, owner_timezone)
       time_format = HostClock.time_format(meeting, locale)
       title = meeting.title || dgettext("emails_booking_changes", "Meeting")

@@ -133,7 +133,7 @@ defmodule Tymeslot.Integrations.Calendar.IcsGeneratorTest do
 
       assert ics_content =~ "LOCATION;LANGUAGE=en:Head office (Main St 1)"
       assert ics_content =~ "CONFERENCE;VALUE=URI"
-      refute ics_content =~ "Video Call"
+      refute ics_content =~ "Online meeting (Microsoft Teams)"
     end
 
     test "uses 'Video Call' as location when meeting_url is provided" do
@@ -148,7 +148,7 @@ defmodule Tymeslot.Integrations.Calendar.IcsGeneratorTest do
 
       ics_content = IcsGenerator.generate_ics(meeting_details)
 
-      assert ics_content =~ "LOCATION;LANGUAGE=en:Video Call"
+      assert ics_content =~ "LOCATION;LANGUAGE=en:Online meeting (Microsoft Teams)"
     end
 
     test "emits a CONFERENCE property when meeting_url is provided" do
@@ -218,8 +218,8 @@ defmodule Tymeslot.Integrations.Calendar.IcsGeneratorTest do
 
       ics_content = IcsGenerator.generate_ics(meeting_details, "de")
 
-      assert ics_content =~ "LOCATION;LANGUAGE=de:Videoanruf"
-      refute ics_content =~ "Video Call"
+      assert ics_content =~ "LOCATION;LANGUAGE=de:Online-Besprechung (Microsoft Teams)"
+      refute ics_content =~ "Online meeting (Microsoft Teams)"
     end
 
     test "translates video meeting label in description into German" do
@@ -267,7 +267,7 @@ defmodule Tymeslot.Integrations.Calendar.IcsGeneratorTest do
 
       ics_content = IcsGenerator.generate_ics(meeting_details, "en")
 
-      assert ics_content =~ "LOCATION;LANGUAGE=en:Video Call"
+      assert ics_content =~ "LOCATION;LANGUAGE=en:Online meeting (Microsoft Teams)"
     end
   end
 

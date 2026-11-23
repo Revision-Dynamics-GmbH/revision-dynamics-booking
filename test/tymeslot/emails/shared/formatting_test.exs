@@ -292,7 +292,8 @@ defmodule Tymeslot.Emails.Shared.FormattingTest do
 
   describe "format_location/1" do
     test "returns video label for location_type :video" do
-      assert Formatting.format_location(%{location_type: :video}) == "Video Call"
+      assert Formatting.format_location(%{location_type: :video}) ==
+               "Online meeting (Microsoft Teams)"
     end
 
     test "returns phone label for location_type :phone" do

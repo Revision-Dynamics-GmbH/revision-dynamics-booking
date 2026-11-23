@@ -8,7 +8,7 @@ defmodule TymeslotWeb.EmbedBlockedControllerTest do
     test "renders the notice and is universally frameable", %{conn: conn} do
       conn = get(conn, ~p"/embed-unavailable")
 
-      assert html_response(conn, 200) =~ "can’t be embedded here"
+      assert html_response(conn, 200) =~ "cannot be embedded here"
 
       # Universally frameable: no frame-ancestors directive, no X-Frame-Options.
       assert [csp] = get_resp_header(conn, "content-security-policy")

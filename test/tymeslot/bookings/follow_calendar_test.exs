@@ -170,8 +170,8 @@ defmodule Tymeslot.Bookings.FollowCalendarTest do
 
       delivered = delivered_emails()
 
-      assert delivered[meeting.attendee_email].subject =~ "Rescheduled"
-      assert delivered[meeting.organizer_email].subject =~ "Rescheduled"
+      assert delivered[meeting.attendee_email].subject =~ "Appointment moved"
+      assert delivered[meeting.organizer_email].subject =~ "Appointment moved"
     end
 
     test "tells the host they moved the meeting, not the attendee", %{user: user} do
@@ -185,11 +185,11 @@ defmodule Tymeslot.Bookings.FollowCalendarTest do
       attendee = delivered[meeting.attendee_email]
 
       for body <- [organizer.text_body, organizer.html_body] do
-        assert body =~ "You moved this meeting in your calendar."
-        refute body =~ "has moved your meeting"
+        assert body =~ "You moved this appointment in your calendar."
+        refute body =~ "has moved the appointment"
       end
 
-      refute attendee.text_body =~ "You moved this meeting in your calendar."
+      refute attendee.text_body =~ "You moved this appointment in your calendar."
     end
 
     test "still tells the host they moved it when the meeting's room comes later",
@@ -217,8 +217,8 @@ defmodule Tymeslot.Bookings.FollowCalendarTest do
       organizer = delivered_emails()[meeting.organizer_email]
 
       for body <- [organizer.text_body, organizer.html_body] do
-        assert body =~ "You moved this meeting in your calendar."
-        refute body =~ "has moved your meeting"
+        assert body =~ "You moved this appointment in your calendar."
+        refute body =~ "has moved the appointment"
       end
     end
 

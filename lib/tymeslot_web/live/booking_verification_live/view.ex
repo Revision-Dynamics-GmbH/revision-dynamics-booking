@@ -59,7 +59,7 @@ defmodule TymeslotWeb.BookingVerificationLive.View do
       />
 
       <div class="mt-6 space-y-4">
-        <.detail_line icon="hero-tag" label={dgettext("booking_manage", "Meeting")}>
+        <.detail_line icon="hero-tag" label={dgettext("booking_manage", "Appointment")}>
           {title(@meeting)}
         </.detail_line>
         <.detail_line icon="hero-calendar" label={dgettext("booking_manage", "When")}>
@@ -136,7 +136,7 @@ defmodule TymeslotWeb.BookingVerificationLive.View do
 
   defp title(%{title: title}) when is_binary(title) and title != "", do: title
   defp title(%{meeting_type: type}) when is_binary(type) and type != "", do: type
-  defp title(_meeting), do: dgettext("booking_manage", "Meeting")
+  defp title(_meeting), do: dgettext("booking_manage", "Appointment")
 
   defp outcome_icon(state) when state in [:verified, :already_verified], do: "hero-check-circle"
   defp outcome_icon(:verified_request), do: "hero-paper-airplane"

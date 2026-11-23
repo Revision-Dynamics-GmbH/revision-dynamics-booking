@@ -48,10 +48,10 @@ defmodule TymeslotWeb.Themes.Quill.Meeting.Reschedule do
                 </div>
 
                 <h1 class="text-3xl font-bold mb-2 meeting-page-title">
-                  {dgettext("booking_manage", "Reschedule Appointment")}
+                  {dgettext("booking_manage", "Reschedule appointment")}
                 </h1>
                 <p class="text-lg meeting-page-lead">
-                  {dgettext("booking_manage", "Select a new time for your meeting")}
+                  {dgettext("booking_manage", "Choose a new time for your appointment.")}
                 </p>
               </div>
 
@@ -59,7 +59,7 @@ defmodule TymeslotWeb.Themes.Quill.Meeting.Reschedule do
                 <div class="p-6">
                   <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-semibold meeting-page-panel-title">
-                      {dgettext("booking_manage", "Current Meeting")}
+                      {dgettext("booking_manage", "Current appointment")}
                     </h3>
                     <span class="px-3 py-1 rounded-full text-sm font-medium meeting-page-duration">
                       {dgettext("booking_manage", "%{minutes} min", minutes: @meeting.duration)}
@@ -81,7 +81,7 @@ defmodule TymeslotWeb.Themes.Quill.Meeting.Reschedule do
                 <p class="mb-6 meeting-page-muted">
                   {dgettext(
                     "booking_manage",
-                    "Ready to pick a new time? Let's find one that works better for you."
+                    "In the next step, you choose a new day and time."
                   )}
                 </p>
 
@@ -91,7 +91,7 @@ defmodule TymeslotWeb.Themes.Quill.Meeting.Reschedule do
                   phx-click={JS.navigate(PathHandlers.organizer_scheduling_path(assigns))}
                   variant={:primary}
                 >
-                  <span>{dgettext("booking_manage", "Choose New Time")}</span>
+                  <span>{dgettext("booking_manage", "Choose a new time")}</span>
                   <.icon name="hero-calendar" class="ml-2 h-5 w-5 shrink-0" />
                 </.action_button>
               </div>

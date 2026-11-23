@@ -51,11 +51,13 @@ defmodule Tymeslot.Emails.EmailServiceTest do
 
       organizer = next_email()
       assert organizer.to == [{"John Organizer", "organizer@example.com"}]
-      assert organizer.subject == "New Appointment: Jane Attendee - 15 Jan"
+
+      assert organizer.subject =~
+               ~r/^New booking: Discovery Call with Jane Attendee on 15 Jan, \d\d:\d\d$/
 
       attendee = next_email()
       assert attendee.to == [{"Jane Attendee", "attendee@example.com"}]
-      assert attendee.subject == "Appointment Confirmed - 15 Jan with John Organizer"
+      assert attendee.subject =~ ~r/^Appointment confirmed: Discovery Call on 15 Jan, \d\d:\d\d$/
 
       assert_no_more_emails()
     end
@@ -70,8 +72,8 @@ defmodule Tymeslot.Emails.EmailServiceTest do
       assert {:ok, _response} = org_result
       assert {:ok, _response} = att_result
 
-      assert next_email().subject =~ "in 1 hour"
-      assert next_email().subject =~ "1 hour"
+      assert next_email().html_body =~ "Starts in 1 hour"
+      assert next_email().html_body =~ "Starts in 1 hour"
       assert_no_more_emails()
     end
   end
@@ -88,11 +90,13 @@ defmodule Tymeslot.Emails.EmailServiceTest do
 
       organizer = next_email()
       assert organizer.to == [{"John Organizer", "organizer@example.com"}]
-      assert organizer.subject == "Meeting Cancelled - 15 Jan with Jane Attendee"
+
+      assert organizer.subject =~
+               ~r/^Appointment cancelled: Discovery Call with Jane Attendee on 15 Jan, \d\d:\d\d$/
 
       attendee = next_email()
       assert attendee.to == [{"Jane Attendee", "attendee@example.com"}]
-      assert attendee.subject == "Meeting Cancelled - 15 Jan with John Organizer"
+      assert attendee.subject =~ ~r/^Appointment cancelled: Discovery Call on 15 Jan, \d\d:\d\d$/
 
       assert_no_more_emails()
     end
@@ -281,7 +285,9 @@ defmodule Tymeslot.Emails.EmailServiceTest do
 
       assert %Swoosh.Email{} = org_email
       assert org_email.to == [{"John Organizer", "organizer@example.com"}]
-      assert org_email.subject == "New Appointment: Jane Attendee - 15 Jan"
+
+      assert org_email.subject =~
+               ~r/^New booking: Discovery Call with Jane Attendee on 15 Jan, \d\d:\d\d$/
     end
 
     test "attendee confirmation template creates a valid Swoosh email" do
@@ -292,7 +298,7 @@ defmodule Tymeslot.Emails.EmailServiceTest do
 
       assert %Swoosh.Email{} = att_email
       assert att_email.to == [{"Jane Attendee", "attendee@example.com"}]
-      assert att_email.subject == "Appointment Confirmed - 15 Jan with John Organizer"
+      assert att_email.subject =~ ~r/^Appointment confirmed: Discovery Call on 15 Jan, \d\d:\d\d$/
     end
 
     test "reminder templates address each party with their own subject" do
@@ -302,10 +308,12 @@ defmodule Tymeslot.Emails.EmailServiceTest do
       att_email = AppointmentReminder.render(:attendee, details.attendee_email, details)
 
       assert org_email.to == [{"John Organizer", "organizer@example.com"}]
-      assert org_email.subject =~ "Meeting with Jane Attendee in 30 minutes"
+
+      assert org_email.subject =~
+               ~r/^Reminder: Discovery Call with Jane Attendee on 15 Jan, \d\d:\d\d$/
 
       assert att_email.to == [{"Jane Attendee", "attendee@example.com"}]
-      assert att_email.subject == "Reminder: Our meeting is in 30 minutes"
+      assert att_email.subject =~ ~r/^Reminder: Discovery Call on 15 Jan, \d\d:\d\d$/
     end
 
     test "cancellation templates address each party with their own subject" do
@@ -318,10 +326,12 @@ defmodule Tymeslot.Emails.EmailServiceTest do
         AppointmentCancellation.render(:attendee, details.attendee_email, details)
 
       assert org_email.to == [{"John Organizer", "organizer@example.com"}]
-      assert org_email.subject == "Meeting Cancelled - 15 Jan with Jane Attendee"
+
+      assert org_email.subject =~
+               ~r/^Appointment cancelled: Discovery Call with Jane Attendee on 15 Jan, \d\d:\d\d$/
 
       assert att_email.to == [{"Jane Attendee", "attendee@example.com"}]
-      assert att_email.subject == "Meeting Cancelled - 15 Jan with John Organizer"
+      assert att_email.subject =~ ~r/^Appointment cancelled: Discovery Call on 15 Jan, \d\d:\d\d$/
     end
   end
 

@@ -42,21 +42,23 @@ defmodule Tymeslot.Emails.Shared.MjmlEmailTest do
       assert email.from == {configured(:from_name), configured(:from_email)}
     end
 
-    test "attaches the logo with a Content-ID equal to its filename" do
-      # SendGrid derives content_id from the filename (ignoring `cid:`), and
-      # Mailgun drops `cid:` entirely and keys inline images by filename, so
-      # cid and filename must match for the logo to render on every provider.
+    # Revision Dynamics (rd-mail-brand.patch): the head is the Revision
+    # Dynamics wordmark, loaded from revisiondynamics.com, so nothing is
+    # attached inline.
+    test "attaches nothing; the wordmark is an image URL" do
       email = MjmlEmail.base_email()
 
-      assert [%Swoosh.Attachment{filename: filename, cid: cid}] = email.attachments
-      assert filename == cid
-      assert cid == MjmlEmail.logo_cid()
+      assert email.attachments == []
     end
 
-    test "references the logo in the HTML body via cid:<filename>" do
-      mjml = MjmlEmail.logo_header()
+    test "references the wordmark in the HTML body by its absolute URL" do
+      mjml =
+        MjmlEmail.base_mjml_template("<mj-text>x</mj-text>", %{intent: :confirmed, eyebrow: "x"})
 
-      assert mjml =~ "src=\"cid:#{MjmlEmail.logo_cid()}\""
+      assert mjml =~
+               "https://revisiondynamics.com/logo/brand/revision-dynamics-wordmark-on-light.png"
+
+      refute mjml =~ "cid:"
     end
   end
 
@@ -200,15 +202,17 @@ defmodule Tymeslot.Emails.Shared.MjmlEmailTest do
 
       mjml = MjmlEmail.base_mjml_template(content, organizer_details)
 
+      # Revision Dynamics (rd-mail-brand.patch): the organiser strip is gone;
+      # the name stands in the title when no stage title is given.
       assert mjml =~ "John Doe"
-      assert mjml =~ "CEO"
     end
 
-    test "renders an initials badge, never a data URI image, when no avatar is provided" do
+    test "renders no avatar, neither an image nor a data URI" do
       content = "<mj-text>Test</mj-text>"
 
       organizer_details = %{
         name: "Jane Smith",
+        avatar_url: "https://example.com/avatar.jpg",
         intent: :confirmed,
         eyebrow: "Confirmed"
       }
@@ -219,23 +223,8 @@ defmodule Tymeslot.Emails.Shared.MjmlEmailTest do
         |> MjmlEmail.compile_mjml()
 
       refute html =~ "data:image"
-      assert html =~ ~r{>JS</td>}
+      refute html =~ "https://example.com/avatar.jpg"
       assert html =~ "Jane Smith"
-    end
-
-    test "uses provided avatar URL" do
-      content = "<mj-text>Test</mj-text>"
-
-      organizer_details = %{
-        name: "John Doe",
-        avatar_url: "https://example.com/avatar.jpg",
-        intent: :confirmed,
-        eyebrow: "Confirmed"
-      }
-
-      mjml = MjmlEmail.base_mjml_template(content, organizer_details)
-
-      assert mjml =~ "https://example.com/avatar.jpg"
     end
 
     test "includes standard email sections" do
@@ -251,11 +240,15 @@ defmodule Tymeslot.Emails.Shared.MjmlEmailTest do
       # Check for header, content, and footer sections
       assert mjml =~ "<mj-head>"
       assert mjml =~ "<mj-body"
-      assert mjml =~ "Sent with care by"
-      assert mjml =~ "Tymeslot"
+      assert mjml =~ "Revision Dynamics GmbH"
+      assert mjml =~ "HRB 12352"
+      assert mjml =~ "/privacy-policy"
+      assert mjml =~ "Tymeslot, free software under the AGPL-3.0"
     end
 
-    test "loads no web font, so opening the email contacts no font host" do
+    # Revision Dynamics (rd-mail-brand.patch): Outfit and Urbanist come from the
+    # booking host itself, never from a third party.
+    test "loads web fonts only from the booking host, never from a font service" do
       content = "<mj-text>Test</mj-text>"
 
       organizer_details = %{
@@ -265,7 +258,8 @@ defmodule Tymeslot.Emails.Shared.MjmlEmailTest do
 
       mjml = MjmlEmail.base_mjml_template(content, organizer_details)
 
-      assert mjml =~ ~s(<mj-all font-family="-apple-system)
+      assert mjml =~ ~s(<mj-all font-family="Outfit, 'Segoe UI')
+      assert mjml =~ "/fonts/outfit-latin-wght-normal.woff2"
       refute mjml =~ "<mj-font"
       refute mjml =~ "'Inter'"
 

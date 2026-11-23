@@ -16,7 +16,7 @@ defmodule Tymeslot.Emails.Shared.Layouts do
   """
 
   alias Tymeslot.Emails.Branding
-  alias Tymeslot.Emails.Shared.{Frame, MjmlEmail, Sanitise, Stage, Styles, Urls}
+  alias Tymeslot.Emails.Shared.{Frame, MjmlEmail, Sanitise, Stage}
 
   use Gettext, backend: TymeslotWeb.Gettext
 
@@ -49,6 +49,8 @@ defmodule Tymeslot.Emails.Shared.Layouts do
   - `:preview` — the inbox preview text
   - `:stage_title` — headline in the stage band (default: the `:title`)
   - `:stage_subtitle` — optional supporting line
+  - `:audience` — whose foot (`RdIdentity.footer_mjml/1`): `:host` (the
+    account holder, the default) or `:guest` (a booker)
   """
   @spec system_layout(String.t(), keyword()) :: String.t()
   def system_layout(content, opts) do
@@ -60,7 +62,7 @@ defmodule Tymeslot.Emails.Shared.Layouts do
     preview =
       opts
       |> Keyword.get_lazy(:preview, fn ->
-        dgettext("emails", "Important notification from %{brand}", brand: Branding.brand_name())
+        dgettext("emails", "Notice from %{brand}", brand: Branding.brand_name())
       end)
       |> Sanitise.sanitize_for_email()
 
@@ -74,30 +76,7 @@ defmodule Tymeslot.Emails.Shared.Layouts do
       stage: Stage.stage_band(intent, eyebrow, stage_title, stage_subtitle),
       header: "",
       body: content,
-      footer: system_footer()
+      footer: MjmlEmail.footer_strip(Keyword.get(opts, :audience, :host))
     })
-  end
-
-  @spec system_footer() :: String.t()
-  defp system_footer do
-    """
-    <mj-section
-      background-color="#{Styles.canvas_soft()}"
-      border-radius="0 0 20px 20px"
-      padding="20px 28px"
-    >
-      <mj-column>
-        <mj-text
-          color="#{Styles.ink_muted()}"
-          font-size="12px"
-          align="center"
-          line-height="1.7"
-          letter-spacing="0.02em"
-        >
-          © #{Date.utc_today().year} <a href="#{Urls.get_app_url()}" class="wordmark" style="color: #{Styles.ink()}; text-decoration: none; font-weight: 800;">Tymeslot</a> · #{dgettext("emails", "scheduling that respects your time")}
-        </mj-text>
-      </mj-column>
-    </mj-section>
-    """
   end
 end

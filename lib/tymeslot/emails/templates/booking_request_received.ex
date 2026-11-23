@@ -52,7 +52,7 @@ defmodule Tymeslot.Emails.Templates.BookingRequestReceived do
   def render(%Meeting{} = meeting, opts \\ []) do
     locale = RecipientLocale.attendee_locale(meeting)
 
-    Gettext.with_locale(TymeslotWeb.Gettext, locale, fn ->
+    TemplateHelper.with_locale_and_tone(locale, meeting, fn ->
       # The stored title and texts are in the organiser's language; the booker
       # reads them in theirs (`AttendeeTexts`). The links are built now, not
       # read from the booking-time copy.
@@ -93,6 +93,7 @@ defmodule Tymeslot.Emails.Templates.BookingRequestReceived do
             organizer: meeting.organizer_name
           ),
           intent: @intent,
+          audience: :guest,
           eyebrow: dgettext("emails_booking_requests", "Awaiting confirmation"),
           stage_title: stage_title(kind),
           stage_subtitle: personal_sentence(meeting, kind)

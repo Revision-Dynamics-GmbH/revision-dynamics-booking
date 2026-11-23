@@ -11,7 +11,7 @@ defmodule Tymeslot.Emails.BrandingTest do
   alias Tymeslot.Emails.Branding
   alias Tymeslot.Emails.Shared.Layouts
   alias Tymeslot.Emails.Shared.MjmlEmail
-  alias Tymeslot.Emails.Shared.Styles.{BrandPalette, CSS, Tokens}
+  alias Tymeslot.Emails.Shared.Styles.{BrandPalette, CSS}
   alias Tymeslot.Emails.Shared.TemplateHelper
   alias Tymeslot.Utils.Colour
 
@@ -53,8 +53,9 @@ defmodule Tymeslot.Emails.BrandingTest do
   defp png_path, do: temp_file(png_bytes())
 
   describe "brand_name/0" do
-    test "defaults to Tymeslot when the instance has not set one" do
-      assert Branding.brand_name() == "Tymeslot"
+    # Revision Dynamics (rd-mail-brand.patch): the emails speak for the company.
+    test "defaults to Revision Dynamics when the instance has not set one" do
+      assert Branding.brand_name() == "Revision Dynamics"
     end
 
     test "returns the configured name" do
@@ -63,11 +64,11 @@ defmodule Tymeslot.Emails.BrandingTest do
       assert Branding.brand_name() == "Beaver Dental"
     end
 
-    test "falls back to Tymeslot when the override is cleared" do
+    test "falls back to Revision Dynamics when the override is cleared" do
       {:ok, _settings} = AppSettings.update(%{email_brand_name: "Beaver Dental"})
       {:ok, _settings} = AppSettings.update(%{email_brand_name: nil})
 
-      assert Branding.brand_name() == "Tymeslot"
+      assert Branding.brand_name() == "Revision Dynamics"
     end
   end
 
@@ -195,20 +196,19 @@ defmodule Tymeslot.Emails.BrandingTest do
     end
   end
 
+  # Revision Dynamics (rd-mail-brand.patch): the head is the Revision
+  # Dynamics wordmark. Its light version sits on a white plate that Gmail's
+  # forced dark mode leaves alone; with `prefers-color-scheme: dark` the
+  # plate clears and the white wordmark shows.
   describe "dark-mode logo plate" do
-    test "a custom logo sits on a light plate behind the logo wrapper in dark mode" do
-      {:ok, _relative} = Branding.store_logo(png_path())
-
+    test "the wordmark's plate clears and the white wordmark shows in dark mode" do
       css = CSS.dark_mode_styles()
       [_light, dark] = String.split(css, "@media (prefers-color-scheme: dark) {", parts: 2)
 
-      assert dark =~ ".#{CSS.logo_plate_class()} img {"
-      assert dark =~ "background: #{Tokens.surface()} !important;"
-      assert MjmlEmail.logo_header() =~ ~s(css-class="#{CSS.logo_plate_class()}")
-    end
-
-    test "the stock logo gets no plate" do
-      refute CSS.dark_mode_styles() =~ CSS.logo_plate_class()
+      assert dark =~ ".#{CSS.logo_plate_class()} { background-color: transparent !important;"
+      assert dark =~ ".rd-logo-dark { display: block !important;"
+      assert MjmlEmail.logo_header() =~ ~s(class="#{CSS.logo_plate_class()}")
+      assert MjmlEmail.logo_header() =~ "revision-dynamics-wordmark-on-light.png"
     end
 
     test "the plate rule stays inside the dark media query, so light mode is unchanged" do
@@ -300,39 +300,39 @@ defmodule Tymeslot.Emails.BrandingTest do
       )
     end
 
-    test "the stock branding renders the Tymeslot name and turquoise accent" do
+    test "the stock branding renders the Revision Dynamics wordmark and cyan rule" do
       mjml = transactional_mjml()
 
-      assert mjml =~ ~s(alt="Tymeslot")
-      assert mjml =~ "Jane Smith via Tymeslot"
-      assert mjml =~ "#0d786c"
+      assert mjml =~ ~s(alt="Revision Dynamics")
+      assert mjml =~ "Jane Smith via Revision Dynamics"
+      assert mjml =~ "border-top=\"4px solid #0aa5cc\""
     end
 
-    test "a configured brand name replaces it in the alt text and preview line" do
+    test "a configured brand name replaces it in the preview line" do
       {:ok, _settings} = AppSettings.update(%{email_brand_name: "Beaver Dental"})
 
       mjml = transactional_mjml()
 
-      assert mjml =~ ~s(alt="Beaver Dental")
       assert mjml =~ "Jane Smith via Beaver Dental"
       refute mjml =~ "via Tymeslot"
     end
 
-    test "a configured accent reaches the rendered stage band" do
+    # Revision Dynamics (rd-mail-brand.patch): the product tone of the meeting
+    # decides the colour, not the admin accent.
+    test "the product tone, not a configured accent, colours the stage" do
       {:ok, _settings} = AppSettings.update(%{email_brand_accent: "#7c3aed"})
 
-      mjml = transactional_mjml()
-      %{deep: deep} = BrandPalette.derive("#7c3aed")
+      mjml = Tymeslot.Emails.Shared.Styles.Tone.with_tone(:orange, &transactional_mjml/0)
 
-      assert mjml =~ deep
-      refute mjml =~ Branding.stock_family().deep
+      assert mjml =~ "border-top=\"4px solid #f76806\""
+      refute mjml =~ BrandPalette.derive("#7c3aed").deep
     end
 
-    test "the footer attribution stays put whatever the branding" do
+    test "the source notice stays put whatever the branding" do
       {:ok, _settings} =
         AppSettings.update(%{email_brand_name: "Beaver Dental", email_brand_accent: "#7c3aed"})
 
-      assert transactional_mjml() =~ "Tymeslot</a>"
+      assert transactional_mjml() =~ "Tymeslot, free software under the AGPL-3.0"
     end
 
     # Regression: the organiser strip is built by `TemplateHelper`, not by the

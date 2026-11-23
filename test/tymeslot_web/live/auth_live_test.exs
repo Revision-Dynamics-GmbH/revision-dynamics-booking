@@ -298,13 +298,13 @@ defmodule TymeslotWeb.AuthLiveTest do
     # name="description">` tag on its own says nothing about what the page
     # actually claims to be.
     @indexable_auth_pages [
-      {"login", "/auth/login", "Log In · Tymeslot",
+      {"login", "/auth/login", "Log In · Revision Dynamics",
        "Sign in to your Tymeslot account to manage scheduling links, availability, and bookings."},
-      {"signup", "/auth/signup", "Create an Account · Tymeslot",
+      {"signup", "/auth/signup", "Create an Account · Revision Dynamics",
        "Create a Tymeslot account and start sharing your availability in minutes. No credit card required."},
-      {"reset password", "/auth/reset-password", "Reset Password · Tymeslot",
+      {"reset password", "/auth/reset-password", "Reset Password · Revision Dynamics",
        "Enter your email to receive a password reset link for your Tymeslot account."},
-      {"reset password form", :token, "Choose a New Password · Tymeslot",
+      {"reset password form", :token, "Choose a New Password · Revision Dynamics",
        "Choose a strong new password for your Tymeslot account."}
     ]
 
@@ -338,7 +338,7 @@ defmodule TymeslotWeb.AuthLiveTest do
         })
 
       {:ok, view, html} = live(conn, ~p"/auth/complete-registration")
-      assert page_title(view) == "Schedule a Meeting · Tymeslot"
+      assert page_title(view) == "Schedule a Meeting · Revision Dynamics"
       refute html =~ ~s(<meta name="description")
     end
   end

@@ -68,12 +68,12 @@ defmodule Tymeslot.Emails.Templates.ConnectAccountRestrictedTest do
       email = ConnectAccountRestricted.render(build_context(%{host_user_id: host.id}))
 
       refute email.subject == english.subject
-      assert email.text_body =~ "Hallo Bob Host,"
+      assert email.text_body =~ "Sehr geehrte/r Bob Host,"
       assert email.text_body =~ "requirements.past_due"
       refute email.text_body =~ "RESTORE YOUR ACCOUNT"
       refute email.text_body =~ "Charges enabled: no"
       refute email.html_body =~ "Restore your account"
-      assert email.html_body =~ "Hallo Bob Host,"
+      assert email.html_body =~ "Sehr geehrte/r Bob Host,"
     end
 
     test "falls back to a generic stage subtitle when reason is blank" do
@@ -85,7 +85,7 @@ defmodule Tymeslot.Emails.Templates.ConnectAccountRestrictedTest do
     test "delivers to the bare email when host_name is nil (no placeholder name)" do
       email = ConnectAccountRestricted.render(build_context(%{host_name: nil}))
       assert email.to == [{"", "host@example.com"}]
-      assert email.html_body =~ "Hi there,"
+      assert email.html_body =~ "Dear Sir or Madam,"
     end
 
     test "omits charges/payouts lines when nil" do

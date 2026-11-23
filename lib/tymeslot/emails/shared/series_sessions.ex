@@ -93,7 +93,7 @@ defmodule Tymeslot.Emails.Shared.SeriesSessions do
   defp unjoinable_place(%{video_pending: true}, opts) do
     if links?(opts),
       do: {:text, dgettext("emails_booking_series", "The join link will be in your reminder.")},
-      else: {:text, dgettext("emails", "Video Call")}
+      else: {:text, dgettext("emails", "Online meeting (Microsoft Teams)")}
   end
 
   defp unjoinable_place(session, _opts), do: {:text, Formatting.format_location(session)}

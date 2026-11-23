@@ -99,7 +99,7 @@ defmodule TymeslotWeb.MeetingRequestLive.View do
           {duration_line(@meeting)}
         </.detail_line>
         <.detail_line icon="hero-tag" label={dgettext("booking_manage", "Type")}>
-          {@meeting.meeting_type || dgettext("booking_manage", "Meeting")}
+          {@meeting.meeting_type || dgettext("booking_manage", "Appointment")}
         </.detail_line>
         <.detail_line icon="hero-user" label={dgettext("booking_manage", "From")}>
           {from_line(@meeting)}

@@ -51,8 +51,10 @@ defmodule Tymeslot.Emails.Shared.Meeting.ActionsBarTest do
       assert ActionsBar.meeting_actions_bar(:confirmed, [%{text: "No link", url: nil}]) == ""
     end
 
-    test ":danger style always uses the cancelled intent colour" do
-      cancelled_colour = Styles.intent_accent_deep(:cancelled)
+    # Revision Dynamics (rd-mail-brand.patch): every secondary link reads in
+    # the product tone; cancelling is a calm link, not an alarm.
+    test ":danger style uses the product tone's link colour" do
+      cancelled_colour = Tymeslot.Emails.Shared.Styles.Tokens.tone().accent_deep
 
       html =
         ActionsBar.meeting_actions_bar(:confirmed, [
@@ -62,8 +64,8 @@ defmodule Tymeslot.Emails.Shared.Meeting.ActionsBarTest do
       assert html =~ "color: #{cancelled_colour}"
     end
 
-    test ":secondary style uses muted ink regardless of intent" do
-      muted = Styles.ink_muted()
+    test ":secondary style uses the product tone's link colour regardless of intent" do
+      muted = Tymeslot.Emails.Shared.Styles.Tokens.tone().accent_deep
 
       html =
         ActionsBar.meeting_actions_bar(:confirmed, [

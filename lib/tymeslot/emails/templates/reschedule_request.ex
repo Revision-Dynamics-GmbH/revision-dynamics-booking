@@ -37,7 +37,7 @@ defmodule Tymeslot.Emails.Templates.RescheduleRequest do
   defp render_current(%Meeting{reschedule_url: url} = meeting) when is_binary(url) do
     locale = RecipientLocale.attendee_locale(meeting)
 
-    Gettext.with_locale(TymeslotWeb.Gettext, locale, fn ->
+    TemplateHelper.with_locale_and_tone(locale, meeting, fn ->
       # The stored title and texts are in the organiser's language; the booker
       # reads them in theirs.
       meeting = AttendeeTexts.attendee_view(meeting, locale)

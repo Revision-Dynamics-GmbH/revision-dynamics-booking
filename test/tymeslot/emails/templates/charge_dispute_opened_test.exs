@@ -77,11 +77,11 @@ defmodule Tymeslot.Emails.Templates.ChargeDisputeOpenedTest do
 
       assert email.subject =~ "50,00\u00A0€"
       refute email.subject == english.subject
-      assert email.text_body =~ "Hallo Bob Host,"
+      assert email.text_body =~ "Sehr geehrte/r Bob Host,"
       refute email.text_body =~ "WHAT HAPPENS NEXT"
       refute email.text_body =~ "Stripe has opened a dispute"
       refute email.html_body =~ "What happens next"
-      assert email.html_body =~ "Hallo Bob Host,"
+      assert email.html_body =~ "Sehr geehrte/r Bob Host,"
     end
 
     test "omits attendee/meeting/reason lines when fields are nil" do
@@ -105,7 +105,7 @@ defmodule Tymeslot.Emails.Templates.ChargeDisputeOpenedTest do
     test "delivers to the bare email when host_name is nil (no placeholder name)" do
       email = ChargeDisputeOpened.render(build_context(%{host_name: nil}))
       assert email.to == [{"", "host@example.com"}]
-      assert email.html_body =~ "Hi there,"
+      assert email.html_body =~ "Dear Sir or Madam,"
     end
 
     test "omits attendee email line in both bodies when attendee_email is nil (anonymised payment)" do

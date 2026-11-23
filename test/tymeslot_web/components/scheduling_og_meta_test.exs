@@ -57,7 +57,7 @@ defmodule TymeslotWeb.SchedulingOgMetaTest do
       assert html =~ ~s(<meta property="og:title" content="Schedule with Ada Lovelace")
       assert html =~ "Book a meeting with Ada Lovelace."
       assert html =~ ~s(<meta property="og:type" content="profile")
-      assert html =~ ~s(<meta property="og:site_name" content="Tymeslot")
+      assert html =~ ~s(<meta property="og:site_name" content="Revision Dynamics")
     end
 
     test "builds an absolute og:url for the booking page", %{conn: conn, username: username} do
@@ -79,12 +79,12 @@ defmodule TymeslotWeb.SchedulingOgMetaTest do
   end
 
   describe "defensive fallback (no organiser context)" do
-    test "og image falls back to the Tymeslot brand card" do
-      assert Layouts.booking_og_image(%{}) =~ "/images/brand/og-image.png"
+    test "og image falls back to the Revision Dynamics icon" do
+      assert Layouts.booking_og_image(%{}) =~ "/images/rd/icon.png"
     end
 
-    test "twitter card uses the wide variant for the brand card" do
-      assert Layouts.booking_twitter_card(%{}) == "summary_large_image"
+    test "twitter card uses the square variant for the icon" do
+      assert Layouts.booking_twitter_card(%{}) == "summary"
     end
 
     test "description falls back to a generic prompt" do

@@ -33,7 +33,7 @@ defmodule Tymeslot.Emails.Templates.PasswordResetTest do
 
       html = PasswordReset.render(user, reset_url).html_body
 
-      assert html =~ "Hi there,"
+      assert html =~ "Dear Sir or Madam,"
       refute html =~ "Hi reset@example.com"
     end
 
@@ -92,7 +92,7 @@ defmodule Tymeslot.Emails.Templates.PasswordResetTest do
       user = build_user_data(%{name: nil, email: "reset@example.com"})
       text = PasswordReset.render(user, "https://example.com/reset/token").text_body
 
-      assert text =~ "Hi there,"
+      assert text =~ "Dear Sir or Madam,"
       refute text =~ "Hi reset@example.com"
     end
   end
@@ -121,7 +121,7 @@ defmodule Tymeslot.Emails.Templates.PasswordResetTest do
       url = "https://example.com/reset/token"
       text = PasswordReset.render(user, url).text_body
 
-      assert text =~ "Hi <img src=x onerror=alert(1)>,"
+      assert text =~ "Dear <img src=x onerror=alert(1)>,"
       assert text =~ url
     end
   end

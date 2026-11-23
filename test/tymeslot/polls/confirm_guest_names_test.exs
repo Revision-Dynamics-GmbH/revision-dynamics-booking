@@ -74,7 +74,7 @@ defmodule Tymeslot.Polls.ConfirmGuestNamesTest do
       })
 
       assert_received {:email, %Swoosh.Email{to: [{"Ben Ito", "ben@example.com"}]} = email}
-      assert email.text_body =~ "Hi Ben Ito"
+      assert email.text_body =~ "Dear Ben Ito"
       refute email.text_body =~ "Hi ben@example.com"
     end
 

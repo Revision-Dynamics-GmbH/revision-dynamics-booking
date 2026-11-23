@@ -213,7 +213,9 @@ defmodule Tymeslot.Bookings.InstitutionTitleTest do
 
       email = AppointmentConfirmation.render(:attendee, meeting.attendee_email, details)
       refute email.subject =~ "Montessori"
-      assert email.subject =~ "Tim Thielmann"
+      # Revision Dynamics (rd-mail-brand.patch): the subject names the
+      # meeting type and the date.
+      assert email.subject =~ "HumanOS kennenlernen"
 
       ics = IcsGenerator.generate_ics_attachment(details, "de", "appointment.ics")
       assert ics.data =~ "HumanOS kennenlernen mit Max Mustermann"

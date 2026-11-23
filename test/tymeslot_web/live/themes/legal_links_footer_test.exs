@@ -206,13 +206,17 @@ defmodule TymeslotWeb.Live.Themes.LegalLinksFooterTest do
         assert_footer(view)
       end
 
-      test "#{theme.slug} shows no footer when nothing is set", %{conn: conn} do
+      # Revision Dynamics (rd-mail-brand.patch): the source code link is
+      # always there, so the footer is too.
+      test "#{theme.slug} shows only the source code link when nothing is set", %{conn: conn} do
         %{profile: profile} = seed(unquote(theme.id), "nolinks-#{unquote(theme.slug)}", %{})
 
         {:ok, view, _html} = live(conn, ~p"/#{profile.username}")
 
         assert has_element?(view, "[data-booker-root]")
-        refute has_element?(view, @footer)
+        assert has_element?(view, "#{@footer} a[data-testid='source-code-link']")
+        refute has_element?(view, "#{@footer} a", "Legal notice")
+        refute has_element?(view, "#{@footer} a", "Privacy policy")
       end
     end
   end

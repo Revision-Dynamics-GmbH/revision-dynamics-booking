@@ -20,7 +20,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmationOrganizerTest do
       email =
         AppointmentConfirmation.render(:organizer, "organizer@example.com", details)
 
-      assert email.subject =~ "New Appointment"
+      assert email.subject =~ "New booking"
       assert email.subject =~ details.attendee_name
       assert email.subject =~ format_date_short(details.date)
     end
@@ -30,7 +30,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmationOrganizerTest do
 
       email = AppointmentConfirmation.render(:organizer, "organizer@example.com", details)
 
-      assert email.subject =~ "Neuer Termin"
+      assert email.subject =~ "Neue Buchung"
     end
 
     test "sets correct recipient" do
@@ -67,8 +67,8 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmationOrganizerTest do
         AppointmentConfirmation.render(:organizer, "organizer@example.com", details)
 
       assert email.html_body =~ "</html>"
-      assert email.html_body =~ "New Appointment Booked!"
-      assert email.text_body =~ "New Appointment Booked!"
+      assert email.html_body =~ "New appointment booked"
+      assert email.text_body =~ "New appointment booked"
       refute email.text_body =~ "</html>"
     end
 
@@ -153,8 +153,8 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmationOrganizerTest do
         AppointmentConfirmation.render(:organizer, "organizer@example.com", details)
 
       assert email.html_body =~ "https://meet.example.com/room-123?role=host"
-      assert email.html_body =~ "Host video call"
-      assert email.html_body =~ "Start Meeting"
+      assert email.html_body =~ "At the agreed time, start the meeting here:"
+      assert email.html_body =~ "Start the meeting"
     end
 
     # The organiser is the host: they must receive the host-scoped join URL,
@@ -203,8 +203,8 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmationOrganizerTest do
       email =
         AppointmentConfirmation.render(:organizer, "organizer@example.com", details)
 
-      refute email.html_body =~ "Host video call"
-      refute email.html_body =~ "Start Meeting"
+      refute email.html_body =~ "At the agreed time, start the meeting here:"
+      refute email.html_body =~ "Start the meeting"
       refute email.text_body =~ "JOIN VIDEO MEETING"
     end
 
@@ -218,7 +218,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmationOrganizerTest do
       email =
         AppointmentConfirmation.render(:organizer, "organizer@example.com", details)
 
-      assert email.text_body =~ "New Appointment"
+      assert email.text_body =~ "New appointment booked"
       assert email.text_body =~ "Bob Smith"
       assert email.text_body =~ "Virtual"
     end
@@ -248,9 +248,9 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmationOrganizerTest do
       email =
         AppointmentConfirmation.render(:organizer, "organizer@example.com", details)
 
-      assert email.text_body =~ "ATTENDEE INFORMATION:"
+      assert email.text_body =~ "BOOKED BY:"
       assert email.text_body =~ "Name: #{details.attendee_name}"
-      refute email.text_body =~ "MESSAGE FROM ATTENDEE:"
+      refute email.text_body =~ "MESSAGE FROM THE BOOKER:"
       assert email.html_body =~ details.attendee_name
     end
 
@@ -277,12 +277,14 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmationOrganizerTest do
       email =
         AppointmentConfirmation.render(:organizer, "organizer@example.com", details)
 
-      assert email.text_body =~ "MESSAGE FROM ATTENDEE:"
+      assert email.text_body =~ "MESSAGE FROM THE BOOKER:"
       assert email.text_body =~ String.trim(long_message)
       assert email.html_body =~ "This is a detailed message."
     end
 
-    test "carries the meeting type in the body, not the subject" do
+    # Revision Dynamics (rd-mail-brand.patch): the host's subject names the
+    # meeting type too ("New booking: <type> with <name> on <date>, <time>").
+    test "carries the meeting type in the body and the subject" do
       details =
         build_appointment_details(%{
           meeting_type: "Executive Strategy Session"
@@ -291,8 +293,8 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmationOrganizerTest do
       email =
         AppointmentConfirmation.render(:organizer, "organizer@example.com", details)
 
-      assert email.subject ==
-               "New Appointment: #{details.attendee_name} - #{format_date_short(details.date)}"
+      assert email.subject =~
+               "New booking: Executive Strategy Session with #{details.attendee_name} on #{format_date_short(details.date)}, "
 
       assert email.html_body =~ "Executive Strategy Session"
     end
@@ -304,10 +306,10 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmationOrganizerTest do
         AppointmentConfirmation.render(:organizer, "organizer@example.com", details)
 
       assert %Swoosh.Email{} = email
-      assert email.subject =~ "New Appointment"
+      assert email.subject =~ "New booking"
       assert email.to == [{details.organizer_name, "organizer@example.com"}]
-      assert email.html_body =~ "New Appointment Booked!"
-      assert email.text_body =~ "New Appointment Booked!"
+      assert email.html_body =~ "New appointment booked"
+      assert email.text_body =~ "New appointment booked"
     end
 
     test "subject is free of CR/LF when attendee name contains header-injection payload" do

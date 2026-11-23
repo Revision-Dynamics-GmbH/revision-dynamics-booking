@@ -27,14 +27,14 @@ defmodule TymeslotWeb.Themes.Shared.Components.MeetingPageBodies do
   def cancel(%{meeting_kept: true} = assigns) do
     ~H"""
     <.heading icon="hero-check-circle" tone="success">
-      <:title>{dgettext("booking_manage", "Meeting Confirmed")}</:title>
-      {dgettext("booking_manage", "Great! Your meeting is still scheduled as planned.")}
+      <:title>{dgettext("booking_manage", "Appointment kept")}</:title>
+      {dgettext("booking_manage", "Your appointment remains as planned.")}
     </.heading>
     <.details meeting={@meeting} organizer_profile={@organizer_profile} locale={@locale}>
-      {dgettext("booking_manage", "Meeting Details")}
+      {dgettext("booking_manage", "Appointment")}
     </.details>
     <p class="manage-page__muted">
-      {dgettext("booking_manage", "We look forward to seeing you at the scheduled time.")}
+      {dgettext("booking_manage", "Speak to you at the agreed time.")}
     </p>
     <div class="manage-page__actions">
       <button
@@ -51,14 +51,14 @@ defmodule TymeslotWeb.Themes.Shared.Components.MeetingPageBodies do
   def cancel(assigns) do
     ~H"""
     <.heading icon="hero-x-circle" tone="danger">
-      <:title>{dgettext("booking_manage", "Cancel Appointment")}</:title>
-      {dgettext("booking_manage", "Are you sure you want to cancel this appointment?")}
+      <:title>{dgettext("booking_manage", "Cancel appointment")}</:title>
+      {dgettext("booking_manage", "Do you really want to cancel this appointment?")}
     </.heading>
     <.details meeting={@meeting} organizer_profile={@organizer_profile} locale={@locale}>
-      {dgettext("booking_manage", "Meeting Details")}
+      {dgettext("booking_manage", "Appointment")}
     </.details>
     <p class="manage-page__notice manage-page__notice--danger">
-      {dgettext("booking_manage", "A cancellation email will be sent to all participants")}
+      {dgettext("booking_manage", "Everyone involved will receive the cancellation by email.")}
     </p>
     <div class="manage-page__actions">
       <button
@@ -70,7 +70,7 @@ defmodule TymeslotWeb.Themes.Shared.Components.MeetingPageBodies do
       >
         {if @loading,
           do: dgettext("booking_manage", "Cancelling..."),
-          else: dgettext("booking_manage", "Yes, Cancel Meeting")}
+          else: dgettext("booking_manage", "Yes, cancel appointment")}
       </button>
       <button
         type="button"
@@ -79,7 +79,7 @@ defmodule TymeslotWeb.Themes.Shared.Components.MeetingPageBodies do
         data-testid="keep-meeting"
         disabled={@loading}
       >
-        {dgettext("booking_manage", "Keep Meeting")}
+        {dgettext("booking_manage", "Keep appointment")}
       </button>
     </div>
     """
@@ -96,16 +96,16 @@ defmodule TymeslotWeb.Themes.Shared.Components.MeetingPageBodies do
 
     ~H"""
     <.heading icon="hero-arrow-path" tone="primary">
-      <:title>{dgettext("booking_manage", "Reschedule Appointment")}</:title>
-      {dgettext("booking_manage", "Select a new time for your meeting")}
+      <:title>{dgettext("booking_manage", "Reschedule appointment")}</:title>
+      {dgettext("booking_manage", "Choose a new time for your appointment.")}
     </.heading>
     <.details meeting={@meeting} organizer_profile={@organizer_profile} locale={@locale}>
-      {dgettext("booking_manage", "Current Meeting")}
+      {dgettext("booking_manage", "Current appointment")}
     </.details>
     <p class="manage-page__muted">
       {dgettext(
         "booking_manage",
-        "Ready to pick a new time? Let's find one that works better for you."
+        "In the next step, you choose a new day and time."
       )}
     </p>
     <div class="manage-page__actions">
@@ -115,7 +115,7 @@ defmodule TymeslotWeb.Themes.Shared.Components.MeetingPageBodies do
         phx-click={JS.navigate(@booking_path)}
         data-testid="reschedule-choose-time"
       >
-        {dgettext("booking_manage", "Choose New Time")}
+        {dgettext("booking_manage", "Choose a new time")}
       </button>
     </div>
     """
@@ -129,14 +129,14 @@ defmodule TymeslotWeb.Themes.Shared.Components.MeetingPageBodies do
   def cancel_confirmed(assigns) do
     ~H"""
     <.heading icon="hero-check-circle" tone="success">
-      <:title>{dgettext("booking_manage", "Meeting Cancelled")}</:title>
-      {dgettext("booking_manage", "Your meeting has been successfully cancelled.")}
+      <:title>{dgettext("booking_manage", "Appointment cancelled")}</:title>
+      {dgettext("booking_manage", "Your appointment has been cancelled.")}
     </.heading>
     <.details meeting={@meeting} organizer_profile={@organizer_profile} locale={@locale}>
-      {dgettext("booking_manage", "Meeting Details")}
+      {dgettext("booking_manage", "Appointment")}
     </.details>
     <p class="manage-page__notice manage-page__notice--success">
-      {dgettext("booking_manage", "Cancellation emails have been sent to all participants.")}
+      {dgettext("booking_manage", "Everyone involved has received the cancellation by email.")}
     </p>
     <div class="manage-page__actions">
       <button
@@ -144,7 +144,7 @@ defmodule TymeslotWeb.Themes.Shared.Components.MeetingPageBodies do
         class="manage-page__button manage-page__button--primary"
         phx-click={JS.navigate("/")}
       >
-        {dgettext("booking_manage", "Schedule a New Meeting")}
+        {dgettext("booking_manage", "Book a new time")}
       </button>
     </div>
     """

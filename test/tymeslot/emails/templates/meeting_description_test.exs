@@ -40,7 +40,7 @@ defmodule Tymeslot.Emails.Templates.MeetingDescriptionTest do
 
         assert email.html_body =~ "Bring your passport<br"
         assert email.html_body =~ "and the signed contract"
-        assert email.text_body =~ "DESCRIPTION:\n#{@description}"
+        assert email.text_body =~ "WHAT IT IS ABOUT:\n#{@description}"
       end
 
       # Escaped once for the HTML part and not at all for the text part, so
@@ -55,7 +55,7 @@ defmodule Tymeslot.Emails.Templates.MeetingDescriptionTest do
 
         assert email.html_body =~ "Q&amp;A: 5 &lt; 6, &quot;quoted&quot; &amp; it&#39;s &amp; too"
         refute email.html_body =~ "&amp;amp;"
-        assert email.text_body =~ ~s(DESCRIPTION:\nQ&A: 5 < 6, "quoted" & it's & too)
+        assert email.text_body =~ ~s(WHAT IT IS ABOUT:\nQ&A: 5 < 6, "quoted" & it's & too)
       end
 
       test "leaves the section out when there is no description" do
@@ -67,7 +67,7 @@ defmodule Tymeslot.Emails.Templates.MeetingDescriptionTest do
               build_appointment_details(%{description: description})
             )
 
-          refute email.text_body =~ "DESCRIPTION:"
+          refute email.text_body =~ "WHAT IT IS ABOUT:"
           refute email.html_body =~ ~r/>\s*Description\s*</
         end
       end

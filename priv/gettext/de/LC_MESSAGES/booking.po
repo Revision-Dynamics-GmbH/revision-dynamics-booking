@@ -117,7 +117,7 @@ msgstr "Termindetails"
 #: lib/tymeslot_web/themes/shared/components/meeting_details.ex
 #, elixir-autogen, elixir-format
 msgid "Meeting with"
-msgstr "Termin mit"
+msgstr "Mit"
 
 #: lib/tymeslot_web/themes/shared/custom_questions/inputs/yes_no.ex
 #, elixir-autogen, elixir-format
@@ -918,3 +918,13 @@ msgstr "Einrichtung oder Unternehmen"
 #, elixir-autogen, elixir-format
 msgid "Enter your institution or company"
 msgstr "Einrichtung oder Unternehmen eingeben"
+
+#. Revision Dynamics (rd-mail-brand.patch)
+#, elixir-format
+msgid "Source code of our version"
+msgstr "Quellcode unserer Fassung"
+
+#. Revision Dynamics (rd-mail-brand.patch)
+#, elixir-format
+msgid "The booking service is based on Tymeslot, free software under the AGPL-3.0."
+msgstr "Die Terminbuchung basiert auf Tymeslot, freie Software unter der AGPL-3.0."

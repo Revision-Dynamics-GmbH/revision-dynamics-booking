@@ -916,6 +916,13 @@ body.paper-theme,
   color: var(--ink-1);
 }
 
+/* The AGPL notice (rd-mail-brand.patch): its own line under the two links. */
+.paper-page .legal-links__notice {
+  flex-basis: 100%;
+  margin: 0;
+  text-align: center;
+}
+
 /* ==========================================================================
    6  Embedded in revisiondynamics.com
    ========================================================================== */

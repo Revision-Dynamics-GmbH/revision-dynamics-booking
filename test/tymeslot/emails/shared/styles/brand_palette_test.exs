@@ -134,34 +134,36 @@ defmodule Tymeslot.Emails.Shared.Styles.BrandPaletteTest do
     end
   end
 
+  # Revision Dynamics (rd-mail-brand.patch): the confirmed family is the
+  # product tone of the email (`Styles.Tone`), cyan by default; a configured
+  # accent no longer changes it. Alert is gold, cancelled red.
   describe "Tokens.intent/1 integration" do
-    test "falls back to the stock turquoise when no accent is configured" do
+    test "is the cyan structure tone when no product tone is in effect" do
       Application.delete_env(:tymeslot, :email_brand_accent)
 
-      assert %{accent: "#14b8a6", accent_deep: "#0d786c", tint: "#e1f7f3"} =
+      assert %{accent: "#0aa5cc", accent_deep: "#0a7194", tint: "#ecf8fb"} =
                Tokens.intent(:confirmed)
     end
 
-    test "falls back to the stock turquoise when the configured accent is unparseable" do
-      Application.put_env(:tymeslot, :email_brand_accent, "not-a-colour")
-
-      assert %{accent: "#14b8a6"} = Tokens.intent(:confirmed)
-    end
-
-    test "resolves the confirmed family against the configured accent" do
+    test "ignores a configured accent" do
       Application.put_env(:tymeslot, :email_brand_accent, "#7c3aed")
 
-      tokens = Tokens.intent(:confirmed)
+      assert %{accent: "#0aa5cc"} = Tokens.intent(:confirmed)
+    end
 
-      assert tokens.accent == "#7c3aed"
+    test "follows the product tone in effect" do
+      tokens =
+        Tymeslot.Emails.Shared.Styles.Tone.with_tone(:orange, fn -> Tokens.intent(:confirmed) end)
+
+      assert tokens.accent == "#f76806"
       assert tokens.band_color == tokens.accent_deep
     end
 
-    test "leaves the alert and cancelled families untouched by the brand accent" do
-      Application.put_env(:tymeslot, :email_brand_accent, "#7c3aed")
-
-      assert %{accent: "#f59e0b"} = Tokens.intent(:alert)
-      assert %{accent: "#e26d5c"} = Tokens.intent(:cancelled)
+    test "keeps the alert and cancelled signals whatever the tone" do
+      Tymeslot.Emails.Shared.Styles.Tone.with_tone(:blue, fn ->
+        assert %{accent: "#f2a925"} = Tokens.intent(:alert)
+        assert %{accent: "#eb6265"} = Tokens.intent(:cancelled)
+      end)
     end
 
     test "still raises on an intent outside the taxonomy" do

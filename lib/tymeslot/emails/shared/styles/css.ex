@@ -1,40 +1,32 @@
 defmodule Tymeslot.Emails.Shared.Styles.CSS do
   @moduledoc """
-  Generates the MJML-embedded CSS for Tymeslot emails.
+  Generates the MJML-embedded CSS for every email.
 
-  Two public outputs:
+  Revision Dynamics (rd-mail-brand.patch): the shared Revision Dynamics mail
+  design (README in `~/outputs/mail-design-2026-11-23/`).
+
+  Outputs:
 
   - `mjml_base_attributes/0` — the `<mj-attributes>` block that sets sensible
     defaults on `mj-all`, `mj-text`, `mj-section`, `mj-column`, `mj-button`,
     and `mj-table`.
-  - `email_css_styles/0` — the `<mj-style>` block with base and mobile rules.
+  - `email_css_styles/0` — the `<mj-style>` block with base and phone rules.
   - `dark_mode_styles/0` — the `prefers-color-scheme: dark` stylesheet, built
-    by `DarkMode` from the light-to-dark colour map below.
+    by `DarkMode` from the light-to-dark colour map below, for the product
+    tone of the email being rendered.
+  - `font_face_styles/0` — Outfit and Urbanist from the booking host itself,
+    and Segoe UI for Outlook for Windows.
 
-  Clients that ignore `prefers-color-scheme` (Gmail, Outlook.com) keep the
-  light palette or apply their own forced inversion, which the light palette
-  is chosen to survive; see `Tokens` for the notes.
+  Every colour is also written inline, light: clients that ignore
+  `prefers-color-scheme` (Gmail, Outlook for Windows) keep the light design.
   """
 
-  alias Tymeslot.Emails.Branding
-  alias Tymeslot.Emails.Shared.Styles.{DarkMode, Tokens}
-  alias Tymeslot.Utils.Colour
+  alias Tymeslot.Emails.Shared.Styles.{DarkMode, Tokens, Tone}
+  alias Tymeslot.Emails.Shared.Urls
 
-  @intents [:confirmed, :alert, :cancelled]
-
-  # Class on the header logo's wrapper; see `dark_logo_plate_rule/0`.
-  @logo_plate_class "email-logo-plate"
-
-  # How much of an intent's accent tints the dark surface for its callout and
-  # badge backgrounds: enough to read as the intent. A luminous custom accent
-  # (a yellow) is backed off in steps until the quietest ink still clears AA.
-  @dark_tint_strength 0.18
-  @dark_tint_step 0.02
-
-  # Accent and deep text clear AA; the intent's ink is its strongest text, so
-  # it clears AAA, matching how it reads on the light side.
-  @dark_text_contrast 4.5
-  @dark_ink_contrast 7.0
+  # Class on the header logo's wrapper. Kept for callers that still name it;
+  # the plate itself is `rd-plate` (`RdIdentity.header_mjml/0`).
+  @logo_plate_class "rd-plate"
 
   @doc """
   The `<mj-attributes>` block with global defaults — font, text, section,
@@ -45,17 +37,17 @@ defmodule Tymeslot.Emails.Shared.Styles.CSS do
     """
     <mj-attributes>
       <mj-all font-family="#{Tokens.font_family()}" />
-      <mj-text font-size="#{Tokens.font_size(:md)}" line-height="1.6" color="#{Tokens.ink()}" padding="0" />
+      <mj-text font-size="#{Tokens.font_size(:md)}" line-height="1.6" color="#{Tokens.ink_soft()}" padding="0" />
       <mj-section padding="0" />
       <mj-column padding="0" />
-      <mj-button font-family="#{Tokens.font_family()}" padding="0" />
+      <mj-button font-family="#{Tokens.heading_font_family()}" padding="0" />
       <mj-table font-family="#{Tokens.font_family()}" color="#{Tokens.ink()}" />
     </mj-attributes>
     """
   end
 
   @doc """
-  The `<mj-style>` block — base typography, card/badge rules, mobile.
+  The `<mj-style>` block — base typography, card and badge rules, phone.
   """
   @spec email_css_styles() :: String.t()
   def email_css_styles do
@@ -67,42 +59,59 @@ defmodule Tymeslot.Emails.Shared.Styles.CSS do
     """
   end
 
-  @doc "The class the header logo's wrapper carries, which the dark stylesheet may target."
+  @doc "The class the header logo's wrapper carries, which the dark stylesheet targets."
   @spec logo_plate_class() :: String.t()
   def logo_plate_class, do: @logo_plate_class
 
   @doc """
+  Outfit and Urbanist, loaded from the booking host's own `/fonts/` (the
+  files `rd-brand.patch` ships), never from a third party. Clients that do not
+  load web fonts (Gmail, Outlook) use the fallback stack. Outlook for Windows
+  gets Segoe UI explicitly; without it, an unknown first font sends it to
+  Times.
+  """
+  @spec font_face_styles() :: String.t()
+  def font_face_styles do
+    base = Urls.get_app_url()
+
+    """
+    <style type="text/css">
+    @font-face { font-family: "Outfit"; font-style: normal; font-weight: 100 900; font-display: swap; src: url("#{base}/fonts/outfit-latin-wght-normal.woff2") format("woff2"); }
+    @font-face { font-family: "Urbanist"; font-style: normal; font-weight: 100 900; font-display: swap; src: url("#{base}/fonts/urbanist-latin-wght-normal.woff2") format("woff2"); }
+    </style>
+    <!--[if mso]>
+    <style type="text/css">body, table, td, p, a, span, div, h1, h2, h3 { font-family: "Segoe UI", Arial, sans-serif !important; }</style>
+    <![endif]-->
+    """
+  end
+
+  @doc """
   The dark-mode `<style>` element. Rendered on every call because the
-  `:confirmed` family follows the configured brand accent.
+  product tone (`Tone.current/0`) differs from email to email.
+
+  Each light value written inline is swapped for its dark counterpart from
+  the website's dark theme; the product tone and the two signals carry their
+  own dark values (`Tone`).
   """
   @spec dark_mode_styles() :: String.t()
   def dark_mode_styles do
-    families = Enum.map(@intents, &{&1, Tokens.intent(&1)})
-    tints = Map.new(families, fn {intent, tokens} -> {intent, dark_tint(tokens)} end)
-
-    # Intent text can land on any intent's tint (a rose link inside an amber
-    # callout), so every intent's text is lit against the lightest of them.
-    backdrop =
-      Enum.max_by([Tokens.dark(:canvas_soft) | Map.values(tints)], &Colour.relative_luminance/1)
-
-    intents =
-      Enum.map(families, fn {intent, tokens} ->
-        {intent, dark_intent(tokens, tints[intent], backdrop)}
-      end)
+    product = Tone.family()
+    signals = [Tone.signal(:alert), Tone.signal(:cancelled)]
+    families = [product | signals]
 
     DarkMode.stylesheet(%{
       text:
         neutral_pairs([:ink, :ink_soft, :ink_muted, :ink_whisper]) ++
-          Enum.flat_map(intents, fn {_intent, dark} -> dark.text end),
+          Enum.flat_map(families, &family_text_pairs/1) ++
+          [{product.on, product.dark.on}],
       background:
-        neutral_pairs([:canvas, :canvas_soft, :surface, :hairline]) ++
-          Enum.map(intents, fn {_intent, dark} -> dark.tint end),
-      border: neutral_pairs([:hairline, :hairline_soft]),
-      keep_text:
-        Enum.map(intents, fn {intent, _dark} ->
-          {Tokens.intent_accent_deep(intent), Tokens.ink()}
-        end),
-      rules: dark_class_rules(intents)
+        neutral_pairs([:canvas, :canvas_soft, :surface, :hairline, :hairline_soft]) ++
+          Enum.flat_map(families, &family_background_pairs/1),
+      border:
+        neutral_pairs([:hairline, :hairline_soft]) ++
+          Enum.flat_map(families, &family_border_pairs/1),
+      keep_text: [],
+      rules: dark_class_rules(product)
     })
   end
 
@@ -110,136 +119,81 @@ defmodule Tymeslot.Emails.Shared.Styles.CSS do
     Enum.map(keys, &{apply(Tokens, &1, []), Tokens.dark(&1)})
   end
 
-  defp dark_tint(tokens, strength \\ @dark_tint_strength) do
-    tint = mix(tokens.accent, Tokens.dark(:surface), strength)
-
-    if strength <= 0 or
-         Colour.contrast_ratio(Tokens.dark(:ink_whisper), tint) >= @dark_text_contrast do
-      tint
-    else
-      dark_tint(tokens, strength - @dark_tint_step)
-    end
+  defp family_text_pairs(family) do
+    [
+      {family.deep, family.dark.deep},
+      {family.ink, family.dark.ink},
+      {family.accent, family.dark.accent}
+    ]
   end
 
-  # The intent's three text colours, lightened until they read against
-  # `backdrop`, the lightest dark surface text can sit on.
-  defp dark_intent(tokens, tint, backdrop) do
-    ink = readable(tokens.accent_ink, backdrop, @dark_ink_contrast)
-    link = readable(tokens.accent_deep, backdrop, @dark_text_contrast)
-
-    %{
-      tint: {tokens.tint, tint},
-      ink: ink,
-      link: link,
-      text: [
-        {tokens.accent, readable(tokens.accent, backdrop, @dark_text_contrast)},
-        {tokens.accent_deep, link},
-        {tokens.accent_ink, ink}
-      ]
-    }
+  defp family_background_pairs(family) do
+    [
+      {family.tint, family.dark.tint},
+      {family.solid, family.dark.solid},
+      {family.accent, family.dark.accent}
+    ]
   end
 
-  defp readable(hex, backdrop, minimum) do
-    hex
-    |> Colour.hex_to_hsl()
-    |> Colour.lighten_until_contrast(backdrop, minimum)
-    |> Colour.hsl_to_hex()
+  defp family_border_pairs(family) do
+    [
+      {family.edge, family.dark.edge},
+      {family.accent, family.dark.accent},
+      {family.solid, family.dark.solid}
+    ]
   end
 
-  defp mix(top_hex, base_hex, weight) do
-    {r1, g1, b1} = Colour.parse_hex(top_hex)
-    {r2, g2, b2} = Colour.parse_hex(base_hex)
-    blend = fn a, b -> round(a * weight + b * (1 - weight)) end
-    Colour.to_hex({blend.(r1, r2), blend.(g1, g2), blend.(b1, b2)})
-  end
-
-  # Class-based rules from `base_rules/0` carry no inline colour for the
-  # attribute selectors to match, so their dark values are set by class.
-  # `body a` outranks the base `a` rule without `!important`, so a link with
-  # an inline colour (a button) keeps it.
-  defp dark_class_rules(intents) do
-    confirmed = Keyword.fetch!(intents, :confirmed)
-
-    badges =
-      Enum.map_join([turquoise: :confirmed, amber: :alert, rose: :cancelled], "\n", fn {name,
-                                                                                        intent} ->
-        dark = Keyword.fetch!(intents, intent)
-
-        ".badge-#{name} { background: #{elem(dark.tint, 1)} !important; color: #{dark.ink} !important; }"
-      end)
-
+  # Class-based rules carry no inline colour for the attribute selectors to
+  # match, so their dark values are set by class. `body a` outranks the base
+  # `a` rule without `!important`, so a link with an inline colour (a button)
+  # keeps it.
+  defp dark_class_rules(product) do
     """
-    body a { color: #{confirmed.link}; }
-    .glass-card {
-      background: #{Tokens.dark(:surface)} !important;
-      border-color: #{Tokens.dark(:hairline_soft)} !important;
-      box-shadow: none !important;
-    }
+    body a { color: #{product.dark.deep}; }
+    .rd-plate { background-color: transparent !important; background-image: none !important; }
+    .rd-logo-light { display: none !important; }
+    .rd-logo-dark { display: block !important; max-height: none !important; overflow: visible !important; }
+    .rd-card { background: #{Tokens.dark(:surface)} !important; border-color: #{product.dark.edge} !important; }
     .hairline { background: #{Tokens.dark(:hairline)} !important; }
-    #{badges}
-    #{dark_logo_plate_rule()}
+    .badge-turquoise { background: #{product.dark.tint} !important; color: #{product.dark.ink} !important; }
+    .badge-amber { background: #{Tone.signal(:alert).dark.tint} !important; color: #{Tone.signal(:alert).dark.ink} !important; }
+    .badge-rose { background: #{Tone.signal(:cancelled).dark.tint} !important; color: #{Tone.signal(:cancelled).dark.ink} !important; }
     """
-  end
-
-  # A custom logo may carry dark lettering on a transparent PNG, which
-  # vanishes on the dark canvas. Only then does it sit on a light rounded
-  # plate (the light surface token). The stock logo is teal and reads on
-  # either canvas, so it gets no plate. The plate lives in this media query
-  # alone: clients that ignore it keep the light canvas and need none.
-  defp dark_logo_plate_rule do
-    if Branding.custom_logo_path() do
-      """
-      .#{@logo_plate_class} img {
-        background: #{Tokens.surface()} !important;
-        border-radius: 12px !important;
-        box-sizing: border-box !important;
-        padding: 8px 12px !important;
-      }
-      """
-    else
-      ""
-    end
   end
 
   # ============================================================================
-  # BASE RULES — typography, wordmark, stage band, cards, badges
+  # BASE RULES — typography, links, card, badges
   # ============================================================================
 
   defp base_rules do
+    product = Tokens.tone()
+
     """
     a {
-      color: #{Tokens.intent_accent_deep(:confirmed)};
-      text-decoration: none;
+      color: #{product.accent_deep};
+      text-decoration: underline;
     }
-    a:hover { color: #{Tokens.intent_accent(:confirmed)}; }
+    a[x-apple-data-detectors] { color: inherit !important; text-decoration: none !important; }
 
     .wordmark {
-      font-family: #{Tokens.font_family()};
-      font-weight: 800;
-      letter-spacing: -0.02em;
+      font-family: #{Tokens.heading_font_family()};
+      font-weight: 600;
+      letter-spacing: 0;
     }
 
-    .stage-band { padding: 28px 32px; }
     .stage-band-eyebrow {
       font-size: #{Tokens.font_size(:eyebrow)};
-      font-weight: 700;
+      font-weight: 500;
       letter-spacing: 0.14em;
       text-transform: uppercase;
     }
     .stage-band-title {
-      /* 32px matches Tokens.font_size(:display); this CSS rule is a fallback
-         for clients that strip MJML inline attributes. */
-      font-size: 32px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      line-height: 1.1;
-    }
-
-    .glass-card {
-      background: #{Tokens.surface()};
-      border: 1px solid #{Tokens.hairline_soft()};
-      box-shadow: 0 1px 0 rgba(10, 18, 22, 0.04),
-                  0 12px 40px rgba(10, 18, 22, 0.06);
+      /* Fallback for clients that strip MJML's inline attributes. */
+      font-family: #{Tokens.heading_font_family()};
+      font-size: #{Tokens.font_size(:display)};
+      font-weight: 500;
+      letter-spacing: 0;
+      line-height: 1.15;
     }
 
     .hairline {
@@ -251,10 +205,10 @@ defmodule Tymeslot.Emails.Shared.Styles.CSS do
 
     .badge {
       display: inline-block;
-      padding: 5px 12px;
-      border-radius: #{Tokens.radius(:pill)};
-      font-size: 11px;
-      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: #{Tokens.radius(:sm)};
+      font-size: #{Tokens.font_size(:xs)};
+      font-weight: 500;
       letter-spacing: 0.08em;
       text-transform: uppercase;
     }
@@ -278,20 +232,26 @@ defmodule Tymeslot.Emails.Shared.Styles.CSS do
   end
 
   # ============================================================================
-  # MOBILE RULES — the @media (max-width: 480px) block
+  # PHONE RULES — the @media (max-width: 480px) block
   # ============================================================================
 
   defp mobile_styles do
     """
     @media only screen and (max-width: 480px) {
-      .mobile-display { font-size: 28px !important; line-height: 1.15 !important; }
-      .mobile-heading { font-size: 22px !important; line-height: 1.25 !important; }
-      .mobile-text    { font-size: 15px !important; line-height: 1.55 !important; }
-      .mobile-eyebrow { font-size: 10px !important; letter-spacing: 0.12em !important; }
-      .mobile-button  { width: 100% !important; padding: 16px 24px !important; }
-      .mobile-card    { padding: 18px !important; }
-      .stage-band     { padding: 24px 22px !important; }
-      .stage-band-eyebrow { font-size: 10px !important; }
+      .mobile-display { font-size: 26px !important; line-height: 1.15 !important; }
+      .mobile-heading { font-size: 26px !important; line-height: 1.15 !important; }
+      .mobile-text    { font-size: 16px !important; line-height: 1.6 !important; }
+      .mobile-eyebrow { font-size: 13px !important; }
+      .mobile-button  { width: 100% !important; }
+      .mobile-button table, .mobile-button a { width: 100% !important; box-sizing: border-box !important; }
+      .mobile-card > table > tbody > tr > td { padding-left: 16px !important; padding-right: 16px !important; }
+      /* MJML puts a css-class on the outer div and the padding on the cell
+         inside it; only the cell may change, or the card's rule moves in. */
+      .stage-band > table > tbody > tr > td { padding: 28px 22px 4px 22px !important; }
+      .rd-body > table > tbody > tr > td    { padding-left: 22px !important; padding-right: 22px !important; }
+      .rd-lead        { font-size: 16px !important; }
+      .rd-label       { display: block !important; width: auto !important; padding: 12px 0 2px 0 !important; }
+      .rd-value       { display: block !important; width: auto !important; padding: 0 0 12px 0 !important; border-top: 0 !important; }
     }
     """
   end

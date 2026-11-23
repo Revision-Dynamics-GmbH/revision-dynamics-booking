@@ -75,7 +75,7 @@ defmodule Tymeslot.Meetings.AttendeeNotifications.CalendarEventEmailContentTest 
 
       refute email.text_body =~ "Description:"
       assert email.html_body =~ "https://zoom.example/j/new"
-      assert email.text_body =~ "Location: Video Call"
+      assert email.text_body =~ "Location: Online meeting (Microsoft Teams)"
     end
 
     test "keeps the new link in the guest's calendar entry", %{event: event} do
@@ -264,9 +264,9 @@ defmodule Tymeslot.Meetings.AttendeeNotifications.CalendarEventEmailContentTest 
                )
 
       assert [email] = deliver_all("send_calendar_invitation")
-      assert email.text_body =~ "Event: Standup"
+      assert email.text_body =~ "Appointment: Standup"
       refute email.text_body =~ "Type:"
-      assert email.text_body =~ "DESCRIPTION:\nBring the numbers"
+      assert email.text_body =~ "WHAT IT IS ABOUT:\nBring the numbers"
       refute email.text_body =~ "Join video call:"
       assert {"Olive Organiser", _instance_address} = email.from
     end

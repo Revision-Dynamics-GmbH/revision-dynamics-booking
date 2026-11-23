@@ -43,7 +43,7 @@ defmodule Tymeslot.Emails.Templates.SeatUpdateForOrganizer do
     details = Formatting.without_location_note(details)
     locale = RecipientLocale.organizer_locale(details)
 
-    Gettext.with_locale(TymeslotWeb.Gettext, locale, fn ->
+    TemplateHelper.with_locale_and_tone(locale, details, fn ->
       intent = intent(variant)
       copy = copy(variant, details)
       meeting_details = TemplateHelper.organizer_meeting_details(details)
@@ -69,6 +69,7 @@ defmodule Tymeslot.Emails.Templates.SeatUpdateForOrganizer do
       stage =
         TemplateHelper.build_organizer_details(details,
           intent: intent,
+          audience: :host,
           eyebrow: copy.eyebrow,
           stage_title: copy.title,
           stage_subtitle: details.meeting_type || ""
@@ -111,7 +112,7 @@ defmodule Tymeslot.Emails.Templates.SeatUpdateForOrganizer do
     name = details.attendee_name
 
     %{
-      eyebrow: dgettext("emails_booking_changes", "Cancelled"),
+      eyebrow: dgettext("emails_booking_changes", "Appointment cancelled"),
       title: dgettext("emails_booking_changes", "The last participant cancelled their spot"),
       lead:
         dgettext(
@@ -131,7 +132,7 @@ defmodule Tymeslot.Emails.Templates.SeatUpdateForOrganizer do
     name = details.attendee_name
 
     %{
-      eyebrow: dgettext("emails_booking_changes", "Cancelled"),
+      eyebrow: dgettext("emails_booking_changes", "Appointment cancelled"),
       title: dgettext("emails_booking_changes", "A participant cancelled their spot"),
       lead:
         dgettext(

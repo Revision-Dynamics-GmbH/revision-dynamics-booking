@@ -40,7 +40,7 @@ defmodule Tymeslot.Emails.Templates.MeetingEndChanged do
   def render(:attendee, attendee_email, appointment_details) do
     locale = RecipientLocale.attendee_locale(appointment_details)
 
-    Gettext.with_locale(TymeslotWeb.Gettext, locale, fn ->
+    TemplateHelper.with_locale_and_tone(locale, appointment_details, fn ->
       {to, from} = end_times(appointment_details, locale)
 
       intro =
@@ -66,7 +66,7 @@ defmodule Tymeslot.Emails.Templates.MeetingEndChanged do
     # Guests inherit the booker's locale, as their invitation does.
     locale = RecipientLocale.attendee_locale(appointment_details)
 
-    Gettext.with_locale(TymeslotWeb.Gettext, locale, fn ->
+    TemplateHelper.with_locale_and_tone(locale, appointment_details, fn ->
       {to, from} = end_times(appointment_details, locale)
       guest_name = Map.get(appointment_details, :guest_name) || guest_email
 
@@ -108,7 +108,7 @@ defmodule Tymeslot.Emails.Templates.MeetingEndChanged do
     #{if video_url do
       MeetingComponents.video_meeting_section(@intent, video_url,
       title: dgettext("emails_booking", "Same link, new end time"),
-      button_text: dgettext("emails_booking", "Join Meeting"))
+      button_text: dgettext("emails_booking", "Join online"))
     end}
     """
 
@@ -118,7 +118,7 @@ defmodule Tymeslot.Emails.Templates.MeetingEndChanged do
         eyebrow: dgettext("emails_booking", "New end time"),
         stage_title: dgettext("emails_booking", "The meeting now ends at %{time}.", time: to),
         stage_subtitle:
-          dgettext("emails_booking", "Meeting with %{name}",
+          dgettext("emails_booking", "Appointment with %{name}",
             name: appointment_details.organizer_name
           )
       )
@@ -173,7 +173,7 @@ defmodule Tymeslot.Emails.Templates.MeetingEndChanged do
 
     #{dgettext("emails_booking", "Previously ended at")}: #{from}
 
-    #{dgettext("emails_booking", "MEETING DETAILS:")}
+    #{dgettext("emails_booking", "APPOINTMENT:")}
     #{meeting_details}#{video_section}
     #{appointment_details.organizer_name}
     """

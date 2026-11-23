@@ -75,8 +75,8 @@ defmodule Tymeslot.Emails.AppointmentBuilderRescheduleTest do
       attendee = AppointmentRescheduled.render(:attendee, details.attendee_email, details)
       organizer = AppointmentRescheduled.render(:organizer, details.organizer_email, details)
 
-      assert attendee.html_body =~ "Previously scheduled for"
-      assert organizer.html_body =~ "Previously scheduled for"
+      assert attendee.html_body =~ "Previously scheduled"
+      assert organizer.html_body =~ "Previously scheduled"
     end
   end
 end

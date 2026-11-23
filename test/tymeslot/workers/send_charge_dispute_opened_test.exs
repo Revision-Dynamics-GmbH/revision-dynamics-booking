@@ -60,7 +60,7 @@ defmodule Tymeslot.Workers.SendChargeDisputeOpenedTest do
       assert_received {:email, email}
       assert email.to == [{"Bob Host", "host@example.com"}]
       assert email.subject == "Stripe-Zahlungsstreitigkeit eröffnet: 50,00\u00A0€"
-      assert email.text_body =~ "Hallo Bob Host,"
+      assert email.text_body =~ "Sehr geehrte/r Bob Host,"
       refute email.text_body =~ "WHAT HAPPENS NEXT"
     end
 

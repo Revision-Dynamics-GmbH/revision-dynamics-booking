@@ -21,7 +21,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentCancellationTest do
           details
         )
 
-      assert email.subject =~ "Cancelled"
+      assert email.subject =~ "Appointment cancelled"
       assert email.subject =~ details.attendee_name
     end
 
@@ -115,7 +115,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentCancellationTest do
         )
 
       assert %Swoosh.Email{} = email
-      assert email.subject =~ "Meeting Cancelled"
+      assert email.subject =~ "Appointment cancelled"
       assert email.to == [{details.organizer_name, "organizer@example.com"}]
     end
 
@@ -129,8 +129,8 @@ defmodule Tymeslot.Emails.Templates.AppointmentCancellationTest do
           details
         )
 
-      assert email.html_body =~ "Meeting cancelled"
-      assert email.html_body =~ "The attendee has been notified of the cancellation."
+      assert email.html_body =~ "appointment has been cancelled"
+      assert email.html_body =~ "The booker has been told about the cancellation."
     end
 
     test "text body contains meeting cancellation notice" do
@@ -143,7 +143,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentCancellationTest do
           details
         )
 
-      assert email.text_body =~ "Meeting Cancelled"
+      assert email.text_body =~ "Appointment cancelled"
       assert email.text_body =~ details.attendee_name
     end
 
@@ -179,8 +179,8 @@ defmodule Tymeslot.Emails.Templates.AppointmentCancellationTest do
           details
         )
 
-      assert email.subject =~ "Cancelled"
-      assert email.subject =~ details.organizer_name
+      assert email.subject =~ "Appointment cancelled"
+      assert email.subject =~ details.meeting_type
     end
 
     test "sets correct recipient" do
@@ -202,10 +202,10 @@ defmodule Tymeslot.Emails.Templates.AppointmentCancellationTest do
         )
 
       assert email.html_body =~ "</html>"
-      assert email.html_body =~ "our appointment has been cancelled"
+      assert email.html_body =~ "the following appointment has been cancelled"
 
       assert email.text_body =~
-               "We're writing to confirm that your appointment has been cancelled."
+               "the following appointment has been cancelled and will not take place."
 
       refute email.text_body =~ "</html>"
     end
@@ -269,8 +269,8 @@ defmodule Tymeslot.Emails.Templates.AppointmentCancellationTest do
           details
         )
 
-      assert email.html_body =~ "Would you like to schedule a new appointment?"
-      assert email.html_body =~ "Schedule New Appointment"
+      assert email.html_body =~ "Would you like to book a new time?"
+      assert email.html_body =~ "Book a new time"
     end
 
     test "email structure is valid Swoosh email" do
@@ -284,7 +284,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentCancellationTest do
         )
 
       assert %Swoosh.Email{} = email
-      assert email.subject =~ "Meeting Cancelled"
+      assert email.subject =~ "Appointment cancelled"
       assert email.to == [{details.attendee_name, "attendee@example.com"}]
     end
 
@@ -298,8 +298,10 @@ defmodule Tymeslot.Emails.Templates.AppointmentCancellationTest do
           details
         )
 
-      assert email.html_body =~ "Meeting cancelled"
-      assert email.html_body =~ "This time slot is now available for booking again."
+      assert email.html_body =~ "appointment has been cancelled"
+
+      assert email.html_body =~
+               "If you added the appointment to your calendar, you can use the attached file to mark it as cancelled there."
     end
 
     test "text body contains greeting and cancellation notice" do
@@ -312,12 +314,12 @@ defmodule Tymeslot.Emails.Templates.AppointmentCancellationTest do
           details
         )
 
-      assert email.text_body =~ "Meeting Cancelled"
+      assert email.text_body =~ "Appointment cancelled"
       assert email.text_body =~ details.attendee_name
     end
   end
 
-  # Regression: the "Schedule New Appointment" CTA used to be hardcoded to the
+  # Regression: the "Book a new time" CTA used to be hardcoded to the
   # bare application root, so the attendee landed on the landing page instead of
   # a page where they could book again. See issue #90.
   describe "attendee cancellation email booking CTA" do
@@ -350,7 +352,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentCancellationTest do
   # by its own label rather than by scanning every href in the document.
   defp cta_href(html_body) do
     [_full, href] =
-      Regex.run(~r/<a href="([^"]+)"[^>]*>\s*Schedule New Appointment\s*<\/a>/s, html_body)
+      Regex.run(~r/<a href="([^"]+)"[^>]*>\s*Book a new time\s*<\/a>/s, html_body)
 
     href
   end
@@ -379,7 +381,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentCancellationTest do
       email = AppointmentCancellation.render(:attendee, "a@b.com", details)
 
       assert email.subject =~ "Termin abgesagt"
-      refute email.subject =~ "Meeting Cancelled"
+      refute email.subject =~ "Appointment cancelled"
       assert email.text_body =~ "Termin abgesagt"
     end
 
@@ -388,7 +390,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentCancellationTest do
       email = AppointmentCancellation.render(:attendee, "a@b.com", details)
 
       assert email.subject =~ "Réunion annulée"
-      refute email.subject =~ "Meeting Cancelled"
+      refute email.subject =~ "Appointment cancelled"
       assert email.text_body =~ "Réunion annulée"
     end
 
@@ -397,7 +399,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentCancellationTest do
       email = AppointmentCancellation.render(:attendee, "a@b.com", details)
 
       assert email.subject =~ "Зустріч скасовано"
-      refute email.subject =~ "Meeting Cancelled"
+      refute email.subject =~ "Appointment cancelled"
       assert email.text_body =~ "Зустріч скасовано"
     end
 
@@ -406,7 +408,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentCancellationTest do
       email = AppointmentCancellation.render(:attendee, "a@b.com", details)
 
       assert email.subject =~ "Riunione annullata"
-      refute email.subject =~ "Meeting Cancelled"
+      refute email.subject =~ "Appointment cancelled"
       assert email.text_body =~ "Riunione annullata"
     end
   end
@@ -418,7 +420,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentCancellationTest do
       email = AppointmentCancellation.render(:attendee, meeting.attendee_email, details)
 
       assert email.subject =~ "Termin abgesagt"
-      refute email.subject =~ "Meeting Cancelled"
+      refute email.subject =~ "Appointment cancelled"
       assert email.text_body =~ "Termin abgesagt"
     end
 
@@ -428,7 +430,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentCancellationTest do
       email = AppointmentCancellation.render(:attendee, meeting.attendee_email, details)
 
       assert email.subject =~ "Réunion annulée"
-      refute email.subject =~ "Meeting Cancelled"
+      refute email.subject =~ "Appointment cancelled"
     end
 
     test "Ukrainian locale is honoured end-to-end through AppointmentBuilder" do
@@ -437,7 +439,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentCancellationTest do
       email = AppointmentCancellation.render(:attendee, meeting.attendee_email, details)
 
       assert email.subject =~ "Зустріч скасовано"
-      refute email.subject =~ "Meeting Cancelled"
+      refute email.subject =~ "Appointment cancelled"
     end
   end
 
@@ -614,10 +616,10 @@ defmodule Tymeslot.Emails.Templates.AppointmentCancellationTest do
 
       for email <- [organizer_email, attendee_email] do
         assert %Swoosh.Email{} = email
-        assert email.subject =~ "Meeting Cancelled"
+        assert email.subject =~ "Appointment cancelled"
         assert length(email.to) == 1
-        assert email.html_body =~ "Meeting cancelled"
-        assert email.text_body =~ "Meeting Cancelled"
+        assert email.html_body =~ "appointment has been cancelled"
+        assert email.text_body =~ "Appointment cancelled"
         assert String.length(email.html_body) > 100
         assert String.length(email.text_body) > 50
       end

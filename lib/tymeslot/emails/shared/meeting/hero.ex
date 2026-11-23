@@ -50,161 +50,64 @@ defmodule Tymeslot.Emails.Shared.Meeting.Hero do
       duration = Formatting.format_meeting_duration(details, locale)
       location = Formatting.format_location(details)
       location_note = Formatting.location_note(details)
-      title_row = title_row(details)
+
+      rows =
+        [
+          {dgettext("emails", "Date"), "#{display_weekday(weekday)}, #{date_line}", nil},
+          {dgettext("emails", "Time"), time_line, nil},
+          title_row(details),
+          {dgettext("emails", "Duration"), duration, nil},
+          {dgettext("emails", "Location"), location, location_note}
+        ]
+        |> Enum.reject(&is_nil/1)
+        |> Enum.reject(fn {_label, value, _note} -> value in [nil, ""] end)
 
       Stack.spaced("""
-      <mj-section
-        background-color="#{Styles.canvas_soft()}"
-        border-radius="#{Styles.card_radius()}"
-        padding="26px 26px 22px 26px"
-        css-class="mobile-card email-canvas-soft hero-card"
-      >
-        <mj-column>
-          #{hero_eyebrow(weekday)}
-          #{hero_date(date_line)}
-          #{hero_time(time_line)}
-          #{hero_divider()}
-          #{hero_meta_grid(title_row, duration, location, location_note)}
+      <mj-section padding="8px 0 0 0" background-color="#{Styles.surface()}">
+        <mj-column
+          background-color="#{Styles.canvas_soft()}"
+          border="1px solid #{Styles.hairline()}"
+          border-radius="#{Styles.radius(:md)}"
+          padding="8px 20px"
+          css-class="rd-inset hero-card"
+        >
+          <mj-table padding="0" css-class="email-hairline-table">
+            #{rows |> Enum.with_index() |> Enum.map_join("\n", &row_html/1)}
+          </mj-table>
         </mj-column>
       </mj-section>
       """)
     end)
   end
 
-  defp hero_eyebrow(weekday) do
-    safe_weekday = Sanitise.sanitize_for_email(weekday)
+  # Revision Dynamics (rd-mail-brand.patch): the details as calm label/value
+  # rows on the inset panel of the shared mail design: label 13px spaced
+  # capitals, value 16px, a hairline between rows; on a phone the label
+  # stands above its value.
+  defp row_html({{label, value, note}, index}) do
+    border = if index > 0, do: "border-top: 1px solid #{Styles.hairline()};", else: ""
 
     """
-    <mj-text
-      font-size="11px"
-      font-weight="700"
-      color="#{Styles.ink_muted()}"
-      letter-spacing="0.16em"
-      text-transform="uppercase"
-      padding="0 0 10px 0"
-      align="left"
-      css-class="mobile-eyebrow email-ink-muted"
-    >
-      #{safe_weekday}
-    </mj-text>
+    <tr>
+      <td class="rd-label" width="120" valign="top" style="#{border} padding: 12px 12px 12px 0; width: 120px; font-size: 13px; line-height: 1.45; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #{Styles.ink_muted()};">#{Sanitise.sanitize_for_email(label)}</td>
+      <td class="rd-value" valign="top" style="#{border} padding: 12px 0; font-size: 16px; line-height: 1.45; font-weight: 500; color: #{Styles.ink()};">#{Sanitise.sanitize_for_email(value)}#{note_html(note)}</td>
+    </tr>
     """
   end
 
-  defp hero_date(date_line) do
-    safe = Sanitise.sanitize_for_email(date_line)
+  defp note_html(nil), do: ""
 
-    """
-    <mj-text
-      font-size="#{Styles.font_size(:hero)}"
-      font-weight="800"
-      color="#{Styles.ink()}"
-      letter-spacing="-0.028em"
-      line-height="1.05"
-      padding="0"
-      align="left"
-      css-class="mobile-display email-ink"
-    >
-      #{safe}
-    </mj-text>
-    """
-  end
+  defp note_html(note),
+    do:
+      ~s(<div style="padding-top: 4px; font-size: 13px; line-height: 1.5; font-weight: 400; color: #{Styles.ink_muted()};">#{Sanitise.sanitize_for_email(note)}</div>)
 
-  defp hero_time(time_line) do
-    safe_time = Sanitise.sanitize_for_email(time_line)
-
-    """
-    <mj-text
-      font-size="15px"
-      color="#{Styles.ink_muted()}"
-      padding="8px 0 0 0"
-      line-height="1.5"
-      align="left"
-      css-class="mobile-text email-ink-muted"
-    >
-      #{safe_time}
-    </mj-text>
-    """
-  end
-
-  defp hero_divider do
-    """
-    <mj-divider
-      border-color="#{Styles.hairline()}"
-      border-width="1px"
-      padding="18px 0 14px 0"
-    />
-    """
-  end
+  defp display_weekday(weekday), do: weekday |> String.downcase() |> String.capitalize()
 
   defp title_row(%{event_title: title}) when is_binary(title) and title != "",
-    do: hero_meta_row(dgettext("emails", "Event"), title, border_bottom: true)
+    do: {dgettext("emails", "Event"), title, nil}
 
   defp title_row(%{meeting_type: type} = details) when is_binary(type),
-    do:
-      hero_meta_row(dgettext("emails", "Meeting type"), type,
-        border_bottom: true,
-        note: Formatting.booked_through(details)
-      )
+    do: {dgettext("emails", "Meeting"), type, Formatting.booked_through(details)}
 
-  defp title_row(_details), do: ""
-
-  defp hero_meta_grid(title_row, duration, location, location_note) do
-    """
-    #{title_row}
-    <mj-table padding="0">
-      <tr>
-        <td style="vertical-align: top; padding: 12px 12px 0 0; width: 50%;">
-          #{hero_meta_label(dgettext("emails", "Duration"))}
-          #{hero_meta_value(duration)}
-        </td>
-        <td style="vertical-align: top; padding: 12px 0 0 12px; width: 50%;">
-          #{hero_meta_label(dgettext("emails", "Location"))}
-          #{hero_meta_value(location)}
-          #{hero_meta_note(location_note)}
-        </td>
-      </tr>
-    </mj-table>
-    """
-  end
-
-  defp hero_meta_note(nil), do: ""
-
-  defp hero_meta_note(note) do
-    safe = Sanitise.sanitize_for_email(note)
-
-    ~s(<div class="email-ink-muted" style="font-size: 13px; color: #{Styles.ink_muted()}; line-height: 1.4; padding-top: 4px;">#{safe}</div>)
-  end
-
-  defp hero_meta_row(label, value, opts) do
-    safe_value = Sanitise.sanitize_for_email(value)
-
-    border =
-      if Keyword.get(opts, :border_bottom, false),
-        do: "border-bottom: 1px solid #{Styles.hairline()};",
-        else: ""
-
-    """
-    <mj-table padding="0" css-class="email-hairline-table">
-      <tr class="email-hairline-row">
-        <td class="email-hairline-row" style="padding: 0 0 12px 0; #{border}">
-          #{hero_meta_label(label)}
-          <div class="email-ink" style="font-size: 15px; font-weight: 600; color: #{Styles.ink()}; line-height: 1.4;">#{safe_value}</div>
-          #{hero_meta_note(Keyword.get(opts, :note))}
-        </td>
-      </tr>
-    </mj-table>
-    """
-  end
-
-  defp hero_meta_label(label) do
-    safe = Sanitise.sanitize_for_email(label)
-
-    ~s(<div class="email-ink-muted" style="font-size: 11px; font-weight: 700; color: #{Styles.ink_muted()}; letter-spacing: 0.1em; text-transform: uppercase; padding-bottom: 4px;">#{safe}</div>)
-  end
-
-  defp hero_meta_value(value) do
-    safe = Sanitise.sanitize_for_email(value)
-
-    ~s(<div class="email-ink" style="font-size: 15px; font-weight: 600; color: #{Styles.ink()}; line-height: 1.4;">#{safe}</div>)
-  end
+  defp title_row(_details), do: nil
 end

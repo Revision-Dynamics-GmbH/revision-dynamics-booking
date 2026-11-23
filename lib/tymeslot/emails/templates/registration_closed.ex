@@ -71,6 +71,7 @@ defmodule Tymeslot.Emails.Templates.RegistrationClosed do
       stage =
         TemplateHelper.build_organizer_details(details,
           intent: :confirmed,
+          audience: :host,
           eyebrow: dgettext("emails_booking", "Registration closed"),
           stage_title: copy.title,
           stage_subtitle: details.meeting_type || ""
@@ -238,7 +239,7 @@ defmodule Tymeslot.Emails.Templates.RegistrationClosed do
 
     #{copy.lead}
 
-    #{dgettext("emails_booking", "MEETING DETAILS:")}
+    #{dgettext("emails_booking", "APPOINTMENT:")}
     #{TextBodyHelper.format_meeting_details(meeting_details, locale)}
 
     #{seats_line(details, roster)}

@@ -13,6 +13,13 @@ defmodule TymeslotWeb.Themes.Shared.Components.LegalLinks do
 
   Neutral class names here; the styling is shared by every theme, in
   `assets/css/scheduling/shared/components/legal-links.css`.
+
+  Revision Dynamics (rd-mail-brand.patch): under the legal links a line says
+  the booking service is based on Tymeslot (AGPL-3.0) and links the source of
+  the version this page runs on, as the AGPL asks of a network service
+  (§ 13), worded under Tymeslot's trademark rules. It points where the
+  emails' notice does (`Tymeslot.Emails.Shared.RdIdentity.source_url/0`,
+  `RD_SOURCE_URL`) and shows whether or not the organiser set legal links.
   """
 
   use Phoenix.Component
@@ -23,20 +30,20 @@ defmodule TymeslotWeb.Themes.Shared.Components.LegalLinks do
     doc: "`%{legal_notice_url:, privacy_policy_url:}`, either URL nil, or nil for none"
 
   @doc """
-  Renders a link for each URL set, the legal notice first, each opening in a
-  new tab; nothing at all when neither is set.
+  Renders a link for each URL set, the legal notice first, then the source
+  code link, each opening in a new tab.
   """
   @spec footer(map()) :: Phoenix.LiveView.Rendered.t()
   def footer(assigns) do
     assigns =
       assign(assigns,
         legal_notice_url: assigns.links && assigns.links[:legal_notice_url],
-        privacy_policy_url: assigns.links && assigns.links[:privacy_policy_url]
+        privacy_policy_url: assigns.links && assigns.links[:privacy_policy_url],
+        source_url: Tymeslot.Emails.Shared.RdIdentity.source_url()
       )
 
     ~H"""
     <footer
-      :if={@legal_notice_url || @privacy_policy_url}
       class="legal-links"
       data-testid="legal-links"
     >
@@ -58,6 +65,21 @@ defmodule TymeslotWeb.Themes.Shared.Components.LegalLinks do
       >
         {dgettext("booking", "Privacy policy")}
       </a>
+      <p class="legal-links__notice">
+        {dgettext(
+          "booking",
+          "The booking service is based on Tymeslot, free software under the AGPL-3.0."
+        )}
+        <a
+          href={@source_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="legal-links__link"
+          data-testid="source-code-link"
+        >
+          {dgettext("booking", "Source code of our version")}
+        </a>
+      </p>
     </footer>
     """
   end

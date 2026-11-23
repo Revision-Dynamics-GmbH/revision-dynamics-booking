@@ -31,7 +31,8 @@ defmodule Tymeslot.Emails.Shared.Cards do
     #{Stack.spaced("""
       <mj-section
         background-color="#{Styles.canvas_soft()}"
-        border-radius="#{Styles.card_radius()}"
+        border-radius="#{Styles.radius(:md)}"
+        border="1px solid #{Styles.hairline()}"
         padding="20px 26px"
         css-class="mobile-card email-canvas-soft"
       >
@@ -65,7 +66,7 @@ defmodule Tymeslot.Emails.Shared.Cards do
 
         """
         <tr>
-          <td style="padding: 10px 12px 10px 0; font-size: 11px; font-weight: 700; color: #{Styles.ink_muted()}; letter-spacing: 0.1em; text-transform: uppercase; width: 110px; vertical-align: top; border-bottom: 1px solid #{Styles.border_color(:subtle)};">#{safe_label}</td>
+          <td style="padding: 10px 12px 10px 0; font-size: 13px; font-weight: 500; color: #{Styles.ink_muted()}; letter-spacing: 0.1em; text-transform: uppercase; width: 110px; vertical-align: top; border-bottom: 1px solid #{Styles.border_color(:subtle)};">#{safe_label}</td>
           <td style="padding: 10px 0; color: #{Styles.ink()}; font-size: 14px; font-weight: 500; vertical-align: top; border-bottom: 1px solid #{Styles.border_color(:subtle)};">#{safe_value}</td>
         </tr>
         """
@@ -74,14 +75,15 @@ defmodule Tymeslot.Emails.Shared.Cards do
     Stack.spaced("""
     <mj-section
       background-color="#{Styles.canvas_soft()}"
-      border-radius="#{Styles.card_radius()}"
+      border-radius="#{Styles.radius(:md)}"
+        border="1px solid #{Styles.hairline()}"
       padding="22px 24px"
       css-class="mobile-card"
     >
       <mj-column>
         <mj-text
-          font-size="11px"
-          font-weight="700"
+          font-size="13px"
+          font-weight="500"
           color="#{Styles.ink_muted()}"
           letter-spacing="0.14em"
           text-transform="uppercase"
@@ -109,14 +111,15 @@ defmodule Tymeslot.Emails.Shared.Cards do
     Stack.spaced("""
     <mj-section
       background-color="#{Styles.canvas_soft()}"
-      border-radius="#{Styles.card_radius()}"
+      border-radius="#{Styles.radius(:md)}"
+        border="1px solid #{Styles.hairline()}"
       padding="22px 24px"
       css-class="mobile-card"
     >
       <mj-column>
         <mj-text
-          font-size="11px"
-          font-weight="700"
+          font-size="13px"
+          font-weight="500"
           color="#{Styles.ink_muted()}"
           letter-spacing="0.14em"
           text-transform="uppercase"

@@ -111,11 +111,11 @@ defmodule Tymeslot.Bookings.TeamsBookingLinksTest do
     # The reschedule link opens this booking's reschedule page, whose next step
     # carries this booking's uid.
     {:ok, reschedule_view, _html} = live(conn, URI.parse(meeting.reschedule_url).path)
-    assert render(reschedule_view) =~ "Reschedule Appointment"
+    assert render(reschedule_view) =~ "Reschedule appointment"
 
     test_reschedule_page_navigation(
       reschedule_view,
-      "Choose New Time",
+      "Choose a new time",
       profile.username,
       meeting.uid
     )

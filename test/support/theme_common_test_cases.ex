@@ -42,15 +42,15 @@ defmodule TymeslotWeb.ThemeCommonTestCases do
   @spec test_render_meeting_action(module(), map()) :: :ok
   def test_render_meeting_action(theme_module, assigns) do
     reschedule = render(&theme_module.render_meeting_action(&1, :reschedule), assigns)
-    assert reschedule =~ "Reschedule Appointment"
-    assert reschedule =~ "Select a new time for your meeting"
-    refute reschedule =~ "Yes, Cancel Meeting"
+    assert reschedule =~ "Reschedule appointment"
+    assert reschedule =~ "Choose a new time for your appointment."
+    refute reschedule =~ "Yes, cancel appointment"
 
     cancel = render(&theme_module.render_meeting_action(&1, :cancel), assigns)
-    assert cancel =~ "Cancel Appointment"
-    assert cancel =~ "Are you sure you want to cancel this appointment?"
-    assert cancel =~ "Yes, Cancel Meeting"
-    assert cancel =~ "Keep Meeting"
+    assert cancel =~ "Cancel appointment"
+    assert cancel =~ "Do you really want to cancel this appointment?"
+    assert cancel =~ "Yes, cancel appointment"
+    assert cancel =~ "Keep appointment"
 
     kept =
       render(
@@ -58,15 +58,15 @@ defmodule TymeslotWeb.ThemeCommonTestCases do
         Map.put(assigns, :meeting_kept, true)
       )
 
-    assert kept =~ "Meeting Confirmed"
-    assert kept =~ "Great! Your meeting is still scheduled as planned."
-    refute kept =~ "Yes, Cancel Meeting"
+    assert kept =~ "Appointment kept"
+    assert kept =~ "Your appointment remains as planned."
+    refute kept =~ "Yes, cancel appointment"
 
     cancel_confirmed = render(&theme_module.render_meeting_action(&1, :cancel_confirmed), assigns)
-    assert cancel_confirmed =~ "Meeting Cancelled"
-    assert cancel_confirmed =~ "Your meeting has been successfully cancelled."
-    assert cancel_confirmed =~ "Schedule a New Meeting"
-    refute cancel_confirmed =~ "Are you sure you want to cancel this appointment?"
+    assert cancel_confirmed =~ "Appointment cancelled"
+    assert cancel_confirmed =~ "Your appointment has been cancelled."
+    assert cancel_confirmed =~ "Book a new time"
+    refute cancel_confirmed =~ "Do you really want to cancel this appointment?"
 
     assert_raise RuntimeError, "Unsupported meeting action: invalid", fn ->
       theme_module.render_meeting_action(assigns, :invalid)

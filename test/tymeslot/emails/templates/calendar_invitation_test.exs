@@ -121,13 +121,13 @@ defmodule Tymeslot.Emails.Templates.CalendarInvitationTest do
         )
 
       assert email.html_body =~ ~s(href="#{url}")
-      assert email.html_body =~ "Video Call"
+      assert email.html_body =~ "Online meeting (Microsoft Teams)"
       refute email.html_body =~ "TBD"
-      assert email.text_body =~ "JOIN VIDEO MEETING:\n#{url}"
-      assert email.text_body =~ "Location: Video Call"
+      assert email.text_body =~ "JOIN ONLINE:\n#{url}"
+      assert email.text_body =~ "Location: Online meeting (Microsoft Teams)"
 
       [ics] = Enum.filter(email.attachments, &(&1.content_type == "text/calendar"))
-      assert ics.data =~ ~r/^LOCATION[^:]*:Video Call\r$/m
+      assert ics.data =~ ~r/^LOCATION[^:]*:Online meeting \(Microsoft Teams\)\r$/m
       assert String.replace(ics.data, "\r\n ", "") =~ "CONFERENCE;VALUE=URI;FEATURE=VIDEO"
     end
 
@@ -139,7 +139,7 @@ defmodule Tymeslot.Emails.Templates.CalendarInvitationTest do
         )
 
       assert email.text_body =~ "Location: Conference Room B"
-      assert email.text_body =~ "JOIN VIDEO MEETING:"
+      assert email.text_body =~ "JOIN ONLINE:"
     end
 
     test "the attachment states a description's join link once" do
@@ -175,7 +175,7 @@ defmodule Tymeslot.Emails.Templates.CalendarInvitationTest do
         )
 
       refute email.html_body =~ ~s(href="#{url}")
-      refute email.text_body =~ "JOIN VIDEO MEETING:"
+      refute email.text_body =~ "JOIN ONLINE:"
     end
 
     test "handles nil description gracefully" do

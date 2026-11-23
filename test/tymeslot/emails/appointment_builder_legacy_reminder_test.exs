@@ -40,8 +40,10 @@ defmodule Tymeslot.Emails.AppointmentBuilderLegacyReminderTest do
           Map.put(details, :organizer_locale, "en")
         )
 
-      assert organizer_copy.subject =~ "in 30 minutes"
-      refute organizer_copy.subject =~ "Minuten"
+      # Revision Dynamics (rd-mail-brand.patch): the subject names the date
+      # and time; the label stands under the title.
+      assert organizer_copy.html_body =~ "Starts in 30 minutes"
+      refute organizer_copy.html_body =~ "Minuten"
     end
 
     test "keeps a legacy reminder label that is not an interval as it is" do

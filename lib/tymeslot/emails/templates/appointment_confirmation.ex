@@ -39,7 +39,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmation do
   def render(:attendee, attendee_email, appointment_details) do
     locale = RecipientLocale.attendee_locale(appointment_details)
 
-    Gettext.with_locale(TymeslotWeb.Gettext, locale, fn ->
+    TemplateHelper.with_locale_and_tone(locale, appointment_details, fn ->
       attendee_video_url = JoinUrl.for(:attendee, appointment_details)
 
       meeting_details = TemplateHelper.attendee_meeting_details(appointment_details, :attendee)
@@ -47,7 +47,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmation do
       intro_copy =
         dgettext(
           "emails_booking",
-          "Hi %{name} - I've blocked the time on my calendar and I'm looking forward to our meeting.",
+          "Dear %{name},\n\nthank you for your booking. The appointment is in my calendar, and the invitation for your calendar is attached to this email.",
           name: appointment_details.attendee_name
         )
 
@@ -68,37 +68,35 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmation do
 
       #{if attendee_video_url do
         MeetingComponents.video_meeting_section(@intent, attendee_video_url,
-        title: dgettext("emails_booking", "Ready to join when it's time?"),
-        button_text: dgettext("emails_booking", "Join Video Meeting"))
+        title: dgettext("emails_booking", "At the agreed time, join online here:"),
+        button_text: dgettext("emails_booking", "Join online"))
       end}
 
       #{if payment_receipt, do: PaymentBlocks.attendee_receipt_html(payment_receipt)}
 
-      #{MeetingComponents.actions_section(@intent, dgettext("emails_booking", "Need to make changes?"), [%{text: dgettext("emails_booking", "Reschedule"), url: Map.get(appointment_details, :reschedule_url), style: :secondary}, %{text: dgettext("emails_booking", "Cancel Appointment"), url: Map.get(appointment_details, :cancel_url), style: :danger}])}
+      #{MeetingComponents.actions_section(@intent, dgettext("emails_booking", "Would you like to change something?"), [%{text: dgettext("emails_booking", "Reschedule"), url: Map.get(appointment_details, :reschedule_url), style: :secondary}, %{text: dgettext("emails_booking", "Cancel appointment"), url: Map.get(appointment_details, :cancel_url), style: :danger}])}
 
-      #{if appointment_details.organizer_contact_info do
-        Text.centered_text(dgettext("emails_booking", "Questions? %{contact_info}", contact_info: appointment_details.organizer_contact_info), font_size: "14px", padding: "16px 0 0 0")
-      end}
 
       #{if appointment_details.reminders_summary do
-        Callouts.alert_box(@intent, appointment_details.reminders_summary, title: dgettext("emails_booking", "Reminders Scheduled"))
+        Callouts.alert_box(@intent, appointment_details.reminders_summary, title: dgettext("emails_booking", "Reminder"))
       end}
+      #{TemplateHelper.signature_html(appointment_details)}
       """
 
       organizer_details =
         TemplateHelper.build_organizer_details(appointment_details,
           intent: @intent,
-          eyebrow: dgettext("emails_booking", "Confirmed"),
-          stage_title: dgettext("emails_booking", "You're booked."),
+          preview:
+            TemplateHelper.preview(:confirmed, appointment_details, meeting_details, locale),
+          eyebrow: dgettext("emails_booking", "Appointment confirmed"),
+          stage_title: dgettext("emails_booking", "Your appointment is confirmed."),
           stage_subtitle:
-            dgettext("emails_booking", "Meeting with %{name}",
+            dgettext("emails_booking", "Appointment with %{name}",
               name: appointment_details.organizer_name
             )
         )
 
       html_body = TemplateHelper.compile_template(mjml_content, organizer_details)
-
-      date_short = Formatting.format_date_short(meeting_details.date, locale)
 
       MjmlEmail.base_email()
       |> to({appointment_details.attendee_name, attendee_email})
@@ -107,10 +105,12 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmation do
         appointment_details.organizer_email
       )
       |> subject(
-        dgettext("emails_booking", "Appointment Confirmed - %{date} with %{name}",
-          date: date_short,
-          name: appointment_details.organizer_name
-        )
+        TemplateHelper.subject(:confirmed, appointment_details, meeting_details, locale, fn ->
+          dgettext("emails_booking", "Appointment Confirmed - %{date} with %{name}",
+            date: Formatting.format_date_short(meeting_details.date, locale),
+            name: appointment_details.organizer_name
+          )
+        end)
       )
       |> html_body(html_body)
       |> text_body(
@@ -118,7 +118,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmation do
       )
       |> attachment(
         IcsGenerator.generate_ics_attachment(
-          appointment_details,
+          TemplateHelper.attendee_ics_details(appointment_details),
           locale,
           "appointment-#{appointment_details.uid}.ics"
         )
@@ -131,7 +131,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmation do
     # booker's locale (`:attendee_locale`) set when the booking was created.
     locale = RecipientLocale.attendee_locale(appointment_details)
 
-    Gettext.with_locale(TymeslotWeb.Gettext, locale, fn ->
+    TemplateHelper.with_locale_and_tone(locale, appointment_details, fn ->
       guest_name = Map.get(appointment_details, :guest_name) || guest_email
       guest_video_url = JoinUrl.for(:guest, appointment_details)
 
@@ -150,8 +150,8 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmation do
 
       #{if guest_video_url do
         MeetingComponents.video_meeting_section(@intent, guest_video_url,
-        title: dgettext("emails_booking", "Join when you're ready"),
-        button_text: dgettext("emails_booking", "Join Meeting"))
+        title: dgettext("emails_booking", "At the agreed time, join online here:"),
+        button_text: dgettext("emails_booking", "Join online"))
       end}
 
       #{MeetingComponents.actions_section(@intent, dgettext("emails_booking", "Will you be there?"), TemplateHelper.guest_answer_actions(appointment_details), footer: dgettext("emails_booking", "You can change your response any time using the buttons above."))}
@@ -163,7 +163,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmation do
           eyebrow: dgettext("emails_booking", "You're invited"),
           stage_title: dgettext("emails_booking", "You've been added as a guest"),
           stage_subtitle:
-            dgettext("emails_booking", "Meeting with %{name}",
+            dgettext("emails_booking", "Appointment with %{name}",
               name: appointment_details.organizer_name
             )
         )
@@ -202,66 +202,81 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmation do
   end
 
   def render(:organizer, organizer_email, appointment_details) do
-    Gettext.with_locale(TymeslotWeb.Gettext, organizer_locale(appointment_details), fn ->
-      organiser_payment = PaymentBlocks.organizer_summary(appointment_details)
-      organizer_video_url = JoinUrl.for(:organizer, appointment_details)
-      meeting_details = TemplateHelper.organizer_meeting_details(appointment_details)
+    TemplateHelper.with_locale_and_tone(
+      organizer_locale(appointment_details),
+      appointment_details,
+      fn ->
+        organiser_payment = PaymentBlocks.organizer_summary(appointment_details)
+        organizer_video_url = JoinUrl.for(:organizer, appointment_details)
+        meeting_details = TemplateHelper.organizer_meeting_details(appointment_details)
 
-      mjml_content = """
-      #{MeetingComponents.counterpart_section(@intent, appointment_details)}
+        mjml_content = """
+        #{MeetingComponents.counterpart_section(@intent, appointment_details)}
 
-      #{MeetingComponents.attendee_message_box(@intent, appointment_details[:attendee_message])}
+        #{MeetingComponents.attendee_message_box(@intent, appointment_details[:attendee_message])}
 
-      #{MeetingComponents.meeting_details_table(meeting_details, organizer_locale(appointment_details))}
+        #{MeetingComponents.meeting_details_table(meeting_details, organizer_locale(appointment_details))}
 
-      #{MeetingComponents.description_section(appointment_details)}
+        #{MeetingComponents.description_section(appointment_details)}
 
-      #{if organizer_video_url do
-        MeetingComponents.video_meeting_section(@intent, organizer_video_url,
-        title: dgettext("emails_booking", "Host video call"),
-        button_text: dgettext("emails_booking", "Start Meeting"))
-      end}
+        #{if organizer_video_url do
+          MeetingComponents.video_meeting_section(@intent, organizer_video_url,
+          title: dgettext("emails_booking", "At the agreed time, start the meeting here:"),
+          button_text: dgettext("emails_booking", "Start the meeting"))
+        end}
 
-      #{MeetingComponents.custom_answers_section(appointment_details)}
-      #{if organiser_payment, do: PaymentBlocks.organizer_summary_html(organiser_payment)}
+        #{MeetingComponents.custom_answers_section(appointment_details)}
+        #{if organiser_payment, do: PaymentBlocks.organizer_summary_html(organiser_payment)}
 
-      #{MeetingComponents.actions_section(@intent, dgettext("emails_booking", "Need to make changes?"), [%{text: dgettext("emails_booking", "Open in dashboard"), url: Map.get(appointment_details, :dashboard_url), style: :primary}, %{text: dgettext("emails_booking", "Reschedule"), url: Map.get(appointment_details, :reschedule_url), style: :secondary}, %{text: dgettext("emails_booking", "Cancel Appointment"), url: Map.get(appointment_details, :cancel_url), style: :danger}])}
-      """
+        #{MeetingComponents.actions_section(@intent, dgettext("emails_booking", "Would you like to change something?"), [%{text: dgettext("emails_booking", "Open in dashboard"), url: Map.get(appointment_details, :dashboard_url), style: :primary}, %{text: dgettext("emails_booking", "Reschedule"), url: Map.get(appointment_details, :reschedule_url), style: :secondary}, %{text: dgettext("emails_booking", "Cancel appointment"), url: Map.get(appointment_details, :cancel_url), style: :danger}])}
+        """
 
-      organizer_details =
-        TemplateHelper.build_organizer_details(
-          appointment_details,
-          [intent: @intent] ++ organizer_stage(appointment_details)
+        organizer_details =
+          TemplateHelper.build_organizer_details(
+            appointment_details,
+            [
+              intent: @intent,
+              audience: :host,
+              preview:
+                TemplateHelper.preview(
+                  :new_booking,
+                  appointment_details,
+                  meeting_details,
+                  organizer_locale(appointment_details)
+                )
+            ] ++ organizer_stage(appointment_details)
+          )
+
+        html_body = TemplateHelper.compile_template(mjml_content, organizer_details)
+
+        # No ICS attachment for the organiser email. The organiser is the
+        # calendar owner — Tymeslot already writes the event straight to their
+        # CalDAV/OAuth calendar. An iTIP `METHOD:REQUEST` attachment on top of
+        # that causes iMIP-aware mail servers (Zimbra, Exchange, iCloud Mail)
+        # to auto-import the ICS as if it were an external invitation,
+        # producing a duplicate event and re-sending invites to the attendee.
+        MjmlEmail.base_email()
+        |> to({appointment_details.organizer_name, organizer_email})
+        |> MjmlEmail.put_reply_to(
+          appointment_details.attendee_name,
+          appointment_details.attendee_email
         )
-
-      html_body = TemplateHelper.compile_template(mjml_content, organizer_details)
-
-      # No ICS attachment for the organiser email. The organiser is the
-      # calendar owner — Tymeslot already writes the event straight to their
-      # CalDAV/OAuth calendar. An iTIP `METHOD:REQUEST` attachment on top of
-      # that causes iMIP-aware mail servers (Zimbra, Exchange, iCloud Mail)
-      # to auto-import the ICS as if it were an external invitation,
-      # producing a duplicate event and re-sending invites to the attendee.
-      MjmlEmail.base_email()
-      |> to({appointment_details.organizer_name, organizer_email})
-      |> MjmlEmail.put_reply_to(
-        appointment_details.attendee_name,
-        appointment_details.attendee_email
-      )
-      |> subject(
-        organizer_subject(
-          appointment_details,
-          Formatting.format_date_short(
-            meeting_details.date,
-            organizer_locale(appointment_details)
+        |> subject(
+          organizer_subject(
+            appointment_details,
+            meeting_details,
+            Formatting.format_date_short(
+              meeting_details.date,
+              organizer_locale(appointment_details)
+            )
           )
         )
-      )
-      |> html_body(html_body)
-      |> text_body(
-        build_organizer_text_body(appointment_details, meeting_details, organiser_payment)
-      )
-    end)
+        |> html_body(html_body)
+        |> text_body(
+          build_organizer_text_body(appointment_details, meeting_details, organiser_payment)
+        )
+      end
+    )
   end
 
   defp build_attendee_text_body(appointment_details, meeting_details, locale, payment_receipt) do
@@ -280,19 +295,18 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmation do
       end
 
     """
-    #{dgettext("emails_booking", "Appointment Confirmed!")}
+    #{dgettext("emails_booking", "Your appointment is confirmed.")}
 
-    #{dgettext("emails_booking", "Hi %{name},", name: appointment_details.attendee_name)}
+    #{dgettext("emails_booking", "Dear %{name},", name: appointment_details.attendee_name)}
 
-    #{dgettext("emails_booking", "I'm looking forward to our meeting. I've blocked the time on my calendar and will be ready for you.")}
+    #{dgettext("emails_booking", "thank you for your booking. The appointment is in my calendar, and the invitation for your calendar is attached to this email.")}
 
-    #{GroupSession.text(appointment_details)}#{dgettext("emails_booking", "MEETING DETAILS:")}
+    #{GroupSession.text(appointment_details)}#{dgettext("emails_booking", "APPOINTMENT:")}
     #{meeting_details}#{MeetingComponents.description_text(appointment_details)}#{TextBodyHelper.format_organizer_note(appointment_details, locale)}#{video_section}#{custom_answers}
     #{action_links}#{payment_section}
-    #{if appointment_details.organizer_contact_info, do: "\n#{dgettext("emails_booking", "QUESTIONS?")}\n#{appointment_details.organizer_contact_info}\n"}
     #{if appointment_details.reminders_summary, do: "\n#{appointment_details.reminders_summary}\n", else: ""}
 
-    #{dgettext("emails_booking", "Looking forward to meeting you!")}
+    #{dgettext("emails_booking", "Kind regards")}
     #{appointment_details.organizer_name}
     """
   end
@@ -343,11 +357,11 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmation do
     """
     #{dgettext("emails_booking", "You're invited!")}
 
-    #{dgettext("emails_booking", "Hi %{guest},", guest: guest_name)}
+    #{dgettext("emails_booking", "Dear %{guest},", guest: guest_name)}
 
     #{guest_invited_line(appointment_details)}
 
-    #{dgettext("emails_booking", "MEETING DETAILS:")}
+    #{dgettext("emails_booking", "APPOINTMENT:")}
     #{meeting_details}#{MeetingComponents.description_text(appointment_details)}#{TextBodyHelper.format_organizer_note(appointment_details, locale)}#{video_section}#{TextBodyHelper.format_guest_answers(appointment_details, dgettext("emails_booking", "WILL YOU BE THERE?"), dgettext("emails_booking", "You can change your response any time using the links above."))}
     """
   end
@@ -396,11 +410,8 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmation do
 
     #{stage[:stage_subtitle]}#{attendee_info}
 
-    #{dgettext("emails_booking", "MEETING DETAILS:")}
+    #{dgettext("emails_booking", "APPOINTMENT:")}
     #{meeting_details}#{MeetingComponents.description_text(appointment_details)}#{video_section}#{custom_answers}#{action_links}#{payment_section}
-
-    #{dgettext("emails_booking", "Best,")}
-    #{appointment_details.organizer_name}
     """
   end
 
@@ -420,25 +431,34 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmation do
   defp organizer_stage(appointment_details) do
     [
       eyebrow: dgettext("emails_booking", "New booking"),
-      stage_title: dgettext("emails_booking", "New Appointment Booked!"),
+      stage_title: dgettext("emails_booking", "New appointment booked"),
       stage_subtitle:
-        dgettext("emails_booking", "%{name} has scheduled a meeting with you.",
+        dgettext("emails_booking", "%{name} has booked an appointment with you.",
           name: appointment_details.attendee_name
         )
     ]
   end
 
-  defp organizer_subject(%{host_managed: true} = appointment_details, date) do
+  defp organizer_subject(%{host_managed: true} = appointment_details, _meeting_details, date) do
     dgettext("emails_booking", "Poll confirmed: %{title} - %{date}",
       title: appointment_details.attendee_name,
       date: date
     )
   end
 
-  defp organizer_subject(appointment_details, date) do
-    dgettext("emails_booking", "New Appointment: %{name} - %{date}",
-      name: appointment_details.attendee_name,
-      date: date
+  # Revision Dynamics (rd-mail-brand.patch): what was booked, by whom, when.
+  defp organizer_subject(appointment_details, meeting_details, date) do
+    TemplateHelper.subject(
+      :new_booking,
+      appointment_details,
+      meeting_details,
+      organizer_locale(appointment_details),
+      fn ->
+        dgettext("emails_booking", "New Appointment: %{name} - %{date}",
+          name: appointment_details.attendee_name,
+          date: date
+        )
+      end
     )
   end
 

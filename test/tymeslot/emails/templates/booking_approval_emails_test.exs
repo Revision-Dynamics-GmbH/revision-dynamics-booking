@@ -36,7 +36,7 @@ defmodule Tymeslot.Emails.Templates.BookingApprovalEmailsTest do
       start_time: ~U[2026-09-01 13:00:00Z],
       end_time: ~U[2026-09-01 13:30:00Z],
       duration: 30,
-      location: "Video Call",
+      location: "Online meeting (Microsoft Teams)",
       organizer_name: "Sam Host",
       organizer_email: "sam@example.com",
       attendee_name: "Alex Guest",
@@ -195,8 +195,8 @@ defmodule Tymeslot.Emails.Templates.BookingApprovalEmailsTest do
       refute email.subject =~ "Booking request"
       assert email.html_body =~ "would like to move their confirmed booking"
       assert email.html_body =~ "Requested New Time"
-      assert email.html_body =~ "Previously scheduled for"
-      assert email.text_body =~ "Previously scheduled for"
+      assert email.html_body =~ "Previously scheduled"
+      assert email.text_body =~ "Previously scheduled"
       assert email.html_body =~ @urls.approve_url
     end
 
@@ -214,8 +214,8 @@ defmodule Tymeslot.Emails.Templates.BookingApprovalEmailsTest do
       assert email.subject =~ "Reschedule requested"
       assert email.html_body =~ "Reschedule Request Received"
       assert email.html_body =~ "the new time isn&#39;t final yet"
-      assert email.html_body =~ "Previously scheduled for"
-      assert email.text_body =~ "Previously scheduled for"
+      assert email.html_body =~ "Previously scheduled"
+      assert email.text_body =~ "Previously scheduled"
     end
 
     test "without the previous time the wording still reads as a reschedule" do
@@ -224,7 +224,7 @@ defmodule Tymeslot.Emails.Templates.BookingApprovalEmailsTest do
       email = BookingRequestReceived.render(moved_meeting())
 
       assert email.subject =~ "Reschedule requested"
-      refute email.html_body =~ "Previously scheduled for"
+      refute email.html_body =~ "Previously scheduled"
     end
 
     test "a first-time request keeps the booking wording" do
@@ -233,7 +233,7 @@ defmodule Tymeslot.Emails.Templates.BookingApprovalEmailsTest do
 
       host = BookingApprovalRequest.render(:request, meeting(), @urls, "en")
       assert host.subject =~ "Booking request"
-      refute host.html_body =~ "Previously scheduled for"
+      refute host.html_body =~ "Previously scheduled"
     end
   end
 
@@ -428,7 +428,7 @@ defmodule Tymeslot.Emails.Templates.BookingApprovalEmailsTest do
         |> BookingRequestReceived.render()
         |> Map.fetch!(:html_body)
 
-      assert html =~ "Video Call"
+      assert html =~ "Online meeting (Microsoft Teams)"
       refute html =~ "TBD"
     end
   end

@@ -3,7 +3,6 @@ defmodule Tymeslot.Emails.Shared.Meeting.VideoSectionTest do
   @moduletag :emails
 
   alias Tymeslot.Emails.Shared.Meeting.VideoSection
-  alias Tymeslot.Emails.Shared.Styles
   alias Tymeslot.Utils.Colour
 
   describe "video_meeting_section/3" do
@@ -26,7 +25,7 @@ defmodule Tymeslot.Emails.Shared.Meeting.VideoSectionTest do
       html = VideoSection.video_meeting_section(:confirmed, url)
 
       assert html =~ url
-      assert html =~ "Join Meeting"
+      assert html =~ "Join online"
     end
 
     test "supports different intents" do
@@ -37,13 +36,14 @@ defmodule Tymeslot.Emails.Shared.Meeting.VideoSectionTest do
           html = VideoSection.video_meeting_section(intent, url)
 
           assert html =~ url
-          assert html =~ "Join Meeting"
+          assert html =~ "Join online"
 
           html
         end
 
-      # Each intent must paint its own colour band, so no two renders are alike.
-      assert rendered |> Enum.uniq() |> length() == 3
+      # Revision Dynamics (rd-mail-brand.patch): the join button carries the
+      # product tone whatever the intent, so every render is alike.
+      assert rendered |> Enum.uniq() |> length() == 1
     end
 
     test "allows custom title and button text" do
@@ -59,29 +59,18 @@ defmodule Tymeslot.Emails.Shared.Meeting.VideoSectionTest do
       assert html =~ "Custom Button"
     end
 
-    test "renders the join button on the deep accent variant, not the raw accent, for every intent" do
+    test "renders the join button on the product tone's solid face for every intent" do
       url = "https://meet.example.com/room123"
+      product = Tymeslot.Emails.Shared.Styles.Tokens.tone()
 
       for intent <- [:confirmed, :alert, :cancelled] do
         html = VideoSection.video_meeting_section(intent, url)
-        accent_deep = Styles.intent_accent_deep(intent)
-        expected_text = Styles.button_text_color(accent_deep)
 
-        assert html =~ ~s(background-color="#{accent_deep}")
-        assert html =~ ~s(color="#{expected_text}")
+        assert html =~ ~s(background-color="#{product.solid}")
+        assert html =~ ~s(color="#{product.on}")
       end
-    end
 
-    test "the stock join button clears 4.5:1 and resolves to light text, not dark ink" do
-      url = "https://meet.example.com/room123"
-      html = VideoSection.video_meeting_section(:confirmed, url)
-      accent_deep = Styles.intent_accent_deep(:confirmed)
-      expected_text = Styles.button_text_color(accent_deep)
-
-      assert html =~ ~s(background-color="#{accent_deep}")
-      assert html =~ ~s(color="#{Styles.surface()}")
-      assert expected_text == Styles.surface()
-      assert Colour.contrast_ratio(expected_text, accent_deep) >= 4.5
+      assert Colour.contrast_ratio(product.on, product.solid) >= 4.5
     end
   end
 

@@ -1,99 +1,64 @@
 defmodule Tymeslot.Emails.Shared.Styles.Tokens do
   @moduledoc """
-  The design-token primitives for the 2026 email redesign.
+  The design-token primitives of every email.
 
-  This module carries the raw values — colour palette, intent map, type scale,
-  spacing, radii — and the lookup functions that turn token keys into values.
-  Nothing in here emits CSS. `Tymeslot.Emails.Shared.Styles.CSS` does that.
+  Revision Dynamics (rd-mail-brand.patch): the values are the website's
+  (`app/globals.css`, light theme as the fallback every client shows, dark
+  theme for `prefers-color-scheme: dark`) and follow the shared Revision
+  Dynamics mail design (README in `~/outputs/mail-design-2026-11-23/`):
+  a light blue-grey canvas, a white card, the website's ink roles, Outfit
+  and Urbanist with system fallbacks, and the website's type scale converted
+  to fixed pixels.
 
-  The palette is **inversion-survivable**: no pure whites, no pure blacks.
-  Every base value sits a few steps off the extremes so that a client-forced
-  inversion (Thunderbird, iOS Mail, Gmail Android) produces a coherent warm
-  result rather than washed-out neon. Clients that honour
-  `prefers-color-scheme` get the dedicated dark palette (`dark/1`) instead.
+  This module carries the raw values and the lookup functions that turn
+  token keys into values. Nothing in here emits CSS:
+  `Tymeslot.Emails.Shared.Styles.CSS` does that.
+
+  Colour families come from `Tymeslot.Emails.Shared.Styles.Tone`: the
+  `:confirmed` intent is the product tone of the email being rendered
+  (HumanOS orange, OrganisationOS blue, Education Lab violet, otherwise cyan),
+  `:alert` is gold and `:cancelled` red.
   """
 
-  alias Tymeslot.Emails.Shared.Styles.BrandPalette
+  alias Tymeslot.Emails.Shared.Styles.Tone
 
   # ============================================================================
-  # PALETTE — canvas, surfaces, ink, hairlines
+  # PALETTE — canvas, surfaces, ink, hairlines (website light theme)
   # ============================================================================
 
-  # Light palette. Every value stays a few steps away from pure white and
-  # pure black so a client-forced inversion still lands on readable colours:
-  #   surface #fafaf6 → inverts to near-black with a warm tint
-  #   ink     #111418 → inverts to warm cream, never glaring white
-  # Contrast on the light side clears WCAG AA (≥4.5:1) for every text tier.
-  @canvas "#f4f0e6"
-  @canvas_soft "#ede7d4"
-  @surface "#fafaf6"
-  @hairline "#d5cfbe"
-  @hairline_soft "#e4decb"
+  # --color-bg, --color-inset, --color-surface-solid, --color-stroke,
+  # --color-stroke-lines, --color-heading, --color-text, --color-text-muted.
+  # Every text tier clears 4.5:1 on the card and the inset (README 2.1).
+  @canvas "#f1f6fc"
+  @canvas_soft "#f3f6fa"
+  @surface "#ffffff"
+  @hairline "#d6deea"
+  @hairline_soft "#e3e8f0"
 
-  @ink "#111418"
-  @ink_soft "#2d3339"
-  @ink_muted "#4a5058"
-  @ink_whisper "#6d737a"
+  @ink "#071832"
+  @ink_soft "#263958"
+  @ink_muted "#5b6785"
+  @ink_whisper "#5b6785"
 
-  # Dark palette, applied under `prefers-color-scheme: dark` by
-  # `Styles.DarkMode`. A warm charcoal rather than pure black, mirroring the
-  # light side's cream. Every ink tier clears WCAG AA against `canvas_soft`
-  # and against each intent's dark tint, the lightest surfaces text sits on.
+  # The website's dark theme, applied under `prefers-color-scheme: dark` by
+  # `Styles.DarkMode`.
   @dark %{
-    canvas: "#131518",
-    canvas_soft: "#24282c",
-    surface: "#1b1e21",
-    hairline: "#3a3f45",
-    hairline_soft: "#2c3035",
-    ink: "#f2eee4",
-    ink_soft: "#d8d4ca",
-    ink_muted: "#aeb2b8",
-    ink_whisper: "#9ca1a8"
+    canvas: "#010a19",
+    canvas_soft: "#0b172b",
+    surface: "#040c1b",
+    hairline: "#2a3650",
+    hairline_soft: "#152139",
+    ink: "#ffffff",
+    ink_soft: "#dbe3f6",
+    ink_muted: "#a9b6d8",
+    ink_whisper: "#a9b6d8"
   }
 
   # ============================================================================
-  # BRAND ACCENTS — intent families
-  # ============================================================================
-  #
-  # Only three families exist:
-  #
-  #   * Turquoise — the brand. Used for anything informational, welcome,
-  #     reminder, invitation, trial, subscription, confirmation, or "all good".
-  #     The stock turquoise family lives in `BrandPalette`, alongside the
-  #     derivation it calibrates.
-  #   * Amber    — the attention signal. Used when the reader needs to *act*
-  #     but nothing is broken yet (payment reminders, integration health,
-  #     security notifications, disputes filed, email change requests).
-  #   * Rose     — the alarm signal. Used for actual bad states —
-  #     cancellations, errors, failed payments, calendar sync failures,
-  #     disputes lost, subscriptions cancelled.
-  #
-  # Every informational or neutral email uses the brand colour. Signal
-  # colours only show up when they're genuinely signalling something.
-
-  # `deep` backs the stage band and the button surface for each family, so it
-  # carries text and has to clear 4.5:1 against it, the same floor
-  # `BrandPalette` clamps derived families to. Rose's `deep` was darkened from
-  # "#c44d3d" (4.41:1 against band text, a hair under) to reach it.
-  #
-  # Amber's `deep` was darkened from "#d97706" (2.99:1 against the near-white
-  # band text) to a burnt amber that reads at 4.72:1 under the band text and
-  # 4.51:1 as link text on the amber `tint`. It stays in the amber hue, so the
-  # alert band still reads as "act on this" rather than as rose's alarm.
-  @amber %{accent: "#f59e0b", deep: "#b45309", ink: "#78350f", tint: "#fef3c7"}
-  @rose %{accent: "#e26d5c", deep: "#bd493a", ink: "#7a2b22", tint: "#fbeeeb"}
-
-  # ============================================================================
-  # INTENTS — semantic categories describing the purpose of an email, each
-  # bound to a brand family. Each intent exposes the same shape: accent,
-  # accent_deep, accent_ink, tint, band_color, band_text — so callers never
-  # care which family backs them. Intent is declared by the caller; there is
-  # no fallback, no inference, and no string vocabulary.
+  # INTENTS — semantic categories describing the purpose of an email. Each
+  # exposes the same shape, so callers never care which family backs them.
   # ============================================================================
 
-  # `:confirmed` is the only derivable family — a self-hosted instance can
-  # replace the turquoise with its own brand colour. The other two stay fixed
-  # because they carry meaning: see `BrandPalette` for why.
   @type intent :: :confirmed | :alert | :cancelled
 
   @type intent_tokens :: %{
@@ -102,72 +67,84 @@ defmodule Tymeslot.Emails.Shared.Styles.Tokens do
           accent_ink: String.t(),
           tint: String.t(),
           band_color: String.t(),
-          band_text: String.t()
+          band_text: String.t(),
+          solid: String.t(),
+          on: String.t(),
+          edge: String.t(),
+          dark: map()
         }
 
   # ============================================================================
-  # TYPOGRAPHY
+  # TYPOGRAPHY — Outfit for text, Urbanist for titles and buttons, each with
+  # the system fallbacks every client has. The web fonts load only from the
+  # booking host itself (`CSS.font_face_styles/0`); Outlook for Windows is
+  # pinned to Segoe UI so it never falls back to Times.
   # ============================================================================
 
-  @font_family "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+  @font_family "Outfit, 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif"
+  @heading_font_family "Urbanist, Outfit, 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif"
 
+  # The website's type scale (`--type-*`) in fixed pixels: titles 30 px
+  # (26 on a phone), lead 18, body 16, card text 15, eyebrows and the foot 13.
+  # Nothing is smaller than 13 px.
   @font_sizes %{
-    eyebrow: "11px",
-    xs: "12px",
-    sm: "14px",
+    eyebrow: "13px",
+    xs: "13px",
+    sm: "15px",
     md: "16px",
     base: "16px",
     lg: "18px",
     xl: "20px",
     "2xl": "24px",
     "3xl": "30px",
-    display: "32px",
-    hero: "34px"
+    display: "30px",
+    hero: "30px"
   }
 
   # ============================================================================
-  # RADII
+  # RADII — buttons and panels 8 px like the website's `.btn` and
+  # `--radius-md`, the card 16 px (`--radius-xl`). No pills.
   # ============================================================================
 
-  @radii %{sm: "8px", md: "14px", lg: "20px", pill: "999px"}
+  @radii %{sm: "8px", md: "8px", lg: "16px", pill: "8px"}
 
   # ============================================================================
   # PUBLIC GETTERS
   # ============================================================================
 
-  @doc "Warm canvas — outer wrapper background of every email."
+  @doc "Canvas — outer background of every email."
   @spec canvas() :: String.t()
   def canvas, do: @canvas
 
-  @doc "Softer canvas — for the hero meeting card and footer."
+  @doc "Inset — the quiet panel inside the card (meeting details, foot)."
   @spec canvas_soft() :: String.t()
   def canvas_soft, do: @canvas_soft
 
-  @doc "Cream surface — for the main card and organizer strip."
+  @doc "Card surface."
   @spec surface() :: String.t()
   def surface, do: @surface
 
-  @doc "Hairline — 1px dividers between sections."
+  @doc "Hairline — 1px dividers and panel borders."
   @spec hairline() :: String.t()
   def hairline, do: @hairline
 
-  @doc "Soft hairline — subtle card borders."
+  @doc "Soft hairline — the quietest dividers."
   @spec hairline_soft() :: String.t()
   def hairline_soft, do: @hairline_soft
 
-  @doc "Primary ink — display and body headings."
+  @doc "Heading ink — titles and values."
   @spec ink() :: String.t()
   def ink, do: @ink
 
-  @doc "Soft ink — body paragraphs."
+  @doc "Text ink — body paragraphs."
   @spec ink_soft() :: String.t()
   def ink_soft, do: @ink_soft
 
-  @doc "Muted ink — labels, eyebrows, secondary metadata."
+  @doc "Muted ink — labels, eyebrows, secondary metadata, the foot."
   @spec ink_muted() :: String.t()
   def ink_muted, do: @ink_muted
 
-  @doc "Whisper ink — the quietest text (legal, tertiary)."
+  @doc "Whisper ink — the quietest text; the same as muted, never below 4.5:1."
   @spec ink_whisper() :: String.t()
   def ink_whisper, do: @ink_whisper
 
@@ -178,9 +155,13 @@ defmodule Tymeslot.Emails.Shared.Styles.Tokens do
   @spec dark(atom()) :: String.t()
   def dark(key), do: Map.fetch!(@dark, key)
 
-  @doc "Platform font stack; no web font, so opening an email fetches nothing."
+  @doc "Text font stack: Outfit, then system fonts."
   @spec font_family() :: String.t()
   def font_family, do: @font_family
+
+  @doc "Title and button font stack: Urbanist, then Outfit, then system fonts."
+  @spec heading_font_family() :: String.t()
+  def heading_font_family, do: @heading_font_family
 
   @doc "Font size by semantic key."
   @spec font_size(atom()) :: String.t()
@@ -194,15 +175,20 @@ defmodule Tymeslot.Emails.Shared.Styles.Tokens do
   Full token map for an intent. Raises on unknown input — intents are
   declared by the caller, never inferred or guessed.
 
-  `:confirmed` resolves against the configured brand accent, so a self-hosted
-  instance that has set one gets its own colour everywhere the brand family
-  is used. An unset or unparseable accent falls back to the hand-tuned
-  turquoise, which is what ships by default.
+  `:confirmed` is the product tone of the email being rendered
+  (`Tone.with_tone/2`, cyan outside it).
   """
   @spec intent(intent()) :: intent_tokens()
-  def intent(:confirmed), do: family_tokens(BrandPalette.family())
-  def intent(:alert), do: family_tokens(@amber)
-  def intent(:cancelled), do: family_tokens(@rose)
+  def intent(:confirmed), do: family_tokens(Tone.family())
+  def intent(:alert), do: family_tokens(Tone.signal(:alert))
+  def intent(:cancelled), do: family_tokens(Tone.signal(:cancelled))
+
+  @doc """
+  The product tone's tokens, whatever the email's intent: the accent rule,
+  the card's edge and the primary button always carry the product.
+  """
+  @spec tone() :: intent_tokens()
+  def tone, do: family_tokens(Tone.family())
 
   defp family_tokens(family) do
     %{
@@ -211,7 +197,11 @@ defmodule Tymeslot.Emails.Shared.Styles.Tokens do
       accent_ink: family.ink,
       tint: family.tint,
       band_color: family.deep,
-      band_text: BrandPalette.band_text()
+      band_text: family.on,
+      solid: family.solid,
+      on: family.on,
+      edge: family.edge,
+      dark: family.dark
     }
   end
 
@@ -219,7 +209,7 @@ defmodule Tymeslot.Emails.Shared.Styles.Tokens do
   @spec intent_accent(intent()) :: String.t()
   def intent_accent(i), do: intent(i).accent
 
-  @doc "Shortcut for `intent(i).accent_deep` — for hover states and bolder text."
+  @doc "Shortcut for `intent(i).accent_deep` — text and links in the intent's colour."
   @spec intent_accent_deep(intent()) :: String.t()
   def intent_accent_deep(i), do: intent(i).accent_deep
 end

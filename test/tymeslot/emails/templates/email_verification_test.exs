@@ -32,9 +32,9 @@ defmodule Tymeslot.Emails.Templates.EmailVerificationTest do
 
       html = EmailVerification.render(user, "https://example.com/verify/token").html_body
 
-      # Escaped once, so the client renders "Hi O'Brien & Sons,". Escaping it
-      # twice mails out the literal text "Hi O&#39;Brien &amp; Sons,".
-      assert html =~ "Hi O&#39;Brien &amp; Sons,"
+      # Escaped once, so the client renders "Dear O'Brien & Sons,". Escaping it
+      # twice mails out the literal text "Dear O&#39;Brien &amp; Sons,".
+      assert html =~ "Dear O&#39;Brien &amp; Sons,"
       refute html =~ "&amp;#39;"
       refute html =~ "&amp;amp;"
     end
@@ -54,7 +54,7 @@ defmodule Tymeslot.Emails.Templates.EmailVerificationTest do
 
       html = EmailVerification.render(user, verification_url).html_body
 
-      assert html =~ "Hi there,"
+      assert html =~ "Dear Sir or Madam,"
       refute html =~ "Hi user@example.com"
     end
 
@@ -116,7 +116,7 @@ defmodule Tymeslot.Emails.Templates.EmailVerificationTest do
       user = build_user_data(%{name: nil, email: "user@example.com"})
       text = EmailVerification.render(user, "https://example.com/verify/token").text_body
 
-      assert text =~ "Hi there,"
+      assert text =~ "Dear Sir or Madam,"
       refute text =~ "Hi user@example.com"
     end
   end
@@ -146,7 +146,7 @@ defmodule Tymeslot.Emails.Templates.EmailVerificationTest do
       url = "https://example.com/verify/token"
       text = EmailVerification.render(user, url).text_body
 
-      assert text =~ "Hi <script>alert('xss')</script>,"
+      assert text =~ "Dear <script>alert('xss')</script>,"
       assert text =~ url
     end
 

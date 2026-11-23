@@ -62,9 +62,9 @@ defmodule Tymeslot.Emails.Shared.TextBodyHelper do
     Gettext.with_locale(TymeslotWeb.Gettext, locale, fn ->
       """
 
-      #{dgettext("emails", "JOIN VIDEO MEETING:")}
+      #{dgettext("emails", "JOIN ONLINE:")}
       #{meeting_url}
-      #{dgettext("emails", "The meeting room opens 5 minutes before your scheduled time.")}
+      #{dgettext("emails", "The link is for this appointment.")}
       """
     end)
   end
@@ -80,7 +80,8 @@ defmodule Tymeslot.Emails.Shared.TextBodyHelper do
       lines =
         for {label, url} <- [
               {dgettext("emails", "Reschedule:"), Map.get(appointment_details, :reschedule_url)},
-              {dgettext("emails", "Cancel:"), Map.get(appointment_details, :cancel_url)},
+              {dgettext("emails", "Cancel appointment:"),
+               Map.get(appointment_details, :cancel_url)},
               {dgettext("emails", "Open in dashboard:"),
                Map.get(appointment_details, :dashboard_url)}
             ],
@@ -89,7 +90,7 @@ defmodule Tymeslot.Emails.Shared.TextBodyHelper do
 
       case lines do
         [] -> ""
-        lines -> "\n#{dgettext("emails", "ACTIONS:")}\n#{Enum.join(lines, "\n")}\n"
+        lines -> "\n#{dgettext("emails", "CHANGES:")}\n#{Enum.join(lines, "\n")}\n"
       end
     end)
   end
@@ -168,14 +169,14 @@ defmodule Tymeslot.Emails.Shared.TextBodyHelper do
 
       message_section =
         if appointment_details[:attendee_message] do
-          "\n\n#{dgettext("emails", "MESSAGE FROM ATTENDEE:")}\n\"#{appointment_details.attendee_message}\""
+          "\n\n#{dgettext("emails", "MESSAGE FROM THE BOOKER:")}\n\"#{appointment_details.attendee_message}\""
         else
           ""
         end
 
       """
 
-      #{dgettext("emails", "ATTENDEE INFORMATION:")}
+      #{dgettext("emails", "BOOKED BY:")}
       #{Enum.join(info, "\n")}#{message_section}
       """
     end)
@@ -231,10 +232,10 @@ defmodule Tymeslot.Emails.Shared.TextBodyHelper do
     do: "#{dgettext("emails", "Location:")} #{Formatting.format_location(details)}"
 
   defp format_title_line(%{event_title: title}) when is_binary(title) and title != "",
-    do: "#{dgettext("emails", "Event:")} #{title}"
+    do: "#{dgettext("emails", "Appointment:")} #{title}"
 
   defp format_title_line(%{meeting_type: type}) when is_binary(type) and type != "",
-    do: "#{dgettext("emails", "Type:")} #{type}"
+    do: "#{dgettext("emails", "Meeting:")} #{type}"
 
   defp format_title_line(_details), do: nil
 

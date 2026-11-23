@@ -56,7 +56,8 @@ defmodule Tymeslot.AppSettings.Env do
   # name has a real default because it is substituted into user-facing copy
   # and every caller would otherwise repeat the same fallback string.
   def default_for(:email_brand_accent), do: nil
-  def default_for(:email_brand_name), do: "Tymeslot"
+  # Revision Dynamics (rd-mail-brand.patch): the emails speak for the company.
+  def default_for(:email_brand_name), do: "Revision Dynamics"
   def default_for(:email_logo_path), do: nil
 
   # Per-surface locale fallbacks. Nil means "no override": `Tymeslot.Locales`

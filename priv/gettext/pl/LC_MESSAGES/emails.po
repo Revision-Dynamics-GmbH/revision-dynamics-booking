@@ -9,17 +9,17 @@ msgstr ""
 
 #: lib/tymeslot/emails/shared/text_body_helper.ex
 #, elixir-autogen, elixir-format
-msgid "ACTIONS:"
+msgid "CHANGES:"
 msgstr "DZIAŁANIA:"
 
 #: lib/tymeslot/emails/shared/text_body_helper.ex
 #, elixir-autogen, elixir-format
-msgid "ATTENDEE INFORMATION:"
+msgid "BOOKED BY:"
 msgstr "INFORMACJE O UCZESTNIKU:"
 
 #: lib/tymeslot/emails/shared/text_body_helper.ex
 #, elixir-autogen, elixir-format
-msgid "Cancel:"
+msgid "Cancel appointment:"
 msgstr "Odwołaj:"
 
 #: lib/tymeslot/emails/shared/text_body_helper.ex
@@ -39,27 +39,22 @@ msgstr "E-mail:"
 
 #: lib/tymeslot/emails/shared/greeting.ex
 #, elixir-autogen, elixir-format
-msgid "Hi %{name},"
+msgid "Dear %{name},"
 msgstr "Cześć, %{name},"
 
 #: lib/tymeslot/emails/appointment_builder.ex
 #, elixir-autogen, elixir-format
-msgid "I'll send you a reminder %{label} before our appointment."
+msgid "You will receive a reminder by email %{label} before the appointment."
 msgstr "Wyślę ci przypomnienie %{label} przed naszym spotkaniem."
 
 #: lib/tymeslot/emails/shared/text_body_helper.ex
 #, elixir-autogen, elixir-format
-msgid "JOIN VIDEO MEETING:"
+msgid "JOIN ONLINE:"
 msgstr "DOŁĄCZ DO SPOTKANIA WIDEO:"
 
 #: lib/tymeslot/emails/shared/meeting/video_section.ex
 #, elixir-autogen, elixir-format
-msgid "Join Meeting"
-msgstr "Dołącz do spotkania"
-
-#: lib/tymeslot/emails/shared/meeting/video_section.ex
-#, elixir-autogen, elixir-format
-msgid "Join Video Meeting"
+msgid "Join online"
 msgstr "Dołącz do spotkania wideo"
 
 #: lib/tymeslot/emails/shared/meeting/hero.ex
@@ -79,9 +74,10 @@ msgstr "SZCZEGÓŁY SPOTKANIA:"
 
 #: lib/tymeslot/emails/shared/text_body_helper.ex
 #, elixir-autogen, elixir-format
-msgid "MESSAGE FROM ATTENDEE:"
+msgid "MESSAGE FROM THE BOOKER:"
 msgstr "WIADOMOŚĆ OD UCZESTNIKA:"
 
+#: lib/tymeslot/emails/shared/meeting/hero.ex
 #: lib/tymeslot/integrations/calendar/utils/ics_generator.ex
 #, elixir-autogen, elixir-format
 msgid "Meeting"
@@ -103,11 +99,6 @@ msgstr "Imię i nazwisko:"
 msgid "No reminder emails are scheduled for this appointment."
 msgstr "Do tego spotkania nie zaplanowano żadnych przypomnień e-mail."
 
-#: lib/tymeslot/emails/appointment_builder.ex
-#, elixir-autogen, elixir-format
-msgid "Reminder %{label} before the appointment."
-msgstr "Przypomnienie %{label} przed spotkaniem."
-
 #: lib/tymeslot/emails/shared/text_body_helper.ex
 #, elixir-autogen, elixir-format
 msgid "Reschedule:"
@@ -121,7 +112,7 @@ msgstr "Do ustalenia"
 
 #: lib/tymeslot/emails/shared/text_body_helper.ex
 #, elixir-autogen, elixir-format
-msgid "The meeting room opens 5 minutes before your scheduled time."
+msgid "The link is for this appointment."
 msgstr "Do spotkania można dołączyć 5 minut przed zaplanowaną godziną."
 
 #: lib/tymeslot/emails/shared/text_body_helper.ex
@@ -129,16 +120,11 @@ msgstr "Do spotkania można dołączyć 5 minut przed zaplanowaną godziną."
 msgid "Time:"
 msgstr "Godzina:"
 
-#: lib/tymeslot/emails/shared/text_body_helper.ex
-#, elixir-autogen, elixir-format
-msgid "Type:"
-msgstr "Typ:"
-
 #: lib/tymeslot/emails/shared/formatting.ex
 #: lib/tymeslot/emails/shared/series_sessions.ex
 #: lib/tymeslot/integrations/calendar/utils/ics_generator.ex
 #, elixir-autogen, elixir-format
-msgid "Video Call"
+msgid "Online meeting (Microsoft Teams)"
 msgstr "Spotkanie wideo"
 
 #: lib/tymeslot/integrations/calendar/calendar_event_builder.ex
@@ -215,7 +201,7 @@ msgstr "Tytuł:"
 
 #: lib/tymeslot/emails/shared/meeting/attendee.ex
 #, elixir-autogen, elixir-format
-msgid "Attendee Information"
+msgid "Booked by"
 msgstr "Informacje o uczestniku"
 
 #: lib/tymeslot/emails/shared/meeting/attendee.ex
@@ -233,14 +219,9 @@ msgstr "Piątek"
 msgid "Invited"
 msgstr "Zaproszenie"
 
-#: lib/tymeslot/emails/shared/meeting/hero.ex
-#, elixir-autogen, elixir-format
-msgid "Meeting type"
-msgstr "Typ spotkania"
-
 #: lib/tymeslot/emails/shared/meeting/attendee.ex
 #, elixir-autogen, elixir-format
-msgid "Message from attendee"
+msgid "Message from the booker"
 msgstr "Wiadomość od uczestnika"
 
 #: lib/tymeslot/emails/shared/formatting.ex
@@ -311,7 +292,7 @@ msgstr "%{date} o %{time}"
 
 #: lib/tymeslot/emails/shared/greeting.ex
 #, elixir-autogen, elixir-format
-msgid "Hi there,"
+msgid "Dear Sir or Madam,"
 msgstr "Cześć,"
 
 #: lib/tymeslot/emails/shared/text_body_helper.ex
@@ -376,7 +357,7 @@ msgstr "%{name} · %{brand}"
 
 #: lib/tymeslot/emails/shared/layouts.ex
 #, elixir-autogen, elixir-format
-msgid "Important notification from %{brand}"
+msgid "Notice from %{brand}"
 msgstr "Ważne powiadomienie – %{brand}"
 
 #: lib/tymeslot/emails/shared/formatting.ex
@@ -551,12 +532,12 @@ msgstr "%{name} usuwa cię z wydarzenia."
 #: lib/tymeslot/emails/shared/calendar_event_content.ex
 #: lib/tymeslot/emails/shared/meeting/description.ex
 #, elixir-autogen, elixir-format
-msgid "DESCRIPTION:"
+msgid "WHAT IT IS ABOUT:"
 msgstr "OPIS:"
 
 #: lib/tymeslot/emails/shared/meeting/description.ex
 #, elixir-autogen, elixir-format
-msgid "Description"
+msgid "What it is about"
 msgstr "Opis"
 
 #: lib/tymeslot/emails/shared/meeting/hero.ex
@@ -566,7 +547,7 @@ msgstr "Wydarzenie"
 
 #: lib/tymeslot/emails/shared/text_body_helper.ex
 #, elixir-autogen, elixir-format
-msgid "Event:"
+msgid "Appointment:"
 msgstr "Wydarzenie:"
 
 #: lib/tymeslot/emails/templates/calendar_invitation.ex
@@ -608,3 +589,63 @@ msgstr "Instytucja lub firma"
 #, elixir-autogen, elixir-format
 msgid "Institution or company:"
 msgstr "Instytucja lub firma:"
+
+#. Revision Dynamics (rd-mail-brand.patch)
+#, elixir-format
+msgid "Kind regards"
+msgstr "Kind regards"
+
+#. Revision Dynamics (rd-mail-brand.patch)
+#, elixir-format
+msgid "Date"
+msgstr "Date"
+
+#. Revision Dynamics (rd-mail-brand.patch)
+#, elixir-format
+msgid "Time"
+msgstr "Time"
+
+#. Revision Dynamics (rd-mail-brand.patch)
+#, elixir-format
+msgid "Local Court (Amtsgericht) Königstein im Taunus, %{register} · Managing Director: %{director} · VAT ID %{vat}"
+msgstr "Local Court (Amtsgericht) Königstein im Taunus, %{register} · Managing Director: %{director} · VAT ID %{vat}"
+
+#. Revision Dynamics (rd-mail-brand.patch)
+#, elixir-format
+msgid "Imprint"
+msgstr "Imprint"
+
+#. Revision Dynamics (rd-mail-brand.patch)
+#, elixir-format
+msgid "Privacy policy"
+msgstr "Privacy policy"
+
+#. Revision Dynamics (rd-mail-brand.patch)
+#, elixir-format
+msgid "The booking service is based on Tymeslot, free software under the AGPL-3.0. %{link}"
+msgstr "The booking service is based on Tymeslot, free software under the AGPL-3.0. %{link}"
+
+#. Revision Dynamics (rd-mail-brand.patch)
+#, elixir-format
+msgid "Source code of our version"
+msgstr "Source code of our version"
+
+#. Revision Dynamics (rd-mail-brand.patch)
+#, elixir-format
+msgid "%{meeting_type} with %{organizer} (%{brand})"
+msgstr "%{meeting_type} with %{organizer} (%{brand})"
+
+#. Revision Dynamics (rd-mail-brand.patch)
+#, elixir-format
+msgid "Meeting:"
+msgstr "Meeting:"
+
+#. Revision Dynamics (rd-mail-brand.patch)
+#, elixir-format
+msgid "Questions? Simply reply to this email or call %{phone}."
+msgstr "Questions? Simply reply to this email or call %{phone}."
+
+#. Revision Dynamics (rd-mail-brand.patch)
+#, elixir-format
+msgid "You are receiving this email because you booked an appointment on revisiondynamics.com."
+msgstr "You are receiving this email because you booked an appointment on revisiondynamics.com."

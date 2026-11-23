@@ -63,7 +63,7 @@ defmodule TymeslotWeb.Live.Themes.LegalLinksDefaultsTest do
     dead = conn |> get(path) |> html_response(200)
 
     assert dead =~ "data-booker-root"
-    refute dead =~ ~s(data-testid="legal-links")
+    refute dead =~ "Legal notice"
     refute dead =~ @default_privacy
 
     {:ok, view, _html} = live(conn, path)

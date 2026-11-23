@@ -64,7 +64,7 @@ defmodule TymeslotWeb.Live.Themes.DefaultPagesJourneyTest do
 
     {:ok, _view, confirmed} = live(conn, to)
     assert confirmed =~ ~s(data-page="cancel_confirmed")
-    assert confirmed =~ "Meeting Cancelled"
+    assert confirmed =~ "Appointment cancelled"
     assert Repo.get!(MeetingSchema, m.id).status == :cancelled
   end
 
@@ -93,10 +93,10 @@ defmodule TymeslotWeb.Live.Themes.DefaultPagesJourneyTest do
     assert_received {:email, %Swoosh.Email{to: [{_name, ^attendee_email}]} = to_attendee}
     refute_received {:email, _another}
 
-    assert to_host.subject =~ ~r/^Meeting Cancelled - .+ with #{Regex.escape(m.attendee_name)}$/
+    assert to_host.subject =~
+             ~r/^Appointment cancelled: .+ with #{Regex.escape(m.attendee_name)} on .+$/
 
-    assert to_attendee.subject =~
-             ~r/^Meeting Cancelled - .+ with #{Regex.escape(m.organizer_name)}$/
+    assert to_attendee.subject =~ ~r/^Appointment cancelled: .+ on .+$/
   end
 
   @tag :capture_log
@@ -108,8 +108,8 @@ defmodule TymeslotWeb.Live.Themes.DefaultPagesJourneyTest do
     {:ok, view, _html} = live(conn, "/#{p.username}/meeting/#{m.uid}/cancel")
 
     kept = view |> element("[data-testid='keep-meeting']") |> render_click()
-    assert kept =~ "Great! Your meeting is still scheduled as planned."
-    refute kept =~ "Yes, Cancel Meeting"
+    assert kept =~ "Your appointment remains as planned."
+    refute kept =~ "Yes, cancel appointment"
     assert Repo.get!(MeetingSchema, m.id).status == :confirmed
   end
 

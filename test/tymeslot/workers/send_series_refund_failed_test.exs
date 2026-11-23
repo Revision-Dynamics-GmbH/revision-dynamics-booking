@@ -69,7 +69,7 @@ defmodule Tymeslot.Workers.SendSeriesRefundFailedTest do
 
     assert_received {:email, email}
     refute email.subject =~ "Series refund not made"
-    assert email.text_body =~ "Hallo Grace Host,"
+    assert email.text_body =~ "Sehr geehrte/r Grace Host,"
   end
 
   test "sends nothing once the payment is gone" do

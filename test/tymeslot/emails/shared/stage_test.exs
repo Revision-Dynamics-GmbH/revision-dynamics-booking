@@ -19,14 +19,14 @@ defmodule Tymeslot.Emails.Shared.StageTest do
       assert html =~ "Confirmed"
     end
 
-    test "draws the eyebrow and subtitle at the band text's full contrast" do
-      # The band text only clears 4.5:1 on each family's `deep` at full
-      # strength; any translucency on the 11px eyebrow or 15px subtitle drops
-      # it under. Only the decorative dot may be translucent.
+    # Revision Dynamics (rd-mail-brand.patch): the stage sits on the white
+    # card; nothing in it is translucent, and the rule carries the product tone.
+    test "draws the eyebrow and subtitle at full contrast" do
       html = Stage.stage_band(:alert, "Security", "Title", "A subtitle")
 
-      assert length(Regex.scan(~r/opacity/, html)) == 1
-      assert html =~ ~r/border-radius: 50%[^"]*opacity/
+      refute html =~ "opacity"
+      assert html =~ ~s(border-top="4px solid #{Styles.Tokens.tone().accent})
+      assert html =~ ~s(color="#{Styles.intent_accent_deep(:alert)}")
       refute Styles.email_css_styles() =~ ~r/\.stage-band-eyebrow\s*\{[^}]*opacity/
     end
 

@@ -47,10 +47,10 @@ defmodule TymeslotWeb.Themes.Quill.Meeting.Cancel do
                   </div>
 
                   <h1 class="text-3xl font-bold mb-2 meeting-page-title">
-                    {dgettext("booking_manage", "Meeting Confirmed")}
+                    {dgettext("booking_manage", "Appointment kept")}
                   </h1>
                   <p class="text-lg meeting-page-lead">
-                    {dgettext("booking_manage", "Great! Your meeting is still scheduled as planned.")}
+                    {dgettext("booking_manage", "Your appointment remains as planned.")}
                   </p>
                 </div>
 
@@ -58,7 +58,7 @@ defmodule TymeslotWeb.Themes.Quill.Meeting.Cancel do
                   <div class="p-6">
                     <div class="flex items-center justify-between mb-4">
                       <h3 class="text-lg font-semibold meeting-page-panel-title">
-                        {dgettext("booking_manage", "Meeting Details")}
+                        {dgettext("booking_manage", "Appointment")}
                       </h3>
                       <span class="px-3 py-1 rounded-full text-sm font-medium meeting-page-duration">
                         {dgettext("booking_manage", "%{minutes} min", minutes: @meeting.duration)}
@@ -80,7 +80,7 @@ defmodule TymeslotWeb.Themes.Quill.Meeting.Cancel do
                   <p class="mb-6 meeting-page-muted">
                     {dgettext(
                       "booking_manage",
-                      "We look forward to seeing you at the scheduled time."
+                      "Speak to you at the agreed time."
                     )}
                   </p>
 
@@ -95,10 +95,10 @@ defmodule TymeslotWeb.Themes.Quill.Meeting.Cancel do
                   </div>
 
                   <h1 class="text-3xl font-bold mb-2 meeting-page-title">
-                    {dgettext("booking_manage", "Cancel Appointment")}
+                    {dgettext("booking_manage", "Cancel appointment")}
                   </h1>
                   <p class="text-lg meeting-page-lead">
-                    {dgettext("booking_manage", "Are you sure you want to cancel this appointment?")}
+                    {dgettext("booking_manage", "Do you really want to cancel this appointment?")}
                   </p>
                 </div>
 
@@ -106,7 +106,7 @@ defmodule TymeslotWeb.Themes.Quill.Meeting.Cancel do
                   <div class="p-6">
                     <div class="flex items-center justify-between mb-4">
                       <h3 class="text-lg font-semibold meeting-page-panel-title">
-                        {dgettext("booking_manage", "Meeting Details")}
+                        {dgettext("booking_manage", "Appointment")}
                       </h3>
                       <span class="px-3 py-1 rounded-full text-sm font-medium meeting-page-duration">
                         {dgettext("booking_manage", "%{minutes} min", minutes: @meeting.duration)}
@@ -132,7 +132,7 @@ defmodule TymeslotWeb.Themes.Quill.Meeting.Cancel do
                   <div class="text-sm meeting-page-muted">
                     {dgettext(
                       "booking_manage",
-                      "A cancellation email will be sent to all participants"
+                      "Everyone involved will receive the cancellation by email."
                     )}
                   </div>
                 </div>
@@ -147,7 +147,7 @@ defmodule TymeslotWeb.Themes.Quill.Meeting.Cancel do
                     data-testid="cancel-meeting"
                     class="flex-1"
                   >
-                    {dgettext("booking_manage", "Yes, Cancel Meeting")}
+                    {dgettext("booking_manage", "Yes, cancel appointment")}
                   </.loading_button>
 
                   <.action_button
@@ -158,7 +158,7 @@ defmodule TymeslotWeb.Themes.Quill.Meeting.Cancel do
                     disabled={@loading}
                     class="flex-1"
                   >
-                    {dgettext("booking_manage", "Keep Meeting")}
+                    {dgettext("booking_manage", "Keep appointment")}
                   </.action_button>
                 </div>
               <% end %>

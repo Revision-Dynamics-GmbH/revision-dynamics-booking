@@ -140,18 +140,12 @@ msgstr ""
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
 #, elixir-autogen, elixir-format
-msgid "CANCELLED APPOINTMENT DETAILS:"
+msgid "CANCELLED APPOINTMENT:"
 msgstr ""
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
 #, elixir-autogen, elixir-format
 msgid "CANCELLED SPOT:"
-msgstr ""
-
-#: lib/tymeslot/emails/templates/appointment_cancellation.ex
-#: lib/tymeslot/emails/templates/seat_update_for_organizer.ex
-#, elixir-autogen, elixir-format
-msgid "Cancelled"
 msgstr ""
 
 #: lib/tymeslot/emails/templates/appointment_cancellation/refund_notice.ex
@@ -211,7 +205,7 @@ msgstr ""
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
 #, elixir-autogen, elixir-format
-msgid "Hi %{guest},"
+msgid "Dear %{guest},"
 msgstr ""
 
 #: lib/tymeslot/emails/templates/booking_payment_refunded.ex
@@ -221,7 +215,10 @@ msgstr ""
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
 #, elixir-autogen, elixir-format
-msgid "Hi %{name} - our appointment has been cancelled. I'm sorry for the inconvenience."
+msgid ""
+"Dear %{name},\n"
+"\n"
+"the following appointment has been cancelled and will not take place."
 msgstr ""
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
@@ -236,7 +233,7 @@ msgstr ""
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
 #, elixir-autogen, elixir-format
-msgid "Hi %{name},"
+msgid "Dear %{name},"
 msgstr ""
 
 #: lib/tymeslot/emails/templates/booking_payment_refunded.ex
@@ -279,11 +276,6 @@ msgstr ""
 msgid "If you added the meeting to your calendar, the attached file removes it there."
 msgstr ""
 
-#: lib/tymeslot/emails/templates/appointment_cancellation.ex
-#, elixir-autogen, elixir-format
-msgid "If you have any questions, please don't hesitate to reach out."
-msgstr ""
-
 #: lib/tymeslot/emails/templates/booking_payment_refunded.ex
 #, elixir-autogen, elixir-format
 msgid "If you have any questions, please reply to this email and %{name} will be happy to help."
@@ -312,8 +304,9 @@ msgid "Meeting"
 msgstr ""
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
+#: lib/tymeslot/emails/templates/seat_update_for_organizer.ex
 #, elixir-autogen, elixir-format
-msgid "Meeting Cancelled"
+msgid "Appointment cancelled"
 msgstr ""
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
@@ -333,7 +326,7 @@ msgstr ""
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
 #, elixir-autogen, elixir-format
-msgid "Meeting cancelled"
+msgid "The appointment has been cancelled."
 msgstr ""
 
 #: lib/tymeslot/emails/templates/external_booking_change.ex
@@ -343,7 +336,7 @@ msgstr ""
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
 #, elixir-autogen, elixir-format
-msgid "Meeting with:"
+msgid "Appointment with:"
 msgstr ""
 
 #: lib/tymeslot/emails/templates/booking_payment_refunded.ex
@@ -453,7 +446,7 @@ msgstr ""
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
 #, elixir-autogen, elixir-format
-msgid "Schedule New Appointment"
+msgid "Book a new time"
 msgstr ""
 
 #: lib/tymeslot/emails/templates/seat_update_for_organizer.ex
@@ -493,7 +486,7 @@ msgstr ""
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
 #, elixir-autogen, elixir-format
-msgid "The attendee has been notified of the cancellation."
+msgid "The booker has been told about the cancellation."
 msgstr ""
 
 #: lib/tymeslot/emails/templates/external_booking_change.ex
@@ -565,7 +558,7 @@ msgstr ""
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
 #, elixir-autogen, elixir-format
-msgid "This time slot is now available for booking again."
+msgid "If you added the appointment to your calendar, you can use the attached file to mark it as cancelled there."
 msgstr ""
 
 #: lib/tymeslot/emails/templates/event_update_notification.ex
@@ -606,7 +599,7 @@ msgstr ""
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
 #, elixir-autogen, elixir-format
-msgid "Visit:"
+msgid "Link:"
 msgstr ""
 
 #: lib/tymeslot/emails/templates/external_booking_change.ex
@@ -630,7 +623,7 @@ msgstr[1] ""
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
 #, elixir-autogen, elixir-format
-msgid "We're writing to confirm that your appointment has been cancelled."
+msgid "the following appointment has been cancelled and will not take place."
 msgstr ""
 
 #: lib/tymeslot/emails/templates/event_update_notification.ex
@@ -650,7 +643,7 @@ msgstr ""
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
 #, elixir-autogen, elixir-format
-msgid "Would you like to schedule a new appointment?"
+msgid "Would you like to book a new time?"
 msgstr ""
 
 #: lib/tymeslot/emails/templates/external_booking_change.ex
@@ -675,7 +668,7 @@ msgstr ""
 
 #: lib/tymeslot/emails/templates/appointment_cancellation.ex
 #, elixir-autogen, elixir-format
-msgid "with %{name}"
+msgid "Appointment with %{name}"
 msgstr ""
 
 #: lib/tymeslot/emails/templates/booking_payment_refunded.ex

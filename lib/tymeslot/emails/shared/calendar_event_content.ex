@@ -111,7 +111,7 @@ defmodule Tymeslot.Emails.Shared.CalendarEventContent do
       repeats(details),
       case description(details) do
         nil -> nil
-        text -> "\n#{dgettext("emails", "DESCRIPTION:")}\n#{text}"
+        text -> "\n#{dgettext("emails", "WHAT IT IS ABOUT:")}\n#{text}"
       end
     ]
     |> Enum.reject(&is_nil/1)

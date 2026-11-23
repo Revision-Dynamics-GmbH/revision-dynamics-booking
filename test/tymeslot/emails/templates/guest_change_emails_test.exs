@@ -43,7 +43,7 @@ defmodule Tymeslot.Emails.Templates.GuestChangeEmailsTest do
       assert email.to == [{"Greg Guest", "greg@example.com"}]
       assert email.subject =~ "Rescheduled"
       assert email.html_body =~ "has been moved to a new time"
-      assert email.html_body =~ "Previously scheduled for"
+      assert email.html_body =~ "Previously scheduled"
     end
 
     test "asks again with the guest's RSVP links in both bodies" do

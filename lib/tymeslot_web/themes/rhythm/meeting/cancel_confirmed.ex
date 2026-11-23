@@ -45,7 +45,7 @@ defmodule TymeslotWeb.Themes.Rhythm.Meeting.CancelConfirmed do
                   </div>
 
                   <h1 class="confirmation-headline">
-                    {dgettext("booking_manage", "Meeting Cancelled")}
+                    {dgettext("booking_manage", "Appointment cancelled")}
                   </h1>
                   <p
                     :if={
@@ -59,7 +59,7 @@ defmodule TymeslotWeb.Themes.Rhythm.Meeting.CancelConfirmed do
                   </p>
 
                   <p class="confirmation-message">
-                    {dgettext("booking_manage", "Your meeting has been successfully cancelled.")}
+                    {dgettext("booking_manage", "Your appointment has been cancelled.")}
                   </p>
                 </div>
 
@@ -70,7 +70,7 @@ defmodule TymeslotWeb.Themes.Rhythm.Meeting.CancelConfirmed do
                       <span>
                         <strong>{dgettext(
                           "booking_manage",
-                          "Cancellation emails have been sent to all participants."
+                          "Everyone involved has received the cancellation by email."
                         )}</strong>
                       </span>
                     </div>
@@ -83,7 +83,7 @@ defmodule TymeslotWeb.Themes.Rhythm.Meeting.CancelConfirmed do
                     class="action-button-primary action-button-full-width"
                     type="button"
                   >
-                    {dgettext("booking_manage", "Schedule a New Meeting")}
+                    {dgettext("booking_manage", "Book a new time")}
                   </button>
                 </div>
               </div>

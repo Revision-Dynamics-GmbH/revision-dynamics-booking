@@ -35,7 +35,7 @@ defmodule TymeslotWeb.NotFoundTest do
 
       body = conn |> get(~p"/admin") |> response(404)
 
-      assert body =~ "This page doesn&#39;t exist"
+      assert body =~ "This page does not exist."
       refute body =~ ~s(rel="canonical")
     end
   end

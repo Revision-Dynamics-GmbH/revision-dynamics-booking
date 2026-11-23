@@ -40,7 +40,7 @@ defmodule TymeslotWeb.Themes.Shared.Components.MeetingDetails do
         </div>
         <div class="meeting-detail-info">
           <span class="meeting-detail-value">{@meeting_type}</span>
-          <span class="meeting-detail-label">{dgettext("booking_manage", "Meeting")}</span>
+          <span class="meeting-detail-label">{dgettext("booking_manage", "Appointment")}</span>
         </div>
       </div>
       <div class="meeting-detail-row">

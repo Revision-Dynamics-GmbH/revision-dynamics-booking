@@ -135,7 +135,7 @@ defmodule Tymeslot.Emails.Templates.RecipientTimeZoneTest do
         email = unquote(template).render(:attendee, "attendee@example.com", across_midnight())
 
         assert email.html_body =~ "16 January 2026"
-        assert email.html_body =~ "FRIDAY"
+        assert email.html_body =~ "Friday"
         assert email.text_body =~ "Date: 16 January 2026"
       end
 
@@ -143,7 +143,7 @@ defmodule Tymeslot.Emails.Templates.RecipientTimeZoneTest do
         email = unquote(template).render(:organizer, "organizer@example.com", across_midnight())
 
         assert email.html_body =~ "15 January 2026"
-        assert email.html_body =~ "THURSDAY"
+        assert email.html_body =~ "Thursday"
         assert email.text_body =~ "Date: 15 January 2026"
       end
 
@@ -160,7 +160,7 @@ defmodule Tymeslot.Emails.Templates.RecipientTimeZoneTest do
         email = unquote(template).render(:organizer, "organizer@example.com", swapped)
 
         assert email.html_body =~ "16 January 2026"
-        assert email.html_body =~ "FRIDAY"
+        assert email.html_body =~ "Friday"
         assert email.text_body =~ "Date: 16 January 2026"
       end
     end
@@ -282,7 +282,7 @@ defmodule Tymeslot.Emails.Templates.RecipientTimeZoneTest do
       previously = "14 January 2026 at 09:00 CET (Europe/Berlin)"
 
       assert email.html_body =~ previously
-      assert email.text_body =~ "Previously scheduled for: #{previously}"
+      assert email.text_body =~ "Previously scheduled: #{previously}"
     end
 
     test "reads on the booker's clock, zone named, in both parts" do
@@ -290,7 +290,7 @@ defmodule Tymeslot.Emails.Templates.RecipientTimeZoneTest do
       previously = "14 January 2026 at 01:30 PM IST (Asia/Kolkata)"
 
       assert email.html_body =~ previously
-      assert email.text_body =~ "Previously scheduled for: #{previously}"
+      assert email.text_body =~ "Previously scheduled: #{previously}"
     end
 
     test "names both ends of a moved spot with their zone" do

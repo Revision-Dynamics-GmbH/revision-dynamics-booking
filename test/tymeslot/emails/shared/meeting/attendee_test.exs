@@ -13,7 +13,7 @@ defmodule Tymeslot.Emails.Shared.Meeting.AttendeeTest do
           email: "alice@example.com"
         })
 
-      assert html =~ "Attendee Information"
+      assert html =~ "Booked by"
       assert html =~ "Alice Example"
       assert html =~ "alice@example.com"
     end
@@ -157,7 +157,7 @@ defmodule Tymeslot.Emails.Shared.Meeting.AttendeeTest do
     test "renders the heading and message body when present" do
       html = Attendee.attendee_message_box(:confirmed, "Looking forward to chatting!")
 
-      assert html =~ "Message from attendee"
+      assert html =~ "Message from the booker"
       assert html =~ "Looking forward to chatting!"
     end
 

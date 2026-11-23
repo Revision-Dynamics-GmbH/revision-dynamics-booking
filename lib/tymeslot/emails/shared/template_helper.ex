@@ -8,8 +8,10 @@ defmodule Tymeslot.Emails.Shared.TemplateHelper do
   """
 
   alias Tymeslot.Emails.Branding
-  alias Tymeslot.Emails.Shared.{Layouts, MjmlEmail, Stage}
-  alias Tymeslot.Emails.Shared.Styles.Tokens
+  alias Tymeslot.Emails.Shared.{Formatting, Layouts, MjmlEmail, Sanitise, Stage}
+  alias Tymeslot.Emails.Shared.Styles.{Tokens, Tone}
+  alias Tymeslot.Utils.DateTimeUtils.TimeFormat
+  alias TymeslotWeb.Helpers.LocaleFormat
 
   use Gettext, backend: TymeslotWeb.Gettext
 
@@ -200,6 +202,256 @@ defmodule Tymeslot.Emails.Shared.TemplateHelper do
       }
     ]
   end
+
+  @doc """
+  Revision Dynamics (rd-mail-brand.patch): renders `fun` in `locale` with the
+  product tone of `source` in effect (`Tymeslot.Emails.Shared.Styles.Tone`),
+  so the accent rule, the card's edge, the eyebrow and the primary button of
+  a HumanOS meeting's email are orange, an OrganisationOS one's blue. Every
+  meeting template wraps its render in it instead of `Gettext.with_locale/3`.
+  """
+  @spec with_locale_and_tone(String.t(), map() | nil, (-> result)) :: result when result: var
+  def with_locale_and_tone(locale, source, fun) do
+    Tone.with_tone(source, fn -> Gettext.with_locale(TymeslotWeb.Gettext, locale, fun) end)
+  end
+
+  @doc """
+  Revision Dynamics (rd-mail-brand.patch): the closing of an email to the
+  booker, as a letter closes: "Kind regards", the organiser, the company.
+  """
+  @spec signature_html(map()) :: String.t()
+  def signature_html(appointment_details) do
+    name = Sanitise.sanitize_for_email(Map.get(appointment_details, :organizer_name) || "")
+    company = Sanitise.sanitize_for_email(signature_company(appointment_details))
+
+    """
+    <mj-section padding="24px 0 0 0">
+      <mj-column>
+        <mj-text align="left" font-size="16px" line-height="1.6" css-class="mobile-text">
+          #{dgettext("emails", "Kind regards")}<br />
+          <span style="color: #{Tokens.ink()}; font-weight: 500;">#{name}</span><br />
+          #{company}
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    """
+  end
+
+  @doc "The closing of `signature_html/1` as plain text."
+  @spec signature_text(map()) :: String.t()
+  def signature_text(appointment_details) do
+    """
+    #{dgettext("emails", "Kind regards")}
+    #{Map.get(appointment_details, :organizer_name)}
+    #{signature_company(appointment_details)}
+    """
+  end
+
+  defp signature_company(appointment_details) do
+    case Map.get(appointment_details, :organizer_title) do
+      title when is_binary(title) and title != "" -> title
+      _none -> Branding.brand_name()
+    end
+  end
+
+  @doc """
+  Revision Dynamics (rd-mail-brand.patch): the details the booker's `.ics`
+  is built from, titled from the booker's side: "<meeting type> with
+  <organiser> (Revision Dynamics)" rather than the stored "<meeting type>
+  with <booker>", which names the reader themselves in their own calendar.
+  Details without a meeting type keep their title.
+  """
+  @spec attendee_ics_details(map()) :: map()
+  def attendee_ics_details(%{meeting_type: type, organizer_name: organizer} = details)
+      when is_binary(type) and type != "" and is_binary(organizer) and organizer != "" do
+    if Gettext.get_locale(TymeslotWeb.Gettext) in ["de", "en"],
+      do: put_attendee_ics_title(details, type, organizer),
+      else: details
+  end
+
+  def attendee_ics_details(details), do: details
+
+  # The Revision Dynamics wording exists in German and English; any other
+  # locale keeps the title the release gives the booker.
+  defp put_attendee_ics_title(details, type, organizer) do
+    Map.put(
+      details,
+      :title,
+      dgettext("emails", "%{meeting_type} with %{organizer} (%{brand})",
+        meeting_type: type,
+        organizer: organizer,
+        brand: Branding.brand_name()
+      )
+    )
+  end
+
+  @doc """
+  Revision Dynamics (rd-mail-brand.patch): the inbox preview line of a
+  meeting email, which complements its subject instead of repeating it: when
+  the meeting is, how long, with whom, and what the email carries.
+  `meeting_details` is the recipient's (`attendee_meeting_details/2` or
+  `organizer_meeting_details/1`).
+  """
+  @spec preview(atom(), map(), map(), String.t()) :: String.t()
+  def preview(kind, appointment_details, meeting_details, locale) do
+    moment = Formatting.format_meeting_datetime(meeting_details, locale)
+    duration = Formatting.format_meeting_duration(meeting_details, locale)
+    type = Map.get(appointment_details, :meeting_type) || Map.get(appointment_details, :title)
+    organizer = Map.get(appointment_details, :organizer_name)
+    attendee = Map.get(appointment_details, :attendee_name)
+
+    case kind do
+      :confirmed ->
+        dgettext(
+          "emails_booking",
+          "%{when}, %{duration}, with %{name}. The calendar entry is attached.",
+          when: moment,
+          duration: duration,
+          name: organizer
+        )
+
+      :new_booking ->
+        dgettext("emails_booking", "%{when}: %{meeting_type} with %{name}.",
+          when: moment,
+          meeting_type: type,
+          name: attendee
+        )
+
+      :reminder ->
+        dgettext("emails_booking", "%{when}, %{duration}, with %{name}.",
+          when: moment,
+          duration: duration,
+          name: organizer
+        )
+
+      :reminder_organizer ->
+        dgettext("emails_booking", "%{when}: %{meeting_type} with %{name}.",
+          when: moment,
+          meeting_type: type,
+          name: attendee
+        )
+
+      :rescheduled ->
+        dgettext("emails_booking", "New time: %{when}. The updated calendar entry is attached.",
+          when: moment
+        )
+
+      :rescheduled_organizer ->
+        dgettext("emails_booking", "New time: %{when}, %{meeting_type} with %{name}.",
+          when: moment,
+          meeting_type: type,
+          name: attendee
+        )
+
+      :cancelled ->
+        dgettext("emails_booking", "%{when} will not take place. You can book a new time online.",
+          when: moment
+        )
+
+      :cancelled_organizer ->
+        dgettext("emails_booking", "%{when}: %{meeting_type} with %{name} will not take place.",
+          when: moment,
+          meeting_type: type,
+          name: attendee
+        )
+    end
+  end
+
+  @doc """
+  Revision Dynamics (rd-mail-brand.patch): the subject of a meeting email in
+  the shared mail design: the occasion first, then the product's meeting
+  type, then the date and time ("Appointment confirmed: HumanOS kennenlernen
+  on 25 Nov, 10:00"). No exclamation marks, no emoji, never the software's
+  name. `meeting_details` is the recipient's.
+  """
+  @spec subject(atom(), map(), map(), String.t(), (-> String.t()) | nil) :: String.t()
+  def subject(kind, appointment_details, meeting_details, locale, fallback \\ nil)
+
+  # The Revision Dynamics wording exists in German and English, the two
+  # languages its booking offers; any other locale keeps the subject the
+  # release translates for it.
+  def subject(_kind, _appointment_details, _meeting_details, locale, fallback)
+      when is_function(fallback, 0) and locale not in ["de", "en"],
+      do: fallback.()
+
+  def subject(kind, appointment_details, meeting_details, locale, _fallback) do
+    type = Map.get(appointment_details, :meeting_type) || Map.get(appointment_details, :title)
+    attendee = Map.get(appointment_details, :attendee_name)
+    date = subject_date(meeting_details, locale)
+
+    case kind do
+      :confirmed ->
+        dgettext("emails_booking", "Appointment confirmed: %{meeting_type} on %{date}",
+          meeting_type: type,
+          date: date
+        )
+
+      :new_booking ->
+        dgettext("emails_booking", "New booking: %{meeting_type} with %{name} on %{date}",
+          meeting_type: type,
+          name: attendee,
+          date: date
+        )
+
+      :reminder ->
+        dgettext("emails_booking", "Reminder: %{meeting_type} on %{date}",
+          meeting_type: type,
+          date: date
+        )
+
+      :reminder_organizer ->
+        dgettext("emails_booking", "Reminder: %{meeting_type} with %{name} on %{date}",
+          meeting_type: type,
+          name: attendee,
+          date: date
+        )
+
+      :rescheduled ->
+        dgettext("emails_booking", "Appointment moved: %{meeting_type}, now on %{date}",
+          meeting_type: type,
+          date: date
+        )
+
+      :rescheduled_organizer ->
+        dgettext(
+          "emails_booking",
+          "Appointment moved: %{meeting_type} with %{name}, now on %{date}",
+          meeting_type: type,
+          name: attendee,
+          date: date
+        )
+
+      :cancelled ->
+        dgettext("emails_booking", "Appointment cancelled: %{meeting_type} on %{date}",
+          meeting_type: type,
+          date: date
+        )
+
+      :cancelled_organizer ->
+        dgettext(
+          "emails_booking",
+          "Appointment cancelled: %{meeting_type} with %{name} on %{date}",
+          meeting_type: type,
+          name: attendee,
+          date: date
+        )
+    end
+  end
+
+  # "25.11., 10:00" / "25 Nov, 10:00": the short date and the start on the
+  # recipient's clock; the date alone for a meeting without a start time.
+  defp subject_date(%{start_time: %DateTime{} = start} = meeting_details, locale) do
+    "#{Formatting.format_date_short(meeting_details.date, locale)}, " <>
+      subject_time(start, locale, Map.get(meeting_details, :time_format))
+  end
+
+  defp subject_date(meeting_details, locale),
+    do: Formatting.format_date_short(meeting_details.date, locale)
+
+  defp subject_time(start, locale, nil),
+    do: LocaleFormat.format_time(DateTime.to_time(start), locale)
+
+  defp subject_time(start, _locale, time_format), do: TimeFormat.format(start, time_format)
 
   @doc "Formats error reasons for display in templates."
   @spec format_error_reason(any()) :: String.t()

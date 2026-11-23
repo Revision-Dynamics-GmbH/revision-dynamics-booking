@@ -7,6 +7,7 @@ defmodule Tymeslot.Emails.Shared.Text do
   """
 
   alias Tymeslot.Emails.Shared.{Sanitise, Styles}
+  alias Tymeslot.Emails.Shared.Styles.Tokens
 
   use Gettext, backend: TymeslotWeb.Gettext
 
@@ -40,10 +41,10 @@ defmodule Tymeslot.Emails.Shared.Text do
       if safe_subtitle do
         """
         <mj-text
-          font-size="15px"
+          font-size="16px"
           color="#{Styles.ink_muted()}"
           align="#{align}"
-          line-height="1.55"
+          line-height="1.6"
           padding="6px 0 0 0"
           css-class="mobile-text"
         >
@@ -58,12 +59,13 @@ defmodule Tymeslot.Emails.Shared.Text do
     <mj-section padding="16px 0 8px 0">
       <mj-column>
         <mj-text
-          font-size="26px"
-          font-weight="800"
+          font-size="20px"
+          font-family="#{Tokens.heading_font_family()}"
+          font-weight="500"
           color="#{Styles.ink()}"
           align="#{align}"
-          line-height="1.15"
-          letter-spacing="-0.02em"
+          line-height="1.25"
+          letter-spacing="0"
           padding="0"
           css-class="mobile-heading"
         >
@@ -89,10 +91,10 @@ defmodule Tymeslot.Emails.Shared.Text do
     <mj-section padding="#{padding}">
       <mj-column>
         <mj-text
-          font-size="11px"
-          font-weight="700"
+          font-size="13px"
+          font-weight="500"
           color="#{color}"
-          align="center"
+          align="left"
           letter-spacing="0.14em"
           text-transform="uppercase"
           css-class="mobile-eyebrow"
@@ -139,6 +141,10 @@ defmodule Tymeslot.Emails.Shared.Text do
     color = Keyword.get(opts, :color, Styles.ink_soft())
     padding = Keyword.get(opts, :padding, "4px 0 12px 0")
 
+    # Revision Dynamics (rd-mail-brand.patch): a translation may break its
+    # text into lines (the greeting on a line of its own, as a letter has it).
+    safe_text = String.replace(safe_text, "\n", "<br />\n")
+
     font_weight_attr =
       if font_weight, do: ~s( font-weight="#{font_weight}"), else: ""
 
@@ -149,7 +155,7 @@ defmodule Tymeslot.Emails.Shared.Text do
           font-size="#{font_size}"#{font_weight_attr}
           color="#{color}"
           line-height="1.6"
-          align="center"
+          align="left"
           css-class="mobile-text"
         >
           #{safe_text}
@@ -170,8 +176,8 @@ defmodule Tymeslot.Emails.Shared.Text do
         <mj-text
           font-size="13px"
           color="#{Styles.ink_muted()}"
-          line-height="1.55"
-          align="center"
+          line-height="1.6"
+          align="left"
           css-class="mobile-text"
         >
           #{safe_text}
@@ -208,7 +214,7 @@ defmodule Tymeslot.Emails.Shared.Text do
     """
     <mj-section padding="0 0 8px 0">
       <mj-column>
-        <mj-text font-size="15px" color="#{Styles.ink_soft()}" line-height="1.7" padding="0">
+        <mj-text font-size="16px" color="#{Styles.ink_soft()}" line-height="1.6" padding="0">
           #{bullets}
         </mj-text>
       </mj-column>
@@ -234,17 +240,17 @@ defmodule Tymeslot.Emails.Shared.Text do
     <mj-section padding="8px 0 0 0">
       <mj-column>
         <mj-text
-          font-size="12px"
+          font-size="13px"
           color="#{Styles.ink_muted()}"
           line-height="1.6"
-          align="center"
+          align="left"
           padding="0 0 8px 0"
         >
           #{dgettext("emails", "Having trouble with the button? Copy and paste this link into your browser:")}
         </mj-text>
         <mj-text
-          font-size="12px"
-          align="center"
+          font-size="13px"
+          align="left"
           color="#{Styles.ink_muted()}"
         >
           <a href="#{safe_url}" style="color: #{Styles.ink_muted()}; text-decoration: underline; word-break: break-all;">#{safe_url}</a>

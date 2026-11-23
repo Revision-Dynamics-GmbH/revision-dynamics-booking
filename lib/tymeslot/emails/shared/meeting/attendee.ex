@@ -34,19 +34,19 @@ defmodule Tymeslot.Emails.Shared.Meeting.Attendee do
     safe_email = Sanitise.sanitize_for_email(attendee.email)
 
     """
-    <mj-section padding="8px 0 20px 0">
+    <mj-section padding="8px 0 16px 0">
       <mj-column>
         <mj-text
-          font-size="11px"
-          font-weight="700"
+          font-size="13px"
+          font-weight="500"
           color="#{Styles.ink_muted()}"
           letter-spacing="0.14em"
           text-transform="uppercase"
-          padding="0 0 12px 0"
+          padding="0 0 10px 0"
         >
-          #{dgettext("emails", "Attendee Information")}
+          #{dgettext("emails", "Booked by")}
         </mj-text>
-        <mj-table #{Styles.table_attributes()} css-class="responsive-table">
+        <mj-table #{Styles.table_attributes()} padding="0" css-class="responsive-table">
           #{attendee_row(dgettext("emails", "Name"), safe_name)}
           #{attendee_email_row(intent, safe_email)}
           #{attendee_optional_row(dgettext("emails", "Phone"), attendee[:phone])}
@@ -80,19 +80,19 @@ defmodule Tymeslot.Emails.Shared.Meeting.Attendee do
 
   defp guests_section(intent, guests) do
     """
-    <mj-section padding="8px 0 20px 0">
+    <mj-section padding="8px 0 16px 0">
       <mj-column>
         <mj-text
-          font-size="11px"
-          font-weight="700"
+          font-size="13px"
+          font-weight="500"
           color="#{Styles.ink_muted()}"
           letter-spacing="0.14em"
           text-transform="uppercase"
-          padding="0 0 12px 0"
+          padding="0 0 10px 0"
         >
           #{dgettext("emails", "Guests")}
         </mj-text>
-        <mj-table #{Styles.table_attributes()} css-class="responsive-table">
+        <mj-table #{Styles.table_attributes()} padding="0" css-class="responsive-table">
           #{Enum.map_join(guests, "", &guest_row(intent, &1))}
         </mj-table>
       </mj-column>
@@ -106,7 +106,7 @@ defmodule Tymeslot.Emails.Shared.Meeting.Attendee do
   """
   @spec attendee_message_box(Tokens.intent(), String.t() | nil) :: String.t()
   def attendee_message_box(intent, message),
-    do: Notes.callout(intent, dgettext("emails", "Message from attendee"), message)
+    do: Notes.callout(intent, dgettext("emails", "Message from the booker"), message)
 
   defp attendee_row(label, value) do
     """
@@ -133,7 +133,7 @@ defmodule Tymeslot.Emails.Shared.Meeting.Attendee do
     <tr style="#{Styles.table_row_style()}">
       <td style="#{Styles.table_label_style()}">#{label}</td>
       <td style="#{Styles.table_value_style()}">
-        <a href="mailto:#{safe_email}" style="color: #{Styles.intent_accent_deep(intent)}; font-weight: 600; text-decoration: none;">#{safe_email}</a>
+        <a href="mailto:#{safe_email}" style="color: #{Styles.intent_accent_deep(intent)}; font-weight: 500; text-decoration: underline;">#{safe_email}</a>
       </td>
     </tr>
     """

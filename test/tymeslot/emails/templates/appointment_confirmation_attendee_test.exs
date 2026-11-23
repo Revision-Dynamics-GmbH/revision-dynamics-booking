@@ -18,8 +18,8 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmationAttendeeTest do
       details = build_appointment_details()
       email = AppointmentConfirmation.render(:attendee, "attendee@example.com", details)
 
-      assert email.subject =~ "Confirmed"
-      assert email.subject =~ details.organizer_name
+      assert email.subject =~ "Appointment confirmed"
+      assert email.subject =~ details.meeting_type
       assert email.subject =~ format_date_short(details.date)
     end
 
@@ -78,7 +78,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmationAttendeeTest do
 
       assert email.html_body =~ "<!doctype html"
       assert email.html_body =~ details.meeting_type
-      assert email.text_body =~ "Appointment Confirmed!"
+      assert email.text_body =~ "Your appointment is confirmed."
       assert email.text_body =~ details.meeting_type
     end
 
@@ -160,14 +160,14 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmationAttendeeTest do
       details =
         build_appointment_details(%{
           organizer_name: "Sarah Johnson",
-          location: "Video Call"
+          location: "Online meeting (Microsoft Teams)"
         })
 
       email = AppointmentConfirmation.render(:attendee, "attendee@example.com", details)
 
-      assert email.text_body =~ "Confirmed"
+      assert email.text_body =~ "Your appointment is confirmed."
       assert email.text_body =~ "Sarah Johnson"
-      assert email.text_body =~ "Video Call"
+      assert email.text_body =~ "Online meeting (Microsoft Teams)"
     end
 
     test "text body includes action links" do
@@ -269,7 +269,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmationAttendeeTest do
 
       assert %Swoosh.Email{subject: subject, to: to, html_body: html, text_body: text} = email
 
-      assert subject =~ "Appointment Confirmed"
+      assert subject =~ "Appointment confirmed"
       assert to == [{"Jane Attendee", "attendee@example.com"}]
       assert html =~ details.organizer_name
       assert text =~ details.organizer_name
@@ -346,9 +346,9 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmationAttendeeTest do
       email = AppointmentConfirmation.render(:attendee, "a@b.com", details)
 
       assert email.subject =~ "Termin bestätigt"
-      refute email.subject =~ "Appointment Confirmed"
-      assert email.text_body =~ "Termin bestätigt"
-      assert email.text_body =~ "TERMIN-DETAILS:"
+      refute email.subject =~ "Appointment confirmed"
+      assert email.text_body =~ "Ihr Termin steht."
+      assert email.text_body =~ "TERMIN:"
     end
 
     test "French email translates subject and key body labels" do
@@ -356,7 +356,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmationAttendeeTest do
       email = AppointmentConfirmation.render(:attendee, "a@b.com", details)
 
       assert email.subject =~ "Rendez-vous confirmé"
-      refute email.subject =~ "Appointment Confirmed"
+      refute email.subject =~ "Appointment confirmed"
       assert email.text_body =~ "Rendez-vous confirmé"
     end
 
@@ -365,7 +365,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmationAttendeeTest do
       email = AppointmentConfirmation.render(:attendee, "a@b.com", details)
 
       assert email.subject =~ "Зустріч підтверджено"
-      refute email.subject =~ "Appointment Confirmed"
+      refute email.subject =~ "Appointment confirmed"
       assert email.text_body =~ "Зустріч підтверджено"
     end
 
@@ -374,7 +374,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmationAttendeeTest do
       email = AppointmentConfirmation.render(:attendee, "a@b.com", details)
 
       assert email.subject =~ "Appuntamento confermato"
-      refute email.subject =~ "Appointment Confirmed"
+      refute email.subject =~ "Appointment confirmed"
       assert email.text_body =~ "Appuntamento confermato"
     end
 

@@ -24,7 +24,7 @@ defmodule Tymeslot.Emails.Templates.EmailChangeConfirmedTest do
         ).html_body
 
       assert String.starts_with?(html, "<!doctype html>")
-      assert html =~ "Hi Grace Lee"
+      assert html =~ "Dear Grace Lee"
       assert html =~ "Email change complete"
     end
 
@@ -45,7 +45,7 @@ defmodule Tymeslot.Emails.Templates.EmailChangeConfirmedTest do
         ).html_body
 
       assert String.starts_with?(html, "<!doctype html>")
-      assert html =~ "Hi Henry Taylor"
+      assert html =~ "Dear Henry Taylor"
       assert html =~ "Email change complete"
     end
 

@@ -52,7 +52,7 @@ defmodule Tymeslot.Emails.Shared.Meeting.Description do
   def section(details) do
     case text(details) do
       nil -> ""
-      text -> Cards.message_content_card(dgettext("emails", "Description"), text)
+      text -> Cards.message_content_card(dgettext("emails", "What it is about"), text)
     end
   end
 
@@ -64,7 +64,9 @@ defmodule Tymeslot.Emails.Shared.Meeting.Description do
   def text_section(details) do
     case text(details) do
       nil -> ""
-      text -> "\n\n#{dgettext("emails", "DESCRIPTION:")}\n#{text}"
+      # Revision Dynamics (rd-mail-brand.patch): a blank line after it too,
+      # so the next block does not run on.
+      text -> "\n\n#{dgettext("emails", "WHAT IT IS ABOUT:")}\n#{text}\n"
     end
   end
 end

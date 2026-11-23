@@ -17,7 +17,7 @@ defmodule Tymeslot.Notifications.Email.AuthEmailsTest do
     test "hands the email service a user whose profile name can be greeted" do
       # An email/password signup never gets a `user.name` — the signup form has
       # no name field — so unless the handler loads the profile the recipient is
-      # greeted "Hi there," for the life of the account.
+      # greeted "Hello," for the life of the account.
       user = insert(:user, name: nil)
       insert(:profile, user: user, full_name: "Ada Lovelace")
       reset_url = "https://example.com/reset/token"
@@ -35,7 +35,7 @@ defmodule Tymeslot.Notifications.Email.AuthEmailsTest do
                })
 
       assert_receive {:password_reset_recipient, recipient}
-      assert PasswordReset.render(recipient, reset_url).text_body =~ "Hi Ada Lovelace,"
+      assert PasswordReset.render(recipient, reset_url).text_body =~ "Dear Ada Lovelace,"
     end
 
     test "greets an OAuth user by their signup name before onboarding runs" do
@@ -55,7 +55,7 @@ defmodule Tymeslot.Notifications.Email.AuthEmailsTest do
                })
 
       assert_receive {:password_reset_recipient, recipient}
-      assert PasswordReset.render(recipient, reset_url).text_body =~ "Hi Ada from GitHub,"
+      assert PasswordReset.render(recipient, reset_url).text_body =~ "Dear Ada from GitHub,"
     end
   end
 

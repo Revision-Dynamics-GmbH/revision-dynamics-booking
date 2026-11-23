@@ -25,9 +25,9 @@ defmodule Tymeslot.Emails.Templates.AppointmentReminderTest do
       details = build_appointment_details(%{time_until: "30 minutes"})
       email = AppointmentReminder.render(:organizer, "organizer@example.com", details)
 
-      assert email.subject =~ "Meeting"
+      assert email.subject =~ "Reminder:"
       assert email.subject =~ details.attendee_name
-      assert email.subject =~ "30 minutes"
+      assert email.html_body =~ "30 minutes"
     end
 
     test "sets correct recipient" do
@@ -41,10 +41,10 @@ defmodule Tymeslot.Emails.Templates.AppointmentReminderTest do
       details = build_appointment_details()
       email = AppointmentReminder.render(:organizer, "organizer@example.com", details)
 
-      # The reminder points at an already-booked meeting, so it ships no ICS —
-      # the only attachment is the logo the template references inline.
-      assert [%Swoosh.Attachment{filename: "tymeslot-logo.png", content_type: "image/png"}] =
-               email.attachments
+      # The reminder points at an already-booked meeting, so it ships no ICS.
+      # Revision Dynamics (rd-mail-brand.patch): the wordmark is an image URL,
+      # so nothing is attached at all.
+      assert [] = email.attachments
     end
 
     test "includes both HTML and text bodies" do
@@ -122,7 +122,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentReminderTest do
       email = AppointmentReminder.render(:organizer, "organizer@example.com", details)
 
       assert %Swoosh.Email{subject: subject, to: to} = email
-      assert subject =~ "Meeting with #{details.attendee_name}"
+      assert subject =~ "with #{details.attendee_name}"
       assert to == [{"John Organizer", "organizer@example.com"}]
     end
 
@@ -146,7 +146,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentReminderTest do
       email = AppointmentReminder.render(:attendee, "attendee@example.com", details)
 
       assert email.subject =~ "Reminder"
-      assert email.subject =~ "30 minutes"
+      assert email.html_body =~ "30 minutes"
     end
 
     test "sets correct recipient" do
@@ -160,8 +160,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentReminderTest do
       details = build_appointment_details()
       email = AppointmentReminder.render(:attendee, "attendee@example.com", details)
 
-      assert [%Swoosh.Attachment{filename: "tymeslot-logo.png", content_type: "image/png"}] =
-               email.attachments
+      assert [] = email.attachments
     end
 
     test "includes both HTML and text bodies" do
@@ -251,7 +250,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentReminderTest do
         email = AppointmentReminder.render(:attendee, "attendee@example.com", details)
 
         assert email.html_body =~ time_until
-        assert email.subject =~ time_until
+        assert email.subject =~ "Reminder:"
       end
     end
 
@@ -324,7 +323,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentReminderTest do
 
       email = AppointmentReminder.render(:organizer, "organizer@example.com", details)
 
-      assert email.html_body =~ "Start Meeting"
+      assert email.html_body =~ "Start the meeting"
       assert email.text_body =~ "jwt=HOST-TOKEN"
     end
   end
@@ -404,7 +403,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentReminderTest do
       email =
         AppointmentReminder.render(:organizer, "organizer@example.com", mixed_language_details())
 
-      assert email.subject =~ "in 30 minutes"
+      assert email.html_body =~ "in 30 minutes"
       refute email.subject =~ "Minuten"
       refute email.html_body =~ "Minuten"
       refute email.text_body =~ "Minuten"
@@ -414,7 +413,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentReminderTest do
       email =
         AppointmentReminder.render(:attendee, "attendee@example.com", mixed_language_details())
 
-      assert email.subject =~ "30 Minuten"
+      assert email.html_body =~ "30 Minuten"
     end
   end
 

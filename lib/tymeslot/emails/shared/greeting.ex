@@ -35,8 +35,8 @@ defmodule Tymeslot.Emails.Shared.Greeting do
   @spec html(map()) :: String.t()
   def html(user) do
     case Profiles.user_display_name(user) do
-      nil -> dgettext("emails", "Hi there,")
-      name -> dgettext("emails", "Hi %{name},", name: Sanitise.sanitize_for_email(name))
+      nil -> dgettext("emails", "Dear Sir or Madam,")
+      name -> dgettext("emails", "Dear %{name},", name: Sanitise.sanitize_for_email(name))
     end
   end
 
@@ -46,8 +46,8 @@ defmodule Tymeslot.Emails.Shared.Greeting do
   @spec text(map()) :: String.t()
   def text(user) do
     case Profiles.user_display_name(user) do
-      nil -> dgettext("emails", "Hi there,")
-      name -> dgettext("emails", "Hi %{name},", name: name)
+      nil -> dgettext("emails", "Dear Sir or Madam,")
+      name -> dgettext("emails", "Dear %{name},", name: name)
     end
   end
 end

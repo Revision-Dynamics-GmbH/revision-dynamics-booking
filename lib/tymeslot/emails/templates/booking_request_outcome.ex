@@ -54,7 +54,7 @@ defmodule Tymeslot.Emails.Templates.BookingRequestOutcome do
   def render(variant, %Meeting{} = meeting) when variant in [:declined, :expired] do
     locale = RecipientLocale.attendee_locale(meeting)
 
-    Gettext.with_locale(TymeslotWeb.Gettext, locale, fn ->
+    TemplateHelper.with_locale_and_tone(locale, meeting, fn ->
       # The stored title and texts are in the organiser's language; the booker
       # reads them in theirs.
       meeting = AttendeeTexts.attendee_view(meeting, locale)
@@ -84,6 +84,7 @@ defmodule Tymeslot.Emails.Templates.BookingRequestOutcome do
           headline({variant, kind}),
           preheader({variant, kind}, meeting),
           intent: :cancelled,
+          audience: :guest,
           eyebrow: eyebrow({variant, kind}),
           stage_title: headline({variant, kind}),
           stage_subtitle: preheader({variant, kind}, meeting)

@@ -11,10 +11,10 @@ msgstr "Buchung nicht verfügbar"
 
 #: lib/tymeslot_web/controllers/embed_blocked_html.ex
 #, elixir-autogen, elixir-format
-msgid "The organiser hasn’t authorised this website to show their booking page."
-msgstr "Der Organisator hat diese Website nicht autorisiert, seine Buchungsseite anzuzeigen."
+msgid "This website is not approved to show the booking. You can book an appointment on revisiondynamics.com."
+msgstr "Diese Website ist für die Buchung nicht freigegeben. Termine vereinbaren Sie auf revisiondynamics.com."
 
 #: lib/tymeslot_web/controllers/embed_blocked_html.ex
 #, elixir-autogen, elixir-format
-msgid "This booking page can’t be embedded here"
-msgstr "Diese Buchungsseite kann hier nicht eingebettet werden"
+msgid "The booking cannot be embedded here."
+msgstr "Die Terminbuchung lässt sich hier nicht einbetten."

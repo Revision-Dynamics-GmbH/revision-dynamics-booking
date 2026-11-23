@@ -45,7 +45,7 @@ defmodule TymeslotWeb.Themes.Quill.Meeting.CancelConfirmed do
                 </div>
 
                 <h1 class="text-3xl font-bold mb-2 meeting-page-title">
-                  {dgettext("booking_manage", "Meeting Cancelled")}
+                  {dgettext("booking_manage", "Appointment cancelled")}
                 </h1>
                 <p
                   :if={
@@ -58,7 +58,7 @@ defmodule TymeslotWeb.Themes.Quill.Meeting.CancelConfirmed do
                   {AttendeeTexts.text(@meeting, :meeting_type, assigns[:locale])}
                 </p>
                 <p class="text-lg mb-8 meeting-page-lead">
-                  {dgettext("booking_manage", "Your meeting has been successfully cancelled.")}
+                  {dgettext("booking_manage", "Your appointment has been cancelled.")}
                 </p>
 
                 <div class="mb-8 p-4 rounded-lg flex items-start gap-3 meeting-page-notice meeting-page-notice--success">
@@ -69,7 +69,7 @@ defmodule TymeslotWeb.Themes.Quill.Meeting.CancelConfirmed do
                   <div class="text-sm meeting-page-muted">
                     <strong>{dgettext(
                       "booking_manage",
-                      "Cancellation emails have been sent to all participants."
+                      "Everyone involved has received the cancellation by email."
                     )}</strong>
                   </div>
                 </div>
@@ -81,7 +81,7 @@ defmodule TymeslotWeb.Themes.Quill.Meeting.CancelConfirmed do
                     variant={:primary}
                     class="w-full"
                   >
-                    {dgettext("booking_manage", "Schedule a New Meeting")}
+                    {dgettext("booking_manage", "Book a new time")}
                   </.action_button>
                 </div>
               </div>

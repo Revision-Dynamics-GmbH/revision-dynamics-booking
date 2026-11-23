@@ -115,7 +115,7 @@ defmodule Tymeslot.Emails.Templates.EmailChangeNotificationTest do
       user = build_user_data(%{name: "<script>steal()</script>", email: "test@example.com"})
       text = EmailChangeNotification.render(user, "new@example.com", nil).text_body
 
-      assert text =~ "Hi <script>steal()</script>,"
+      assert text =~ "Dear <script>steal()</script>,"
       assert text =~ "new@example.com"
       assert text =~ "test@example.com"
     end

@@ -198,7 +198,7 @@ defmodule TymeslotWeb.Live.Scheduling.DispatcherCancelCompositionTest do
 
     rendered = render(view)
     assert rendered =~ HTML.html_escape(refusal)
-    refute rendered =~ "still scheduled as planned"
+    refute rendered =~ "remains as planned"
     assert has_element?(view, "[data-testid='cancel-meeting']")
     assert Repo.get!(MeetingSchema, meeting.id).status == :confirmed
   end
@@ -247,7 +247,7 @@ defmodule TymeslotWeb.Live.Scheduling.DispatcherCancelCompositionTest do
     view |> element("[data-testid='keep-meeting']") |> render_click()
 
     rendered = render(view)
-    assert rendered =~ "still scheduled as planned"
+    assert rendered =~ "remains as planned"
 
     assert Repo.get!(MeetingSchema, meeting.id).status == :confirmed
   end

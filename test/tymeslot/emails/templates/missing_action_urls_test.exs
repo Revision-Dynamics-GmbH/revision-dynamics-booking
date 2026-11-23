@@ -87,7 +87,7 @@ defmodule Tymeslot.Emails.Templates.MissingActionUrlsTest do
     email = AppointmentConfirmation.render(:attendee, "attendee@example.com", details)
 
     assert email.html_body =~ ~s(href="https://example.com/cancel")
-    assert email.text_body =~ "ACTIONS:\nCancel: https://example.com/cancel"
+    assert email.text_body =~ "CHANGES:\nCancel appointment: https://example.com/cancel"
     refute email.text_body =~ "Reschedule:"
   end
 end

@@ -49,11 +49,11 @@ defmodule TymeslotWeb.Themes.Rhythm.Meeting.Reschedule do
                   </div>
 
                   <h1 class="confirmation-headline">
-                    {dgettext("booking_manage", "Reschedule Appointment")}
+                    {dgettext("booking_manage", "Reschedule appointment")}
                   </h1>
 
                   <p class="confirmation-message">
-                    {dgettext("booking_manage", "Select a new time for your meeting")}
+                    {dgettext("booking_manage", "Choose a new time for your appointment.")}
                   </p>
                 </div>
 
@@ -80,7 +80,7 @@ defmodule TymeslotWeb.Themes.Rhythm.Meeting.Reschedule do
                       <p class="ticket-footer-message">
                         {dgettext(
                           "booking_manage",
-                          "Ready to pick a new time? Let's find one that works better for you."
+                          "In the next step, you choose a new day and time."
                         )}
                       </p>
                     </div>

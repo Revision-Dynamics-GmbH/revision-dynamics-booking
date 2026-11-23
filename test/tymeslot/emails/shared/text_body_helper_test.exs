@@ -140,7 +140,7 @@ defmodule Tymeslot.Emails.Shared.TextBodyHelperTest do
         )
 
       assert text =~
-               "ACTIONS:\nReschedule: https://example.com/r\nCancel: https://example.com/c\nOpen in dashboard: https://example.com/d"
+               "CHANGES:\nReschedule: https://example.com/r\nCancel appointment: https://example.com/c\nOpen in dashboard: https://example.com/d"
     end
 
     test "leaves out an action with no URL" do
@@ -180,7 +180,7 @@ defmodule Tymeslot.Emails.Shared.TextBodyHelperTest do
     test "lists a web join link" do
       text = TextBodyHelper.format_video_section("https://meet.example.com/room", "en")
 
-      assert text =~ "JOIN VIDEO MEETING:\nhttps://meet.example.com/room"
+      assert text =~ "JOIN ONLINE:\nhttps://meet.example.com/room"
     end
 
     test "is empty for a bare room id, a mailto address or an unsafe link" do

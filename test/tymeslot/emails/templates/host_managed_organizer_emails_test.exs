@@ -65,7 +65,7 @@ defmodule Tymeslot.Emails.Templates.HostManagedOrganizerEmailsTest do
     assert email.subject =~ "Poll confirmed: Board meeting"
     assert email.html_body =~ "Your poll is confirmed"
     assert email.html_body =~ "/dashboard/meetings"
-    refute email.subject =~ "New Appointment"
+    refute email.subject =~ "New booking"
     assert_about_the_meeting(email, meeting)
   end
 
@@ -108,7 +108,7 @@ defmodule Tymeslot.Emails.Templates.HostManagedOrganizerEmailsTest do
     email = AppointmentRescheduled.render(:organizer, meeting.organizer_email, details)
 
     assert email.subject =~ "Board meeting"
-    assert email.text_body =~ "You moved this meeting."
+    assert email.text_body =~ "You moved this appointment."
     assert email.text_body =~ "Your guests have been notified of the new time."
     assert_about_the_meeting(email, meeting)
   end
