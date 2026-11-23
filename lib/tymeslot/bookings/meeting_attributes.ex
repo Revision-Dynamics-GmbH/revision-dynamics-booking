@@ -13,6 +13,7 @@ defmodule Tymeslot.Bookings.MeetingAttributes do
   alias Tymeslot.Bookings.BuildParams
   alias Tymeslot.Bookings.Institution
   alias Tymeslot.Bookings.MeetingLinks
+  alias Tymeslot.Bookings.RequestFields
   alias Tymeslot.Clock
   alias Tymeslot.ContentTranslations.AttendeeTexts
   alias Tymeslot.CustomFields.Snapshot
@@ -168,7 +169,7 @@ defmodule Tymeslot.Bookings.MeetingAttributes do
       Approval.request_attributes(meeting_type_record, Clock.utc_now(), params.start_datetime)
     )
     |> Map.merge(meeting_type_attributes(meeting_type_record))
-    |> Map.merge(title_attributes(params, meeting_type_name))
+    |> Map.merge(title_attributes(params, meeting_type_record, meeting_type_name))
     |> Map.merge(attendee_attributes(params, user_timezone))
     |> Map.merge(location_attributes(meeting_type_record, params, video_integration_id))
     |> Map.merge(source_attribution(params))
@@ -234,12 +235,19 @@ defmodule Tymeslot.Bookings.MeetingAttributes do
   # them in the organiser's, as its other snapshot strings are, and the
   # attendee's copies of those strings go to `attendee_texts`. Last, as the
   # copies are made from the finished originals.
+  # A request's title (`RequestFields`, rd-request-fields.patch) is kept
+  # among the answers under its reserved key, beside the questions' own.
   defp put_booker_texts(attrs, meeting_type_record, profile, %BuildParams{} = params) do
     attrs =
       Map.merge(attrs, %{
         custom_fields_snapshot:
           original_snapshot(params.custom_fields_snapshot, meeting_type_record),
-        custom_field_answers: params.custom_field_answers
+        custom_field_answers:
+          RequestFields.put_title(
+            params.custom_field_answers,
+            meeting_type_record,
+            params.form_data["title"]
+          )
       })
 
     Map.put(
@@ -273,16 +281,28 @@ defmodule Tymeslot.Bookings.MeetingAttributes do
   # the booker renders it again in theirs (`BookingTitle.localise/1`).
   # A booker who named their institution titles it
   # "<meeting type> x <institution>" (`BookingTitle.organiser_title/3`),
-  # which `summary` carries to the Teams meeting too.
-  defp title_attributes(%BuildParams{} = params, meeting_type_name) do
+  # which `summary` carries to the Teams meeting too. A request with a title
+  # (`RequestFields`, rd-request-fields.patch) is titled with it instead,
+  # "<title> x <institution>" or "<title> x <name>".
+  defp title_attributes(%BuildParams{} = params, meeting_type_record, meeting_type_name) do
+    request_title =
+      if RequestFields.applies?(meeting_type_record),
+        do:
+          RequestFields.organiser_title(
+            params.form_data["title"],
+            params.form_data["company"],
+            params.form_data["name"]
+          )
+
     title =
-      RecipientLocale.with_user_id_locale(params.organizer_user_id, fn ->
-        BookingTitle.organiser_title(
-          meeting_type_name,
-          params.form_data["name"],
-          params.form_data["company"]
-        )
-      end)
+      request_title ||
+        RecipientLocale.with_user_id_locale(params.organizer_user_id, fn ->
+          BookingTitle.organiser_title(
+            meeting_type_name,
+            params.form_data["name"],
+            params.form_data["company"]
+          )
+        end)
 
     %{title: title, summary: title}
   end

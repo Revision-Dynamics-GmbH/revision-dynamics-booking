@@ -49,6 +49,14 @@ defmodule Tymeslot.Emails.Shared.RdIdentity do
   @spec privacy_url(String.t() | nil) :: String.t()
   def privacy_url(locale \\ current_locale()), do: "#{site_url(locale)}/privacy-policy"
 
+  @doc """
+  The website's page for an individual appointment request in the email's
+  language (rd-request-fields.patch): where a declined or lapsed request is
+  asked anew.
+  """
+  @spec request_url(String.t() | nil) :: String.t()
+  def request_url(locale \\ current_locale()), do: "#{site_url(locale)}/termine/individuell"
+
   @doc "The wordmark for light surfaces (black lettering)."
   @spec wordmark_light_url() :: String.t()
   def wordmark_light_url, do: "#{@logo_base}/revision-dynamics-wordmark-on-light.png"
@@ -112,9 +120,12 @@ defmodule Tymeslot.Emails.Shared.RdIdentity do
   Who an email is for. `:guest` is the person who booked and anyone they
   invited: their foot says how to ask a question and why they got the email.
   `:host` is Tim and every account email: internal, so the foot keeps only
-  the company, the links and the source notice.
+  the company, the links and the source notice. `:requester` is a guest
+  whose appointment is still a request (request received, not confirmed,
+  expired; rd-request-fields.patch): the guest's foot, saying they
+  requested an appointment rather than booked one.
   """
-  @type audience :: :guest | :host
+  @type audience :: :guest | :host | :requester
 
   @doc """
   The foot of every email, below the card on the canvas: for a guest a line
@@ -135,7 +146,7 @@ defmodule Tymeslot.Emails.Shared.RdIdentity do
 
     paragraphs =
       [
-        audience == :guest &&
+        audience in [:guest, :requester] &&
           dgettext("emails", "Questions? Simply reply to this email or call %{phone}.",
             phone: link.(@phone_href, @phone_display)
           ),
@@ -148,11 +159,7 @@ defmodule Tymeslot.Emails.Shared.RdIdentity do
           ],
           " · "
         ),
-        audience == :guest &&
-          dgettext(
-            "emails",
-            "You are receiving this email because you booked an appointment on revisiondynamics.com."
-          ),
+        reason(audience),
         source_notice(link.(source_url(), dgettext("emails", "Source code of our version")))
       ]
 
@@ -190,18 +197,14 @@ defmodule Tymeslot.Emails.Shared.RdIdentity do
   def footer_text(audience \\ :guest) do
     [
       "--",
-      audience == :guest &&
+      audience in [:guest, :requester] &&
         dgettext("emails", "Questions? Simply reply to this email or call %{phone}.",
           phone: @phone_display
         ) <> "\n",
       Enum.join(company_lines(), "\n") <> "\n",
       "#{dgettext("emails", "Imprint")}: #{imprint_url()}",
       "#{dgettext("emails", "Privacy policy")}: #{privacy_url()}\n",
-      audience == :guest &&
-        dgettext(
-          "emails",
-          "You are receiving this email because you booked an appointment on revisiondynamics.com."
-        ),
+      reason(audience),
       source_notice("#{dgettext("emails", "Source code of our version")}: #{source_url()}")
     ]
     |> Enum.filter(&is_binary/1)
@@ -215,10 +218,32 @@ defmodule Tymeslot.Emails.Shared.RdIdentity do
   """
   @spec footer_audience(String.t() | nil) :: audience()
   def footer_audience(html) when is_binary(html) do
-    if String.contains?(html, "rd-foot--host"), do: :host, else: :guest
+    cond do
+      String.contains?(html, "rd-foot--host") -> :host
+      String.contains?(html, "rd-foot--requester") -> :requester
+      true -> :guest
+    end
   end
 
   def footer_audience(_html), do: :guest
+
+  # Why the email was sent: a booked appointment, or one only requested
+  # (rd-request-fields.patch). Tim's own emails give no reason.
+  defp reason(:guest),
+    do:
+      dgettext(
+        "emails",
+        "You are receiving this email because you booked an appointment on revisiondynamics.com."
+      )
+
+  defp reason(:requester),
+    do:
+      dgettext(
+        "emails",
+        "You are receiving this email because you requested an appointment on revisiondynamics.com."
+      )
+
+  defp reason(:host), do: false
 
   # The AGPL notice. Worded under Tymeslot's trademark rules (TRADEMARK.md):
   # an adapted version is "based on" Tymeslot and never presents itself as

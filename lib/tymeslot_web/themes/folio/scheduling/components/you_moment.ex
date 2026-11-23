@@ -216,6 +216,7 @@ defmodule TymeslotWeb.Themes.Folio.Scheduling.Components.YouMoment do
       <div class="folio-booking">
         <BookingForm.booking_form
           form={@form}
+          meeting_type={@meeting_type}
           validation_errors={@validation_errors}
           target={@myself}
           class="folio-booking-form"
@@ -264,7 +265,7 @@ defmodule TymeslotWeb.Themes.Folio.Scheduling.Components.YouMoment do
           aria-describedby={SeriesSummary.price_describedby(assigns, @series_count)}
           data-intent="submit"
           disabled={
-            @submitting || !OrganizerHelpers.form_valid?(@form) ||
+            @submitting || !OrganizerHelpers.form_valid?(@form, @meeting_type) ||
               SeriesSummary.submit_waits?(assigns)
           }
         >

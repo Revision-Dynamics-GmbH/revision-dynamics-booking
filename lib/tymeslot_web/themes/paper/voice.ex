@@ -50,12 +50,20 @@ defmodule TymeslotWeb.Themes.Paper.Voice do
   # Without the guest's name: Paper addresses nobody.
   def text(:held_message_named, %{organizer_name: organizer_name}),
     do:
-      dpgettext("booking_voice", "paper", "Your request to %{organizer} has been sent.",
+      dpgettext(
+        "booking_voice",
+        "paper",
+        "Your request to %{organizer} has been received. The meeting is not booked yet.",
         organizer: organizer_name
       )
 
   def text(:held_message, _bindings),
-    do: dpgettext("booking_voice", "paper", "Your request has been sent.")
+    do:
+      dpgettext(
+        "booking_voice",
+        "paper",
+        "Your request has been received. The meeting is not booked yet."
+      )
 
   def text(:select_prompt, _bindings), do: dpgettext("booking_voice", "paper", "Select an option")
 

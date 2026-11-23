@@ -43,9 +43,10 @@ defmodule TymeslotWeb.Themes.Paper.VoiceTest do
 
   test "says a request was sent without naming the guest" do
     assert line(:held_message_named, %{name: "Alice", organizer_name: "Ana Silva"}) ==
-             "Your request to Ana Silva has been sent."
+             "Your request to Ana Silva has been received. The meeting is not booked yet."
 
-    assert line(:held_message, %{name: "Alice"}) == "Your request has been sent."
+    assert line(:held_message, %{name: "Alice"}) ==
+             "Your request has been received. The meeting is not booked yet."
   end
 
   @worded [

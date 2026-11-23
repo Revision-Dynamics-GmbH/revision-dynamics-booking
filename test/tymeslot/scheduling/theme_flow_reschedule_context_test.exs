@@ -52,6 +52,7 @@ defmodule Tymeslot.Scheduling.ThemeFlowRescheduleContextTest do
              "name" => "Ada Lovelace",
              "email" => "ada@example.com",
              "company" => "",
+             "title" => "",
              "message" => ""
            }
   end

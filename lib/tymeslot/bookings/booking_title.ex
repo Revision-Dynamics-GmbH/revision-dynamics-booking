@@ -20,11 +20,16 @@ defmodule Tymeslot.Bookings.BookingTitle do
   title is the organiser's alone: the booker and their guests read it as
   "<meeting type> with <name>" in their language, as they would without one,
   so nothing they are sent changes.
+
+  A request's title (`Tymeslot.Bookings.RequestFields.organiser_title/3`,
+  "<title> x <institution>", rd-request-fields.patch) is the organiser's
+  alone in the same way.
   """
 
   use Gettext, backend: TymeslotWeb.Gettext
 
   alias Tymeslot.Bookings.Institution
+  alias Tymeslot.Bookings.RequestFields
 
   @doc "The booking title, rendered in the current Gettext locale."
   @spec render(String.t() | nil, String.t() | nil) :: String.t()
@@ -67,7 +72,7 @@ defmodule Tymeslot.Bookings.BookingTitle do
       )
       when is_binary(title) and is_binary(meeting_type) and is_binary(attendee_name) do
     if built_from_template?(title, meeting_type, attendee_name) or
-         institution_title?(meeting),
+         institution_title?(meeting) or RequestFields.organiser_title?(meeting),
        do: render(meeting_type, attendee_name),
        else: title
   end
@@ -102,7 +107,7 @@ defmodule Tymeslot.Bookings.BookingTitle do
       when is_binary(title) and is_binary(meeting_type) and is_binary(attendee_name) and
              is_binary(display_type) do
     if built_from_template?(title, meeting_type, attendee_name) or
-         institution_title?(meeting),
+         institution_title?(meeting) or RequestFields.organiser_title?(meeting),
        do: render(display_type, attendee_name),
        else: localise(meeting)
   end

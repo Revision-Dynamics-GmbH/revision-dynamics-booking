@@ -10,6 +10,7 @@ defmodule Tymeslot.Integrations.Calendar.CalendarEventBuilder do
 
   use Gettext, backend: TymeslotWeb.Gettext
 
+  alias Tymeslot.Bookings.RequestFields
   alias Tymeslot.CustomFields.AnswerRenderer
   alias Tymeslot.Emails.RecipientLocale
   alias Tymeslot.Meetings.AttendeeName
@@ -161,6 +162,7 @@ defmodule Tymeslot.Integrations.Calendar.CalendarEventBuilder do
   defp describe(meeting, opts) do
     parts = [
       attendee_identity_line(meeting, Keyword.get(opts, :attendees, [])),
+      request_title_line(meeting),
       meeting.description,
       organizer_note_section(meeting),
       attendee_message_section(meeting),
@@ -275,10 +277,29 @@ defmodule Tymeslot.Integrations.Calendar.CalendarEventBuilder do
     end
   end
 
+  # A request's description (rd-request-fields.patch) is the message field
+  # under its own label.
   defp attendee_message_section(meeting) do
     case meeting.attendee_message do
+      nil ->
+        nil
+
+      message ->
+        label =
+          if RequestFields.request?(meeting),
+            do: dgettext("emails", "Request description") <> ":",
+            else: dgettext("emails", "Message from attendee:")
+
+        "\n\n" <> label <> "\n#{message}"
+    end
+  end
+
+  # The title the booker gave a request (`RequestFields`, Revision Dynamics,
+  # rd-request-fields.patch), right under who it is with.
+  defp request_title_line(meeting) do
+    case RequestFields.title(meeting) do
       nil -> nil
-      message -> "\n\n" <> dgettext("emails", "Message from attendee:") <> "\n#{message}"
+      title -> dgettext("emails", "Request title:") <> " " <> title <> "\n\n"
     end
   end
 

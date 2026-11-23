@@ -644,3 +644,23 @@ msgstr "Fragen? Antworten Sie einfach auf diese E-Mail oder rufen Sie an: %{phon
 #, elixir-format
 msgid "You are receiving this email because you booked an appointment on revisiondynamics.com."
 msgstr "Sie erhalten diese E-Mail, weil Sie auf revisiondynamics.com einen Termin gebucht haben."
+
+#: lib/tymeslot/emails/shared/meeting/hero.ex
+#, elixir-autogen, elixir-format
+msgid "Request title"
+msgstr "Titel"
+
+#: lib/tymeslot/emails/shared/meeting/hero.ex
+#, elixir-autogen, elixir-format
+msgid "Request title:"
+msgstr "Titel:"
+
+#: lib/tymeslot/emails/shared/meeting/hero.ex
+#, elixir-autogen, elixir-format
+msgid "Request description"
+msgstr "Beschreibung"
+
+#: lib/tymeslot/emails/shared/rd_identity.ex
+#, elixir-autogen, elixir-format
+msgid "You are receiving this email because you requested an appointment on revisiondynamics.com."
+msgstr "Sie erhalten diese E-Mail, weil Sie auf revisiondynamics.com einen Termin angefragt haben."

@@ -20,6 +20,12 @@ config :tymeslot, enforce_legal_agreements: false
 # for it (`Tymeslot.Bookings.Institution.field_enabled?/0`).
 config :tymeslot, booking_institution_field: false
 
+# Revision Dynamics (rd-request-fields.patch): a request type's title and
+# description are off for the suite too, whose approval tests book with a
+# name, an email and a message only. The tests of the fields turn them on
+# (`Tymeslot.Bookings.RequestFields.field_enabled?/0`).
+config :tymeslot, booking_request_fields: false
+
 # Poll tests in async modules share a handful of addresses and request links
 # on one poll repeatedly, so the per-address and per-poll budgets are raised
 # beyond their reach. Tests of the limits fill the buckets explicitly.

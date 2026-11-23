@@ -773,3 +773,13 @@ msgstr "%{when} findet nicht statt. Einen neuen Termin können Sie online buchen
 #, elixir-format
 msgid "%{when}: %{meeting_type} with %{name} will not take place."
 msgstr "%{when}: %{meeting_type} mit %{name} findet nicht statt."
+
+#: lib/tymeslot/emails/templates/appointment_confirmation.ex
+#, elixir-autogen, elixir-format
+msgid "Dear %{name},\n\nI have confirmed your request. The appointment is in my calendar, and the invitation for your calendar is attached to this email."
+msgstr "Sehr geehrte/r %{name},\n\nich habe Ihre Anfrage bestätigt. Der Termin ist in meinem Kalender eingetragen, die Einladung für Ihren Kalender hängt an dieser E-Mail."
+
+#: lib/tymeslot/emails/templates/appointment_confirmation.ex
+#, elixir-autogen, elixir-format
+msgid "I have confirmed your request. The appointment is in my calendar, and the invitation for your calendar is attached to this email."
+msgstr "ich habe Ihre Anfrage bestätigt. Der Termin ist in meinem Kalender eingetragen, die Einladung für Ihren Kalender hängt an dieser E-Mail."

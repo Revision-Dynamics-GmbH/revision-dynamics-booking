@@ -551,3 +551,23 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Institution or company is too long (maximum %{max_length} characters)"
 msgstr ""
+
+#: lib/tymeslot/security/field_validators/request_title_validator.ex
+#, elixir-autogen, elixir-format
+msgid "Please enter a title."
+msgstr ""
+
+#: lib/tymeslot/security/field_validators/request_title_validator.ex
+#, elixir-autogen, elixir-format
+msgid "The title is too long (maximum %{max_length} characters)."
+msgstr ""
+
+#: lib/tymeslot/security/field_validators/request_title_validator.ex
+#, elixir-autogen, elixir-format
+msgid "Please describe briefly what it is about."
+msgstr ""
+
+#: lib/tymeslot/security/field_validators/request_title_validator.ex
+#, elixir-autogen, elixir-format
+msgid "The description is too long (maximum %{max_length} characters)."
+msgstr ""

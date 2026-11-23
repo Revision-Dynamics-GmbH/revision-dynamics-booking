@@ -49,6 +49,7 @@ defmodule Tymeslot.Emails.Shared.MeetingComponents do
   defdelegate attendee_info_section(intent, attendee), to: Attendee
   defdelegate counterpart_section(intent, details), to: Attendee
   defdelegate attendee_message_box(intent, message), to: Attendee
+  defdelegate request_description_box(intent, description), to: Attendee
   defdelegate organizer_note_box(intent, note), to: Notes
   defdelegate description_section(details), to: Description, as: :section
   defdelegate description_text(details), to: Description, as: :text_section

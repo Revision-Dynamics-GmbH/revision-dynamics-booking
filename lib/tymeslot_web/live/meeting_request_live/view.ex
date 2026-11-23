@@ -12,6 +12,7 @@ defmodule TymeslotWeb.MeetingRequestLive.View do
   use TymeslotWeb, :html
   use Gettext, backend: TymeslotWeb.Gettext
 
+  alias Tymeslot.Bookings.RequestFields
   alias Tymeslot.Profiles
   alias Tymeslot.Utils.DateTimeUtils
   alias Tymeslot.Validation.Constraints
@@ -101,15 +102,35 @@ defmodule TymeslotWeb.MeetingRequestLive.View do
         <.detail_line icon="hero-tag" label={dgettext("booking_manage", "Type")}>
           {@meeting.meeting_type || dgettext("booking_manage", "Appointment")}
         </.detail_line>
+        <%!-- A request's own title and description (rd-request-fields.patch). --%>
+        <.detail_line
+          :if={RequestFields.title(@meeting)}
+          icon="hero-document-text"
+          label={dgettext("emails", "Request title")}
+          data-testid="request-title"
+        >
+          {RequestFields.title(@meeting)}
+        </.detail_line>
         <.detail_line icon="hero-user" label={dgettext("booking_manage", "From")}>
           {from_line(@meeting)}
         </.detail_line>
         <.detail_line
+          :if={@meeting.attendee_company not in [nil, ""]}
+          icon="hero-building-office"
+          label={dgettext("emails", "Institution or company")}
+        >
+          {@meeting.attendee_company}
+        </.detail_line>
+        <.detail_line
           :if={@meeting.attendee_message not in [nil, ""]}
           icon="hero-chat-bubble-left-ellipsis"
-          label={dgettext("booking_manage", "Message")}
+          label={
+            if RequestFields.request?(@meeting),
+              do: dgettext("emails", "Request description"),
+              else: dgettext("booking_manage", "Message")
+          }
         >
-          {@meeting.attendee_message}
+          <span class="whitespace-pre-line">{@meeting.attendee_message}</span>
         </.detail_line>
       </div>
 

@@ -767,3 +767,13 @@ msgstr ""
 #, elixir-format
 msgid "%{when}: %{meeting_type} with %{name} will not take place."
 msgstr ""
+
+#: lib/tymeslot/emails/templates/appointment_confirmation.ex
+#, elixir-autogen, elixir-format
+msgid "Dear %{name},\n\nI have confirmed your request. The appointment is in my calendar, and the invitation for your calendar is attached to this email."
+msgstr ""
+
+#: lib/tymeslot/emails/templates/appointment_confirmation.ex
+#, elixir-autogen, elixir-format
+msgid "I have confirmed your request. The appointment is in my calendar, and the invitation for your calendar is attached to this email."
+msgstr ""

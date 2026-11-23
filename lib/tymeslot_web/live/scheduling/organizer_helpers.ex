@@ -299,15 +299,18 @@ defmodule TymeslotWeb.Live.Scheduling.OrganizerHelpers do
   end
 
   @doc """
-  Validates if form is complete and valid.
+  Validates if form is complete and valid, for the form of `meeting_type`
+  (`BookingConfig.booking_field_spec/1`: a request type asks for more).
   """
-  @spec form_valid?(Phoenix.HTML.Form.t()) :: boolean()
-  def form_valid?(%{source: source}) when is_map(source) do
-    case InputProcessor.validate_form(source, BookingConfig.booking_field_spec()) do
+  @spec form_valid?(Phoenix.HTML.Form.t(), map() | nil) :: boolean()
+  def form_valid?(form, meeting_type \\ nil)
+
+  def form_valid?(%{source: source}, meeting_type) when is_map(source) do
+    case InputProcessor.validate_form(source, BookingConfig.booking_field_spec(meeting_type)) do
       {:ok, _result} -> true
       {:error, _reason} -> false
     end
   end
 
-  def form_valid?(_form), do: false
+  def form_valid?(_form, _meeting_type), do: false
 end

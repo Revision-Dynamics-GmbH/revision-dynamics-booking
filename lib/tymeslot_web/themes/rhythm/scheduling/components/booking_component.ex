@@ -134,6 +134,7 @@ defmodule TymeslotWeb.Themes.Rhythm.Scheduling.Components.BookingComponent do
 
             <BookingForm.booking_form
               form={@form}
+              meeting_type={@meeting_type}
               validation_errors={@validation_errors}
               target={@myself}
               class="booking-form"
@@ -193,7 +194,7 @@ defmodule TymeslotWeb.Themes.Rhythm.Scheduling.Components.BookingComponent do
                 aria-describedby={SeriesSummary.price_describedby(assigns, @series_count)}
                 data-intent="submit"
                 disabled={
-                  @submitting || !OrganizerHelpers.form_valid?(@form) ||
+                  @submitting || !OrganizerHelpers.form_valid?(@form, @meeting_type) ||
                     SeriesSummary.submit_waits?(assigns)
                 }
               >

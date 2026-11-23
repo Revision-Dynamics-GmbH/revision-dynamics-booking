@@ -18,6 +18,10 @@ defmodule Tymeslot.Emails.Templates.BookingApprovalRequest do
   invitee moved it (it has a `first_announced_at`) is presented as a
   reschedule request rather than a new booking. When the caller knows the time
   it was moved from, `opts[:previous_start_time]` shows it as well.
+
+  A request with a title (`Tymeslot.Bookings.RequestFields`, Revision
+  Dynamics, rd-request-fields.patch) names it in the subject and the details,
+  and shows its description under that label instead of as a message.
   """
 
   import Swoosh.Email
@@ -40,6 +44,7 @@ defmodule Tymeslot.Emails.Templates.BookingApprovalRequest do
   alias Tymeslot.Utils.DateTimeUtils
 
   alias Tymeslot.BookingPages.BookedThrough
+  alias Tymeslot.Bookings.RequestFields
   alias Tymeslot.Emails.Shared.BookingRequestLocation
   alias Tymeslot.Meetings.MeetingSchema, as: Meeting
 
@@ -64,7 +69,7 @@ defmodule Tymeslot.Emails.Templates.BookingApprovalRequest do
       mjml_content = """
       #{MeetingComponents.attendee_info_section(@intent, %{name: meeting.attendee_name, email: meeting.attendee_email, company: meeting.attendee_company})}
 
-      #{MeetingComponents.attendee_message_box(@intent, meeting.attendee_message)}
+      #{message_box(meeting)}
 
       #{Text.section_title(requested_time_title(kind))}
       #{MeetingComponents.meeting_details_table(details, locale)}
@@ -102,7 +107,8 @@ defmodule Tymeslot.Emails.Templates.BookingApprovalRequest do
       MjmlEmail.base_email()
       |> addressed_to_host(meeting)
       |> subject(
-        subject_line(variant, kind, meeting, Formatting.format_date_short(host_time, locale))
+        request_subject(variant, kind, meeting, TemplateHelper.subject_moment(details, locale)) ||
+          subject_line(variant, kind, meeting, Formatting.format_date_short(host_time, locale))
       )
       |> html_body(html_body)
       |> text_body(
@@ -117,6 +123,31 @@ defmodule Tymeslot.Emails.Templates.BookingApprovalRequest do
     end)
   end
 
+  # A request's description is its own text, not a message on the side.
+  defp message_box(meeting) do
+    if RequestFields.request?(meeting),
+      do: MeetingComponents.request_description_box(@intent, meeting.attendee_message),
+      else: MeetingComponents.attendee_message_box(@intent, meeting.attendee_message)
+  end
+
+  # A request with a title is named by it (rd-request-fields.patch); nil
+  # falls back to `subject_line/4`.
+  defp request_subject(:request, :booking, meeting, date) do
+    case RequestFields.title(meeting) do
+      nil ->
+        nil
+
+      title ->
+        dgettext("emails_booking_requests", "Meeting request: %{title} (%{name}), %{date}",
+          title: title,
+          name: meeting.attendee_name,
+          date: date
+        )
+    end
+  end
+
+  defp request_subject(_variant, _kind, _meeting, _date), do: nil
+
   # To the host, with replies going to the person asking for the slot.
   defp addressed_to_host(email, meeting) do
     email
@@ -124,10 +155,10 @@ defmodule Tymeslot.Emails.Templates.BookingApprovalRequest do
     |> MjmlEmail.put_reply_to(meeting.attendee_name, meeting.attendee_email)
   end
 
-  defp eyebrow(:request), do: dgettext("emails_booking_requests", "Needs your answer")
+  defp eyebrow(:request), do: dgettext("emails_booking_requests", "New request")
   defp eyebrow(:nudge), do: dgettext("emails_booking_requests", "Still waiting")
 
-  defp title(:request, :booking), do: dgettext("emails_booking_requests", "New booking request")
+  defp title(:request, :booking), do: dgettext("emails_booking_requests", "New meeting request")
 
   defp title(:nudge, :booking),
     do: dgettext("emails_booking_requests", "Booking request still waiting")
@@ -147,6 +178,20 @@ defmodule Tymeslot.Emails.Templates.BookingApprovalRequest do
     do: dgettext("emails_booking_requests", "Requested New Time")
 
   defp request_sentence(meeting, :booking) do
+    if RequestFields.request?(meeting),
+      do: request_with_title_sentence(meeting),
+      else: booking_sentence(meeting)
+  end
+
+  defp request_sentence(meeting, :reschedule), do: reschedule_sentence(meeting)
+
+  defp request_with_title_sentence(meeting),
+    do:
+      dgettext(
+        "emails_booking_requests",
+        "%{name} would like to arrange an appointment with you.", name: meeting.attendee_name)
+
+  defp booking_sentence(meeting) do
     dgettext("emails_booking_requests", "%{name} would like to book %{type} with you.",
       name: meeting.attendee_name,
       type: meeting.meeting_type || dgettext("emails_booking_requests", "a meeting")
@@ -155,7 +200,7 @@ defmodule Tymeslot.Emails.Templates.BookingApprovalRequest do
 
   # The meeting type is listed in the details below, so the sentence does not
   # need it; leaving it out keeps the translations free of a spliced-in noun.
-  defp request_sentence(meeting, :reschedule) do
+  defp reschedule_sentence(meeting) do
     dgettext(
       "emails_booking_requests",
       "%{name} would like to move their confirmed booking to a new time.",
@@ -243,6 +288,7 @@ defmodule Tymeslot.Emails.Templates.BookingApprovalRequest do
       location: meeting.location,
       location_type: BookingRequestLocation.type(meeting),
       meeting_type: meeting.meeting_type || dgettext("emails_booking_requests", "Meeting"),
+      request_title: RequestFields.title(meeting),
       timezone: host_time.time_zone,
       time_format: clock.time_format,
       audience: :host,
@@ -292,6 +338,30 @@ defmodule Tymeslot.Emails.Templates.BookingApprovalRequest do
     )
   end
 
+  defp text_company(%{attendee_company: company}) when is_binary(company) and company != "",
+    do: "\n" <> dgettext("emails", "Institution or company") <> ": " <> company
+
+  defp text_company(_meeting), do: ""
+
+  defp text_title(meeting) do
+    case RequestFields.title(meeting) do
+      nil -> ""
+      title -> "\n" <> dgettext("emails", "Request title:") <> " " <> title
+    end
+  end
+
+  defp text_message(%{attendee_message: message} = meeting)
+       when is_binary(message) and message != "" do
+    label =
+      if RequestFields.request?(meeting),
+        do: dgettext("emails", "Request description") <> ":\n",
+        else: dgettext("emails_booking_requests", "Message:") <> " "
+
+    label <> message
+  end
+
+  defp text_message(_meeting), do: ""
+
   defp text_body_for(
          {variant, kind},
          meeting,
@@ -306,8 +376,8 @@ defmodule Tymeslot.Emails.Templates.BookingApprovalRequest do
 
     #{request_sentence(meeting, kind)}
 
-    #{dgettext("emails_booking_requests", "From:")} #{meeting.attendee_name} <#{meeting.attendee_email}>
-    #{if meeting.attendee_message, do: dgettext("emails_booking_requests", "Message:") <> " " <> meeting.attendee_message, else: ""}
+    #{dgettext("emails_booking_requests", "From:")} #{meeting.attendee_name} <#{meeting.attendee_email}>#{text_company(meeting)}#{text_title(meeting)}
+    #{text_message(meeting)}
 
     #{dgettext("emails_booking_requests", "REQUESTED TIME:")}
     #{dgettext("emails_booking_requests", "Date:")} #{Formatting.format_date_short(details.date, locale)}

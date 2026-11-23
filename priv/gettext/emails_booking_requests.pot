@@ -541,3 +541,143 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Your booking is not confirmed yet. Click the button below by %{deadline} to confirm it, and we will hold the time for you until then."
 msgstr ""
+
+#: lib/tymeslot/emails/templates/booking_request_received.ex
+#, elixir-autogen, elixir-format
+msgid "Meeting request: %{title} (%{name}), %{date}"
+msgstr ""
+
+#: lib/tymeslot/emails/templates/booking_request_received.ex
+#, elixir-autogen, elixir-format
+msgid "New request"
+msgstr ""
+
+#: lib/tymeslot/emails/templates/booking_request_received.ex
+#, elixir-autogen, elixir-format
+msgid "New meeting request"
+msgstr ""
+
+#: lib/tymeslot/emails/templates/booking_request_received.ex
+#, elixir-autogen, elixir-format
+msgid "%{name} would like to arrange an appointment with you."
+msgstr ""
+
+#: lib/tymeslot/emails/templates/booking_request_received.ex
+#, elixir-autogen, elixir-format
+msgid "%{organizer} has received your request. The appointment is not booked yet."
+msgstr ""
+
+#: lib/tymeslot/emails/templates/booking_request_received.ex
+#, elixir-autogen, elixir-format
+msgid "Request to %{organizer}"
+msgstr ""
+
+#: lib/tymeslot/emails/templates/booking_request_received.ex
+#, elixir-autogen, elixir-format
+msgid "Your request has been received."
+msgstr ""
+
+#: lib/tymeslot/emails/templates/booking_request_received.ex
+#, elixir-autogen, elixir-format
+msgid "Dear %{name},"
+msgstr ""
+
+#: lib/tymeslot/emails/templates/booking_request_received.ex
+#, elixir-autogen, elixir-format
+msgid "You will receive an email as soon as the request has been confirmed or declined."
+msgstr ""
+
+#: lib/tymeslot/emails/templates/booking_request_received.ex
+#, elixir-autogen, elixir-format
+msgid "The time is held for you until %{deadline}. If the request has not been confirmed by then, the time is released and you will receive an email."
+msgstr ""
+
+#: lib/tymeslot/emails/templates/booking_request_received.ex
+#, elixir-autogen, elixir-format
+msgid "If you no longer need the appointment, you can %{link}."
+msgstr ""
+
+#: lib/tymeslot/emails/templates/booking_request_received.ex
+#, elixir-autogen, elixir-format
+msgid "Your meeting request: %{title} on %{date}"
+msgstr ""
+
+#: lib/tymeslot/emails/templates/booking_request_received.ex
+#, elixir-autogen, elixir-format
+msgid "Your request has expired."
+msgstr ""
+
+#: lib/tymeslot/emails/templates/booking_request_received.ex
+#, elixir-autogen, elixir-format
+msgid "Not confirmed: %{title} on %{date}"
+msgstr ""
+
+#: lib/tymeslot/emails/templates/booking_request_received.ex
+#, elixir-autogen, elixir-format
+msgid "Request expired: %{title} on %{date}"
+msgstr ""
+
+#: lib/tymeslot/emails/templates/booking_request_received.ex
+#, elixir-autogen, elixir-format
+msgid "%{organizer} cannot confirm the time you requested."
+msgstr ""
+
+#: lib/tymeslot/emails/templates/booking_request_received.ex
+#, elixir-autogen, elixir-format
+msgid "Your request was not confirmed in time."
+msgstr ""
+
+#: lib/tymeslot/emails/templates/booking_request_received.ex
+#, elixir-autogen, elixir-format
+msgid "I was not able to confirm your request in time, so the time is no longer held for you. You are welcome to request another appointment."
+msgstr ""
+
+#: lib/tymeslot/emails/templates/booking_request_received.ex
+#, elixir-autogen, elixir-format
+msgid "Request a new appointment"
+msgstr ""
+
+#: lib/tymeslot/emails/templates/booking_request_received.ex
+#, elixir-autogen, elixir-format
+msgid "Request a new appointment:"
+msgstr ""
+
+#: lib/tymeslot/emails/templates/booking_request_received.ex
+#, elixir-autogen, elixir-format
+msgid "Thank you for your request. I review each request personally; the appointment is booked only once I confirm it."
+msgstr ""
+
+#: lib/tymeslot/emails/templates/booking_request_received.ex
+#, elixir-autogen, elixir-format
+msgid "Thank you for your request to move the appointment. I review each change personally; the new time applies only once I confirm it."
+msgstr ""
+
+#: lib/tymeslot/emails/templates/booking_request_received.ex
+#, elixir-autogen, elixir-format
+msgid "If I confirm the request, you will receive the invitation with the Microsoft Teams link for your calendar."
+msgstr ""
+
+#: lib/tymeslot/emails/templates/booking_request_received.ex
+#, elixir-autogen, elixir-format
+msgid "If I confirm the change, you will receive the updated invitation for your calendar."
+msgstr ""
+
+#: lib/tymeslot/emails/templates/booking_request_received.ex
+#, elixir-autogen, elixir-format
+msgid "Unfortunately, I cannot confirm your request."
+msgstr ""
+
+#: lib/tymeslot/emails/templates/booking_request_received.ex
+#, elixir-autogen, elixir-format
+msgid "Unfortunately, I cannot confirm the appointment you requested, and the time is no longer held for you. You are welcome to request another appointment."
+msgstr ""
+
+#: lib/tymeslot/emails/templates/booking_request_received.ex
+#, elixir-autogen, elixir-format
+msgid "Request expired"
+msgstr ""
+
+#: lib/tymeslot/emails/templates/booking_request_received.ex
+#, elixir-autogen, elixir-format
+msgid "Note from %{organizer}:"
+msgstr ""

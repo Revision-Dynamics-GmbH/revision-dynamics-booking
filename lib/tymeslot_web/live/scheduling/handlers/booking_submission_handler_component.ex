@@ -120,7 +120,9 @@ defmodule TymeslotWeb.Live.Scheduling.Handlers.BookingSubmissionHandlerComponent
     else
       socket = assign(socket, :refused_questions, refused_questions(socket))
 
-      case InputProcessor.validate_form(booking_params, BookingConfig.booking_field_spec()) do
+      spec = BookingConfig.booking_field_spec(socket.assigns[:meeting_type])
+
+      case InputProcessor.validate_form(booking_params, spec) do
         {:ok, sanitized_params} ->
           Logger.info("Form validation passed, proceeding to booking")
           validate_and_submit(socket, sanitized_params, booking_params)

@@ -21,10 +21,17 @@ defmodule Tymeslot.Emails.Templates.BookingRequestOutcome do
   time: releasing it cancels the booking itself. For it the email says so,
   and carries a cancellation `.ics` for the booking's UID, so the entry the
   original confirmation put in the invitee's calendar does not linger.
+
+  Revision Dynamics (rd-request-fields.patch): addressed "Sehr geehrte/r"
+  in the organiser's first person, a request with a title
+  (`Tymeslot.Bookings.RequestFields`) named by it, and the way on is a new
+  request on the website (`RdIdentity.request_url/1`), not the booking
+  service's start page.
   """
 
   import Swoosh.Email
 
+  alias Tymeslot.Bookings.RequestFields
   alias Tymeslot.ContentTranslations.AttendeeTexts
   alias Tymeslot.Emails.RecipientLocale
 
@@ -33,13 +40,13 @@ defmodule Tymeslot.Emails.Templates.BookingRequestOutcome do
     Formatting,
     MeetingComponents,
     MjmlEmail,
+    RdIdentity,
     Sanitise,
     Styles,
     TemplateHelper,
     Text,
     TextBodyHelper,
-    TimezoneHelper,
-    Urls
+    TimezoneHelper
   }
 
   alias Tymeslot.Emails.Shared.BookingRequestLocation
@@ -67,15 +74,11 @@ defmodule Tymeslot.Emails.Templates.BookingRequestOutcome do
       #{Text.section_title(requested_time_title(kind))}
       #{MeetingComponents.meeting_details_table(details, locale)}
 
-      <mj-text font-size="16px" color="#{Styles.ink_soft()}" line-height="24px" padding="16px 0">
-        #{Sanitise.sanitize_for_email(explanation({variant, kind}, meeting))}
-      </mj-text>
+      #{Text.centered_text(dgettext("emails_booking_requests", "Dear %{name},", name: meeting.attendee_name) <> "\n\n" <> explanation({variant, kind}, meeting), padding: "16px 0")}
 
       #{reason_block({variant, kind}, meeting)}
 
-      #{Buttons.action_button(:confirmed, dgettext("emails_booking_requests", "Pick another time"), Urls.get_app_url(), full_width: true)}
-
-      #{Text.system_footer_note(dgettext("emails_booking_requests", "This time slot is available for booking again."))}
+      #{Buttons.action_button(:confirmed, dgettext("emails_booking_requests", "Request a new appointment"), RdIdentity.request_url(locale), full_width: true)}
       """
 
       html_body =
@@ -84,10 +87,14 @@ defmodule Tymeslot.Emails.Templates.BookingRequestOutcome do
           headline({variant, kind}),
           preheader({variant, kind}, meeting),
           intent: :cancelled,
-          audience: :guest,
+          # A request is not a booking: its foot says the guest requested it.
+          audience: if(kind == :booking, do: :requester, else: :guest),
           eyebrow: eyebrow({variant, kind}),
           stage_title: headline({variant, kind}),
-          stage_subtitle: preheader({variant, kind}, meeting)
+          stage_subtitle:
+            dgettext("emails_booking_requests", "Request to %{organizer}",
+              organizer: meeting.organizer_name
+            )
         )
 
       MjmlEmail.base_email()
@@ -98,7 +105,10 @@ defmodule Tymeslot.Emails.Templates.BookingRequestOutcome do
         subject_line(
           {variant, kind},
           meeting,
-          Formatting.format_date_short(attendee_time, locale)
+          if(RequestFields.request?(meeting),
+            do: TemplateHelper.subject_moment(details, locale),
+            else: Formatting.format_date_short(attendee_time, locale)
+          )
         )
       )
       |> html_body(html_body)
@@ -118,10 +128,10 @@ defmodule Tymeslot.Emails.Templates.BookingRequestOutcome do
     do: dgettext("emails_booking_requests", "Requested New Time")
 
   defp headline({:declined, :booking}),
-    do: dgettext("emails_booking_requests", "Booking Request Declined")
+    do: dgettext("emails_booking_requests", "Unfortunately, I cannot confirm your request.")
 
   defp headline({:expired, :booking}),
-    do: dgettext("emails_booking_requests", "Booking Request Expired")
+    do: dgettext("emails_booking_requests", "Your request has expired.")
 
   defp headline({:declined, :reschedule}),
     do: dgettext("emails_booking_requests", "Reschedule Declined")
@@ -130,23 +140,41 @@ defmodule Tymeslot.Emails.Templates.BookingRequestOutcome do
     do: dgettext("emails_booking_requests", "Reschedule Request Expired")
 
   defp eyebrow({:declined, :booking}), do: dgettext("emails_booking_requests", "Not confirmed")
-  defp eyebrow({:expired, :booking}), do: dgettext("emails_booking_requests", "No longer held")
+  defp eyebrow({:expired, :booking}), do: dgettext("emails_booking_requests", "Request expired")
 
   defp eyebrow({_variant, :reschedule}),
     do: dgettext("emails_booking_requests", "Booking cancelled")
 
   defp subject_line({:declined, :booking}, meeting, date) do
-    dgettext("emails_booking_requests", "Request declined: %{title} - %{date}",
-      title: meeting.title,
-      date: date
-    )
+    case RequestFields.title(meeting) do
+      nil ->
+        dgettext("emails_booking_requests", "Request declined: %{title} - %{date}",
+          title: meeting.title,
+          date: date
+        )
+
+      title ->
+        dgettext("emails_booking_requests", "Not confirmed: %{title} on %{date}",
+          title: title,
+          date: date
+        )
+    end
   end
 
   defp subject_line({:expired, :booking}, meeting, date) do
-    dgettext("emails_booking_requests", "Request expired: %{title} - %{date}",
-      title: meeting.title,
-      date: date
-    )
+    case RequestFields.title(meeting) do
+      nil ->
+        dgettext("emails_booking_requests", "Request expired: %{title} - %{date}",
+          title: meeting.title,
+          date: date
+        )
+
+      title ->
+        dgettext("emails_booking_requests", "Request expired: %{title} on %{date}",
+          title: title,
+          date: date
+        )
+    end
   end
 
   defp subject_line({:declined, :reschedule}, meeting, date) do
@@ -183,17 +211,13 @@ defmodule Tymeslot.Emails.Templates.BookingRequestOutcome do
   end
 
   defp preheader({:declined, :booking}, meeting) do
-    dgettext("emails_booking_requests", "Hi %{name}, %{organizer} can't make this time.",
-      name: meeting.attendee_name,
+    dgettext("emails_booking_requests", "%{organizer} cannot confirm the time you requested.",
       organizer: meeting.organizer_name
     )
   end
 
-  defp preheader({:expired, :booking}, meeting) do
-    dgettext("emails_booking_requests", "Hi %{name}, this request wasn't answered in time.",
-      name: meeting.attendee_name
-    )
-  end
+  defp preheader({:expired, :booking}, _meeting),
+    do: dgettext("emails_booking_requests", "Your request was not confirmed in time.")
 
   defp explanation({:declined, :reschedule}, meeting) do
     dgettext(
@@ -211,33 +235,31 @@ defmodule Tymeslot.Emails.Templates.BookingRequestOutcome do
     )
   end
 
-  defp explanation({:declined, :booking}, meeting) do
+  defp explanation({:declined, :booking}, _meeting) do
     dgettext(
       "emails_booking_requests",
-      "%{organizer} wasn't able to take this booking, so the time is no longer held for you.",
-      organizer: meeting.organizer_name
+      "Unfortunately, I cannot confirm the appointment you requested, and the time is no longer held for you. You are welcome to request another appointment."
     )
   end
 
-  defp explanation({:expired, :booking}, meeting) do
+  defp explanation({:expired, :booking}, _meeting) do
     dgettext(
       "emails_booking_requests",
-      "%{organizer} didn't get to your request in time, so the time has been released. You are welcome to pick another slot.",
-      organizer: meeting.organizer_name
+      "I was not able to confirm your request in time, so the time is no longer held for you. You are welcome to request another appointment."
     )
   end
 
   # A decline with a note reads as a person answering; without one it reads as
   # a machine. Where the host wrote nothing we say nothing rather than
   # inventing a reason on their behalf. `is_binary(reason)` alone accepts
-  # `""`, which would print the "They added:" label with nothing under it, so
+  # `""`, which would print the "Note from …:" label with nothing under it, so
   # the empty string is excluded here rather than relied upon to have already
   # been normalised to `nil` upstream.
-  defp reason_block({:declined, _kind}, %Meeting{decline_reason: reason})
+  defp reason_block({:declined, _kind}, %Meeting{decline_reason: reason} = meeting)
        when is_binary(reason) and reason != "" do
     """
     <mj-text font-size="15px" color="#{Styles.ink_soft()}" line-height="22px" padding="8px 0 0 0">
-      #{dgettext("emails_booking_requests", "They added:")}
+      #{dgettext("emails_booking_requests", "Note from %{organizer}:", organizer: meeting.organizer_name)}
     </mj-text>
     <mj-text font-size="15px" color="#{Styles.ink_soft()}" line-height="22px" font-style="italic" padding="4px 0 0 16px">
       #{reason |> Sanitise.sanitize_for_email() |> String.replace("\n", "<br/>")}
@@ -255,7 +277,8 @@ defmodule Tymeslot.Emails.Templates.BookingRequestOutcome do
       duration: meeting.duration,
       location: meeting.location,
       location_type: BookingRequestLocation.type(meeting),
-      meeting_type: meeting.meeting_type || dgettext("emails_booking_requests", "Meeting")
+      meeting_type: meeting.meeting_type || dgettext("emails_booking_requests", "Meeting"),
+      request_title: RequestFields.title(meeting)
     }
   end
 
@@ -263,22 +286,23 @@ defmodule Tymeslot.Emails.Templates.BookingRequestOutcome do
     """
     #{headline(outcome)}
 
-    #{dgettext("emails_booking_requests", "Hi %{name},", name: meeting.attendee_name)}
+    #{dgettext("emails_booking_requests", "Dear %{name},", name: meeting.attendee_name)}
 
     #{explanation(outcome, meeting)}
 
     #{dgettext("emails_booking_requests", "REQUESTED TIME:")}
     #{TextBodyHelper.format_meeting_details(details, locale)}
     #{text_reason(outcome, meeting)}
-    #{dgettext("emails_booking_requests", "This time slot is available for booking again.")}
-
-    #{dgettext("emails_booking_requests", "Pick another time:")} #{Urls.get_app_url()}
+    #{dgettext("emails_booking_requests", "Request a new appointment:")} #{RdIdentity.request_url(locale)}
     """
   end
 
-  defp text_reason({:declined, _kind}, %Meeting{decline_reason: reason})
+  defp text_reason({:declined, _kind}, %Meeting{decline_reason: reason} = meeting)
        when is_binary(reason) and reason != "" do
-    "\n" <> dgettext("emails_booking_requests", "They added:") <> "\n" <> reason <> "\n"
+    "\n" <>
+      dgettext("emails_booking_requests", "Note from %{organizer}:",
+        organizer: meeting.organizer_name
+      ) <> "\n" <> reason <> "\n"
   end
 
   defp text_reason(_outcome, _meeting), do: ""

@@ -928,3 +928,38 @@ msgstr ""
 #, elixir-format
 msgid "The booking service is based on Tymeslot, free software under the AGPL-3.0."
 msgstr ""
+
+#: lib/tymeslot_web/themes/shared/components/booking_form.ex
+#, elixir-autogen, elixir-format
+msgid "Institution or company (optional)"
+msgstr ""
+
+#: lib/tymeslot_web/themes/shared/components/booking_form.ex
+#, elixir-autogen, elixir-format
+msgid "Title"
+msgstr ""
+
+#: lib/tymeslot_web/themes/shared/components/booking_form.ex
+#, elixir-autogen, elixir-format
+msgid "What is it about, in a few words?"
+msgstr ""
+
+#: lib/tymeslot_web/themes/shared/components/booking_form.ex
+#, elixir-autogen, elixir-format
+msgid "Description"
+msgstr ""
+
+#: lib/tymeslot_web/themes/shared/components/booking_form.ex
+#, elixir-autogen, elixir-format
+msgid "What would you like to discuss? What should be prepared?"
+msgstr ""
+
+#: lib/tymeslot_web/themes/shared/components/approval_notice.ex
+#, elixir-autogen, elixir-format
+msgid "You will receive an email as soon as he confirms or declines the request. Until then, the time is held for you, for up to %{hours} hours."
+msgstr ""
+
+#: lib/tymeslot_web/themes/shared/components/approval_notice.ex
+#, elixir-autogen, elixir-format
+msgid "Submitting sends a request. The meeting is booked only once %{organizer} confirms it; until he replies, the time is held for you, for up to %{hours} hours."
+msgstr ""

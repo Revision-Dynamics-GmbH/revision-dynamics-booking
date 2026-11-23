@@ -258,6 +258,7 @@ defmodule TymeslotWeb.Themes.Paper.Scheduling.Details do
 
     <BookingForm.booking_form
       form={@form}
+      meeting_type={@meeting_type}
       validation_errors={@validation_errors}
       target={@target}
       class="paper-booking-form"
@@ -283,6 +284,7 @@ defmodule TymeslotWeb.Themes.Paper.Scheduling.Details do
       :if={Approval.required?(@meeting_type)}
       organizer_name={BookingLabels.organizer_display_name(@organizer_profile, @username_context)}
       payment_required={@meeting_type.payment_required}
+      hours={Approval.window_hours(@meeting_type)}
       stage={:before}
     />
 
@@ -306,7 +308,7 @@ defmodule TymeslotWeb.Themes.Paper.Scheduling.Details do
         aria-describedby={SeriesSummary.price_describedby(assigns, @series_count)}
         data-intent="submit"
         disabled={
-          @submitting || !OrganizerHelpers.form_valid?(@form) ||
+          @submitting || !OrganizerHelpers.form_valid?(@form, @meeting_type) ||
             SeriesSummary.submit_waits?(assigns)
         }
       >

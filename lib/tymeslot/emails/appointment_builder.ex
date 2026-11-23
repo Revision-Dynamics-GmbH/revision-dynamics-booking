@@ -8,6 +8,7 @@ defmodule Tymeslot.Emails.AppointmentBuilder do
   alias Tymeslot.BookingPages
   alias Tymeslot.BookingPages.BookedThrough
   alias Tymeslot.Bookings.MeetingLinks
+  alias Tymeslot.Bookings.RequestFields
   alias Tymeslot.ContentTranslations.AttendeeTexts
   alias Tymeslot.Emails.HostClock
   alias Tymeslot.Emails.RecipientLocale
@@ -312,15 +313,19 @@ defmodule Tymeslot.Emails.AppointmentBuilder do
       # one of these spots (`Tymeslot.Emails.Shared.GroupSession`).
       capacity: Map.get(meeting, :capacity),
       ical_sequence: Map.get(meeting, :ical_sequence) || 0,
-      custom_field_answers: Map.get(meeting, :custom_field_answers) || %{}
+      custom_field_answers: Map.get(meeting, :custom_field_answers) || %{},
+      # A request's own title (rd-request-fields.patch), nil otherwise.
+      request_title: RequestFields.title(meeting)
     }
     |> Map.merge(snapshot_texts(attendee_meeting))
     |> put_original_texts(meeting, attendee_meeting)
   end
 
+  # A request's "what it is about" is the booker's own description
+  # (rd-request-fields.patch), not the general text of its meeting type.
   defp snapshot_texts(meeting) do
     %{
-      description: meeting.description || "",
+      description: request_description(meeting) || meeting.description || "",
       location: format_location(meeting),
       location_details: format_location_details(meeting),
       meeting_type: meeting.meeting_type,
@@ -339,6 +344,16 @@ defmodule Tymeslot.Emails.AppointmentBuilder do
       |> Map.merge(%{title: meeting.title, summary: meeting.summary || meeting.title})
 
     Map.put(details, :original_texts, original)
+  end
+
+  defp request_description(meeting) do
+    case Map.get(meeting, :attendee_message) do
+      message when is_binary(message) and message != "" ->
+        if RequestFields.request?(meeting), do: message
+
+      _none ->
+        nil
+    end
   end
 
   defp determine_location_type(meeting), do: BookingRequestLocation.type(meeting)

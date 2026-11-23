@@ -26,6 +26,9 @@ Gegenüber Tymeslot 1.46.0:
 - **Vor-Ort-Termine:** ein interner, nicht öffentlicher Dienst, über den die Website belegte Zeiten
   liest und Termine mit Anfahrt und Rückfahrt einträgt.
 
+- **Terminanfragen:** Bei Terminarten mit Freigabe durch den Gastgeber sind Titel und
+  Beschreibung Pflicht; eigene Texte für Anfrage, Bestätigung, Ablehnung und Ablauf.
+
 Jede Änderung ist im Git-Verlauf als eigener Commit nachvollziehbar. Konfiguration, Zugangsdaten
 und Serverdetails sind nicht enthalten.
 

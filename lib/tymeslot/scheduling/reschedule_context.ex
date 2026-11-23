@@ -24,6 +24,7 @@ defmodule Tymeslot.Scheduling.RescheduleContext do
       booking window; nil otherwise.
   """
 
+  alias Tymeslot.Bookings.RequestFields
   alias Tymeslot.BookingSeries
 
   @enforce_keys [:uid, :meeting, :location_choice, :form_data]
@@ -66,6 +67,7 @@ defmodule Tymeslot.Scheduling.RescheduleContext do
         "name" => meeting.attendee_name,
         "email" => meeting.attendee_email,
         "company" => meeting.attendee_company || "",
+        "title" => RequestFields.title(meeting) || "",
         "message" => meeting.attendee_message || ""
       },
       window_until: BookingSeries.window_until(meeting)

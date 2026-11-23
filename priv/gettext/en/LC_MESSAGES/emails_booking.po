@@ -121,7 +121,7 @@ msgid ""
 "Dear %{name},\n"
 "\n"
 "thank you for your booking. The appointment is in my calendar, and the invitation for your calendar is attached to this email."
-msgstr ""
+msgstr "Dear %{name},\n\nThank you for your booking. The appointment is in my calendar, and the invitation for your calendar is attached to this email."
 
 #: lib/tymeslot/emails/templates/appointment_rescheduled.ex
 #, elixir-autogen, elixir-format
@@ -129,7 +129,7 @@ msgid ""
 "Dear %{name},\n"
 "\n"
 "our appointment has been moved. The new time is below; my calendar is already updated, and the revised invitation is attached to this email."
-msgstr ""
+msgstr "Dear %{name},\n\nOur appointment has been moved. The new time is below; my calendar is already updated, and the revised invitation is attached to this email."
 
 #: lib/tymeslot/emails/templates/appointment_confirmation.ex
 #: lib/tymeslot/emails/templates/appointment_reminder.ex
@@ -153,7 +153,7 @@ msgstr ""
 #: lib/tymeslot/emails/templates/appointment_confirmation.ex
 #, elixir-autogen, elixir-format
 msgid "thank you for your booking. The appointment is in my calendar, and the invitation for your calendar is attached to this email."
-msgstr ""
+msgstr "Thank you for your booking. The appointment is in my calendar, and the invitation for your calendar is attached to this email."
 
 #: lib/tymeslot/emails/templates/appointment_confirmation.ex
 #: lib/tymeslot/emails/templates/appointment_reminder.ex
@@ -241,7 +241,7 @@ msgstr ""
 #: lib/tymeslot/emails/templates/appointment_rescheduled.ex
 #, elixir-autogen, elixir-format
 msgid "our appointment has been moved. The new time is below; my calendar is already updated."
-msgstr ""
+msgstr "Our appointment has been moved. The new time is below; my calendar is already updated."
 
 #: lib/tymeslot/emails/templates/appointment_reminder.ex
 #, elixir-autogen, elixir-format
@@ -766,4 +766,14 @@ msgstr ""
 #. Revision Dynamics (rd-mail-brand.patch)
 #, elixir-format
 msgid "%{when}: %{meeting_type} with %{name} will not take place."
+msgstr ""
+
+#: lib/tymeslot/emails/templates/appointment_confirmation.ex
+#, elixir-autogen, elixir-format
+msgid "Dear %{name},\n\nI have confirmed your request. The appointment is in my calendar, and the invitation for your calendar is attached to this email."
+msgstr ""
+
+#: lib/tymeslot/emails/templates/appointment_confirmation.ex
+#, elixir-autogen, elixir-format
+msgid "I have confirmed your request. The appointment is in my calendar, and the invitation for your calendar is attached to this email."
 msgstr ""

@@ -10,6 +10,7 @@ defmodule Tymeslot.Notifications.Email.MeetingEmails do
   alias Tymeslot.Infrastructure.Config
   alias Tymeslot.Infrastructure.Logging.LogFormat
   alias Tymeslot.Meetings
+  alias Tymeslot.Meetings.Approval
   alias Tymeslot.Meetings.GuestQueries
   alias Tymeslot.Meetings.HostManaged
   alias Tymeslot.Meetings.MeetingDeliveryQueries
@@ -232,6 +233,11 @@ defmodule Tymeslot.Notifications.Email.MeetingEmails do
   # reschedule and cancel links are never sent to them.
   defp booker?(meeting), do: not HostManaged.managed?(meeting)
 
+  defp approved_request?(%{approval_resolved_at: %DateTime{}} = meeting),
+    do: not Approval.declined?(meeting)
+
+  defp approved_request?(_meeting), do: false
+
   defp send_confirmation_emails(meeting) do
     if meeting.organizer_email_sent && meeting.attendee_email_sent do
       Logger.info("Confirmation emails already sent for meeting",
@@ -251,7 +257,11 @@ defmodule Tymeslot.Notifications.Email.MeetingEmails do
 
       appointment_details = AppointmentBuilder.from_meeting(meeting)
 
-      need_organizer? = !meeting.organizer_email_sent
+      # Revision Dynamics (rd-request-fields.patch, professor 23.11.2026): a
+      # booking that comes from a request the host has just approved gets no
+      # "New booking" email to the host; they answered it themselves and have
+      # the entry in their calendar.
+      need_organizer? = !meeting.organizer_email_sent and not approved_request?(meeting)
       need_attendee? = !meeting.attendee_email_sent and booker?(meeting)
 
       # The join link itself is a credential for link-based providers, so only

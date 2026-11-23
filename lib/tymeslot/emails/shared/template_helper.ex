@@ -158,9 +158,11 @@ defmodule Tymeslot.Emails.Shared.TemplateHelper do
   # day, which is a different day wherever the meeting starts before or after
   # midnight UTC. An all-day event's days are calendar days in no zone, so it
   # keeps them.
+  # A request's title (`Tymeslot.Bookings.RequestFields`, rd-request-fields.patch)
+  # travels as `:request_title` and gets a row of its own.
   defp shared_meeting_details(appointment_details, start_time) do
     appointment_details
-    |> Map.take([:all_day, :last_date])
+    |> Map.take([:all_day, :last_date, :request_title])
     |> Map.merge(%{
       date: recipient_date(appointment_details, start_time),
       start_time: start_time,
@@ -440,6 +442,14 @@ defmodule Tymeslot.Emails.Shared.TemplateHelper do
 
   # "25.11., 10:00" / "25 Nov, 10:00": the short date and the start on the
   # recipient's clock; the date alone for a meeting without a start time.
+  @doc """
+  The date and time a subject names, "25.11., 10:00" (`subject/5`), for the
+  request emails' own subjects (rd-request-fields.patch). `meeting_details`
+  is the recipient's.
+  """
+  @spec subject_moment(map(), String.t()) :: String.t()
+  def subject_moment(meeting_details, locale), do: subject_date(meeting_details, locale)
+
   defp subject_date(%{start_time: %DateTime{} = start} = meeting_details, locale) do
     "#{Formatting.format_date_short(meeting_details.date, locale)}, " <>
       subject_time(start, locale, Map.get(meeting_details, :time_format))

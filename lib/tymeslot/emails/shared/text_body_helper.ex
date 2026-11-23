@@ -25,6 +25,7 @@ defmodule Tymeslot.Emails.Shared.TextBodyHelper do
         format_location_line(meeting_details),
         Formatting.location_note(meeting_details),
         format_title_line(meeting_details),
+        format_request_title_line(meeting_details),
         Formatting.booked_through(meeting_details)
       ]
       |> Enum.filter(& &1)
@@ -238,6 +239,12 @@ defmodule Tymeslot.Emails.Shared.TextBodyHelper do
     do: "#{dgettext("emails", "Meeting:")} #{type}"
 
   defp format_title_line(_details), do: nil
+
+  # A request's own title (`Tymeslot.Bookings.RequestFields`, rd-request-fields.patch).
+  defp format_request_title_line(%{request_title: title}) when is_binary(title) and title != "",
+    do: "#{dgettext("emails", "Request title:")} #{title}"
+
+  defp format_request_title_line(_details), do: nil
 
   @doc "Formats a list of event field changes as plain text lines."
   @spec format_event_changes([{atom(), term(), term()}], String.t()) :: String.t()

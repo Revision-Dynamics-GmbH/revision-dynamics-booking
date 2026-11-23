@@ -52,7 +52,7 @@ defmodule TymeslotWeb.Themes.Shared.LiveHelpers.StepEntry do
   alias TymeslotWeb.Themes.Shared.ReschedulePin
 
   # The fields the visitor types into the booking form.
-  @booking_fields Enum.map(BookingConfig.booking_field_spec(), &elem(&1, 0))
+  @booking_fields BookingConfig.field_names()
 
   @doc """
   Assigns a meeting type based on duration if organizer context is present.

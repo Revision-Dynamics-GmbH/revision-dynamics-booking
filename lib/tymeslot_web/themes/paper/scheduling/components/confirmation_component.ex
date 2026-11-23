@@ -16,11 +16,13 @@ defmodule TymeslotWeb.Themes.Paper.Scheduling.Components.ConfirmationComponent d
   use Gettext, backend: TymeslotWeb.Gettext
 
   alias Tymeslot.Availability.Offer
+  alias Tymeslot.Meetings.Approval
   alias Tymeslot.Profiles
   alias TymeslotWeb.Themes.Paper.Components
   alias TymeslotWeb.Themes.Shared.ApprovalDisplay
   alias TymeslotWeb.Themes.Shared.BookingLocation
   alias TymeslotWeb.Themes.Shared.BookingText
+  alias TymeslotWeb.Themes.Shared.ChosenLength
   alias TymeslotWeb.Themes.Shared.Components.ApprovalNotice
   alias TymeslotWeb.Themes.Shared.Components.CustomAnswers
   alias TymeslotWeb.Themes.Shared.Components.GroupSession
@@ -52,7 +54,15 @@ defmodule TymeslotWeb.Themes.Paper.Scheduling.Components.ConfirmationComponent d
         series_count: series_count,
         # The calendar file holds one session: a series offers none.
         calendar_path: if(is_nil(series_count), do: PathHandlers.calendar_ics_path(assigns)),
-        minutes: Offer.duration_minutes(assigns.meeting_type, assigns.duration),
+        # The length booked, also one chosen among several by `?minutes=`
+        # (Revision Dynamics, rd-request-fields.patch: the badge said the
+        # type's own length for every other one).
+        minutes:
+          Offer.duration_minutes(
+            assigns.meeting_type,
+            assigns.duration,
+            ChosenLength.minutes(assigns)
+          ),
         next_day_end: LocalizationHelpers.booking_next_day_end(assigns)
       )
 
@@ -73,6 +83,7 @@ defmodule TymeslotWeb.Themes.Paper.Scheduling.Components.ConfirmationComponent d
       <ApprovalNotice.block
         :if={@held}
         organizer_name={Profiles.display_name(@organizer_profile)}
+        hours={Approval.window_hours(@meeting_type)}
         stage={:after}
       />
 

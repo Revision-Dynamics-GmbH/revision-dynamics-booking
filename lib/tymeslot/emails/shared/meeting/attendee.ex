@@ -108,6 +108,15 @@ defmodule Tymeslot.Emails.Shared.Meeting.Attendee do
   def attendee_message_box(intent, message),
     do: Notes.callout(intent, dgettext("emails", "Message from the booker"), message)
 
+  @doc """
+  The description of a request (`Tymeslot.Bookings.RequestFields`, Revision
+  Dynamics, rd-request-fields.patch): the message field under its own label.
+  Nothing for an empty one.
+  """
+  @spec request_description_box(atom(), String.t() | nil) :: String.t()
+  def request_description_box(intent, description),
+    do: Notes.callout(intent, dgettext("emails", "Request description"), description || "")
+
   defp attendee_row(label, value) do
     """
     <tr style="#{Styles.table_row_style()}">

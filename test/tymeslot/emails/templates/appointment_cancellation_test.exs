@@ -202,10 +202,11 @@ defmodule Tymeslot.Emails.Templates.AppointmentCancellationTest do
         )
 
       assert email.html_body =~ "</html>"
-      assert email.html_body =~ "the following appointment has been cancelled"
+      # English continues capitalised after "Dear …," (professor, 23.11.2026).
+      assert email.html_body =~ "The following appointment has been cancelled"
 
       assert email.text_body =~
-               "the following appointment has been cancelled and will not take place."
+               "The following appointment has been cancelled and will not take place."
 
       refute email.text_body =~ "</html>"
     end

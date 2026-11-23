@@ -314,7 +314,7 @@ defmodule TymeslotWeb.Themes.Paper.ComponentsTest do
           {"a reschedule", [is_rescheduling: true],
            "Your meeting with Jane Organizer has been rescheduled."},
           {"a request", [meeting_status: :awaiting_approval],
-           "Your request to Jane Organizer has been sent."}
+           "Your request to Jane Organizer has been received. The meeting is not booked yet."}
         ] do
       test "says #{label} is settled without the guest's name" do
         html = confirmation(unquote(overrides))
@@ -327,7 +327,8 @@ defmodule TymeslotWeb.Themes.Paper.ComponentsTest do
     for {label, overrides, expected} <- [
           {"a booking", [], "Your meeting is confirmed."},
           {"a reschedule", [is_rescheduling: true], "Your meeting has been rescheduled."},
-          {"a request", [meeting_status: :awaiting_approval], "Your request has been sent."}
+          {"a request", [meeting_status: :awaiting_approval],
+           "Your request has been received. The meeting is not booked yet."}
         ] do
       test "says #{label} is settled without an organiser name to give" do
         html = confirmation([organizer_profile: nil] ++ unquote(overrides))

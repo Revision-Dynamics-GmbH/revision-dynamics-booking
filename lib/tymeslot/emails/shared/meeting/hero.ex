@@ -56,6 +56,7 @@ defmodule Tymeslot.Emails.Shared.Meeting.Hero do
           {dgettext("emails", "Date"), "#{display_weekday(weekday)}, #{date_line}", nil},
           {dgettext("emails", "Time"), time_line, nil},
           title_row(details),
+          request_title_row(details),
           {dgettext("emails", "Duration"), duration, nil},
           {dgettext("emails", "Location"), location, location_note}
         ]
@@ -110,4 +111,11 @@ defmodule Tymeslot.Emails.Shared.Meeting.Hero do
     do: {dgettext("emails", "Meeting"), type, Formatting.booked_through(details)}
 
   defp title_row(_details), do: nil
+
+  # The title the booker gave a request (`Tymeslot.Bookings.RequestFields`,
+  # Revision Dynamics, rd-request-fields.patch), under the meeting type.
+  defp request_title_row(%{request_title: title}) when is_binary(title) and title != "",
+    do: {dgettext("emails", "Request title"), title, nil}
+
+  defp request_title_row(_details), do: nil
 end

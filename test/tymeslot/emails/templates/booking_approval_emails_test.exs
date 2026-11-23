@@ -65,7 +65,15 @@ defmodule Tymeslot.Emails.Templates.BookingApprovalEmailsTest do
       assert email.subject =~ "Request received"
       refute email.subject =~ "Confirmed"
 
+      # Revision Dynamics (rd-request-fields.patch): "Dear", first person.
+      assert email.html_body =~ "Your request has been received."
+      assert email.html_body =~ "Dear Alex Guest,"
+
+      assert email.html_body =~
+               "I review each request personally; the appointment is booked only once I confirm it."
+
       assert email.html_body =~ "Request received"
+      assert email.html_body =~ "you requested an appointment"
       refute email.html_body =~ "is all set"
     end
 
@@ -86,14 +94,17 @@ defmodule Tymeslot.Emails.Templates.BookingApprovalEmailsTest do
     test "names the deadline the invitee is waiting on" do
       html = BookingRequestReceived.render(meeting()).html_body
 
-      assert html =~ "will reply by"
+      # It names until when the time is held, and promises no reply time
+      # (rd-request-fields.patch).
+      assert html =~ "The time is held for you until"
+      refute html =~ "will reply by"
     end
 
     test "falls back to a vaguer promise when no deadline was recorded" do
       html = BookingRequestReceived.render(meeting(%{approval_deadline_at: nil})).html_body
 
-      assert html =~ "get back to you shortly"
-      refute html =~ "will reply by"
+      assert html =~ "as soon as the request has been confirmed or declined"
+      refute html =~ "The time is held for you until"
     end
 
     test "offers withdrawal only when there is a cancel link" do
@@ -213,7 +224,7 @@ defmodule Tymeslot.Emails.Templates.BookingApprovalEmailsTest do
 
       assert email.subject =~ "Reschedule requested"
       assert email.html_body =~ "Reschedule Request Received"
-      assert email.html_body =~ "the new time isn&#39;t final yet"
+      assert email.html_body =~ "the new time applies only once I confirm it"
       assert email.html_body =~ "Previously scheduled"
       assert email.text_body =~ "Previously scheduled"
     end
@@ -255,7 +266,7 @@ defmodule Tymeslot.Emails.Templates.BookingApprovalEmailsTest do
       # whole (it also carries the organiser's name), so a plain `'` in the
       # static copy renders as `&#39;` in the markup even though it displays
       # correctly.
-      assert email.html_body =~ "able to take this booking"
+      assert email.html_body =~ "I cannot confirm the appointment you requested"
       refute email.html_body =~ "They added:"
       refute email.text_body =~ "They added:"
     end
@@ -264,8 +275,8 @@ defmodule Tymeslot.Emails.Templates.BookingApprovalEmailsTest do
       email = BookingRequestOutcome.render(:expired, meeting())
 
       assert email.subject =~ "Request expired"
-      assert email.html_body =~ "get to your request in time"
-      refute email.html_body =~ "wasn't able to take this booking"
+      assert email.html_body =~ "I was not able to confirm your request in time"
+      refute email.html_body =~ "I cannot confirm"
     end
 
     test "the two variants do not share a subject line" do

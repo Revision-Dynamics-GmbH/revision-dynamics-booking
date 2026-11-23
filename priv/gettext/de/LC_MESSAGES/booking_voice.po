@@ -268,3 +268,15 @@ msgstr "Ihre Anfrage wurde gesendet."
 msgctxt "paper"
 msgid "Your request to %{organizer} has been sent."
 msgstr "Ihre Anfrage an %{organizer} wurde gesendet."
+
+#: lib/tymeslot_web/themes/paper/voice.ex
+#, elixir-autogen, elixir-format
+msgctxt "paper"
+msgid "Your request to %{organizer} has been received. The meeting is not booked yet."
+msgstr "Ihre Anfrage an %{organizer} ist eingegangen. Der Termin ist noch nicht gebucht."
+
+#: lib/tymeslot_web/themes/paper/voice.ex
+#, elixir-autogen, elixir-format
+msgctxt "paper"
+msgid "Your request has been received. The meeting is not booked yet."
+msgstr "Ihre Anfrage ist eingegangen. Der Termin ist noch nicht gebucht."

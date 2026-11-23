@@ -143,7 +143,10 @@ defmodule TymeslotWeb.Themes.Shared.BookingFlow do
     # with (blurred). This matches the per-field validation UX of auth and
     # contact forms — touching name doesn't reveal email errors.
     visible_errors =
-      case InputProcessor.validate_form(booking_params, BookingConfig.booking_field_spec()) do
+      case InputProcessor.validate_form(
+             booking_params,
+             BookingConfig.booking_field_spec(socket.assigns[:meeting_type])
+           ) do
         {:ok, _sanitized_params} -> %{}
         {:error, errors} -> filter_errors_for_touched_fields(errors, touched_fields)
       end

@@ -144,6 +144,7 @@ defmodule TymeslotWeb.Themes.Quill.Scheduling.Components.BookingComponent do
 
                   <BookingForm.booking_form
                     form={@form}
+                    meeting_type={@meeting_type}
                     validation_errors={@validation_errors}
                     target={@myself}
                     class="space-y-2"
@@ -202,13 +203,13 @@ defmodule TymeslotWeb.Themes.Quill.Scheduling.Components.BookingComponent do
                       id="submit-booking-button"
                       loading={@submitting}
                       loading_text={dgettext("booking", "Verifying...")}
-                      disabled={!OrganizerHelpers.form_valid?(@form)}
+                      disabled={!OrganizerHelpers.form_valid?(@form, @meeting_type)}
                       data-testid="submit-booking"
                       aria-describedby={
                         submit_describedby(
                           SeriesSummary.price_describedby(assigns, @series_count),
                           @submitting,
-                          @form
+                          {@form, @meeting_type}
                         )
                       }
                       data-intent="submit"
@@ -221,7 +222,7 @@ defmodule TymeslotWeb.Themes.Quill.Scheduling.Components.BookingComponent do
                     </.loading_button>
                   </div>
                   <p
-                    :if={submit_incomplete?(@submitting, @form)}
+                    :if={submit_incomplete?(@submitting, {@form, @meeting_type})}
                     id="submit-booking-hint"
                     class="mt-2 text-center text-sm opacity-80"
                   >
@@ -260,8 +261,10 @@ defmodule TymeslotWeb.Themes.Quill.Scheduling.Components.BookingComponent do
   end
 
   # The form says what is missing while it stays unsendable.
-  defp submit_incomplete?(submitting, form),
-    do: not submitting and not OrganizerHelpers.form_valid?(form)
+  # `form` is the form with the meeting type it books (a request type asks
+  # for more, `BookingConfig.booking_field_spec/1`).
+  defp submit_incomplete?(submitting, {form, meeting_type}),
+    do: not submitting and not OrganizerHelpers.form_valid?(form, meeting_type)
 
   defp submit_describedby(price_id, submitting, form) do
     hint = if submit_incomplete?(submitting, form), do: "submit-booking-hint"

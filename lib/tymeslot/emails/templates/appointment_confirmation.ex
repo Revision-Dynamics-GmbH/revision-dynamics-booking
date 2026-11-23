@@ -45,11 +45,20 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmation do
       meeting_details = TemplateHelper.attendee_meeting_details(appointment_details, :attendee)
 
       intro_copy =
-        dgettext(
-          "emails_booking",
-          "Dear %{name},\n\nthank you for your booking. The appointment is in my calendar, and the invitation for your calendar is attached to this email.",
-          name: appointment_details.attendee_name
-        )
+        if appointment_details[:request_title],
+          # A request the organiser has just approved (rd-request-fields.patch).
+          do:
+            dgettext(
+              "emails_booking",
+              "Dear %{name},\n\nI have confirmed your request. The appointment is in my calendar, and the invitation for your calendar is attached to this email.",
+              name: appointment_details.attendee_name
+            ),
+          else:
+            dgettext(
+              "emails_booking",
+              "Dear %{name},\n\nthank you for your booking. The appointment is in my calendar, and the invitation for your calendar is attached to this email.",
+              name: appointment_details.attendee_name
+            )
 
       payment_receipt = PaymentBlocks.attendee_receipt(appointment_details)
 
@@ -299,7 +308,7 @@ defmodule Tymeslot.Emails.Templates.AppointmentConfirmation do
 
     #{dgettext("emails_booking", "Dear %{name},", name: appointment_details.attendee_name)}
 
-    #{dgettext("emails_booking", "thank you for your booking. The appointment is in my calendar, and the invitation for your calendar is attached to this email.")}
+    #{if appointment_details[:request_title], do: dgettext("emails_booking", "I have confirmed your request. The appointment is in my calendar, and the invitation for your calendar is attached to this email."), else: dgettext("emails_booking", "thank you for your booking. The appointment is in my calendar, and the invitation for your calendar is attached to this email.")}
 
     #{GroupSession.text(appointment_details)}#{dgettext("emails_booking", "APPOINTMENT:")}
     #{meeting_details}#{MeetingComponents.description_text(appointment_details)}#{TextBodyHelper.format_organizer_note(appointment_details, locale)}#{video_section}#{custom_answers}

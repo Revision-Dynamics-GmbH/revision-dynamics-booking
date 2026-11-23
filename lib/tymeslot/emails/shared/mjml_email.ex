@@ -110,7 +110,8 @@ defmodule Tymeslot.Emails.Shared.MjmlEmail do
     |> Mailer.put_tracking(tracking)
     |> put_private(:rd_text_footer, %{
       guest: RdIdentity.footer_text(:guest),
-      host: RdIdentity.footer_text(:host)
+      host: RdIdentity.footer_text(:host),
+      requester: RdIdentity.footer_text(:requester)
     })
   end
 

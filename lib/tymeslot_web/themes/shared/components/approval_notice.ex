@@ -39,6 +39,8 @@ defmodule TymeslotWeb.Themes.Shared.Components.ApprovalNotice do
 
   use TymeslotWeb.Components.CoreComponents, only: [icon: 1]
 
+  alias Tymeslot.Validation.Constraints
+
   attr :class, :string, default: nil
 
   @doc "The compact marker, for lists and headers."
@@ -55,6 +57,12 @@ defmodule TymeslotWeb.Themes.Shared.Components.ApprovalNotice do
   attr :organizer_name, :string, default: nil
   attr :stage, :atom, default: :before, values: [:before, :after]
   attr :payment_required, :boolean, default: false
+
+  attr :hours, :integer,
+    default: nil,
+    doc:
+      "how long the time is held at most (`Approval.window_hours/1`); the default window when nil"
+
   attr :class, :string, default: nil
 
   @doc """
@@ -87,11 +95,14 @@ defmodule TymeslotWeb.Themes.Shared.Components.ApprovalNotice do
   defp title(%{stage: :after}), do: dgettext("booking", "Not confirmed yet")
   defp title(_assigns), do: dgettext("booking", "This booking needs approval")
 
+  # Revision Dynamics (rd-request-fields.patch, professor 23.11.2026): a
+  # request never reads as if it were accepted already, and the hold names
+  # its limit, the type's approval window.
   defp text(%{stage: :after} = assigns) do
     dgettext(
       "booking",
-      "%{organizer} still has to accept this time. We'll email you either way, and the slot is held for you until then.",
-      organizer: host(assigns)
+      "You will receive an email as soon as he confirms or declines the request. Until then, the time is held for you, for up to %{hours} hours.",
+      hours: hours(assigns)
     )
   end
 
@@ -106,10 +117,14 @@ defmodule TymeslotWeb.Themes.Shared.Components.ApprovalNotice do
   defp text(assigns) do
     dgettext(
       "booking",
-      "%{organizer} confirms each booking personally, so submitting this sends a request rather than booking the time outright. The slot is held for you while they decide.",
-      organizer: host(assigns)
+      "Submitting sends a request. The meeting is booked only once %{organizer} confirms it; until he replies, the time is held for you, for up to %{hours} hours.",
+      organizer: host(assigns),
+      hours: hours(assigns)
     )
   end
+
+  defp hours(%{hours: hours}) when is_integer(hours) and hours > 0, do: hours
+  defp hours(_assigns), do: Constraints.default_approval_window_hours()
 
   # The organiser's name is not always resolvable at every stage; falling back
   # keeps the sentence grammatical rather than leaving a gap where a name goes.
