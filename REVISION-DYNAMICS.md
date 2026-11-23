@@ -21,8 +21,10 @@ Gegenüber Tymeslot 1.46.0:
   gelesen; bei Drosselung (HTTP 429) wartet die Abfrage die angegebene Zeit ab.
 - **Uhrzeit:** 24-Stunden-Format auch für englischsprachige Gäste.
 - **Pflichtfeld „Einrichtung oder Unternehmen“:** Es erscheint im Titel des Termins beim Gastgeber.
-- **E-Mails:** Alle Mails in unserem Mail-Design, mit deutschen und englischen Texten
-  (sobald eingespielt, siehe Git-Verlauf).
+- **E-Mails:** Alle Mails in unserem Mail-Design, mit deutschen und englischen Texten; Fehlerseiten,
+  Favicon und Seitentitel ohne Tymeslot-Marke.
+- **Vor-Ort-Termine:** ein interner, nicht öffentlicher Dienst, über den die Website belegte Zeiten
+  liest und Termine mit Anfahrt und Rückfahrt einträgt.
 
 Jede Änderung ist im Git-Verlauf als eigener Commit nachvollziehbar. Konfiguration, Zugangsdaten
 und Serverdetails sind nicht enthalten.
