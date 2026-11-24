@@ -37,8 +37,14 @@ defmodule TymeslotWeb.Themes.Shared.Components.LegalLinks do
   def footer(assigns) do
     assigns =
       assign(assigns,
-        legal_notice_url: assigns.links && assigns.links[:legal_notice_url],
-        privacy_policy_url: assigns.links && assigns.links[:privacy_policy_url],
+        legal_notice_url:
+          Tymeslot.Emails.Shared.RdIdentity.localize_site_link(
+            assigns.links && assigns.links[:legal_notice_url]
+          ),
+        privacy_policy_url:
+          Tymeslot.Emails.Shared.RdIdentity.localize_site_link(
+            assigns.links && assigns.links[:privacy_policy_url]
+          ),
         source_url: Tymeslot.Emails.Shared.RdIdentity.source_url()
       )
 

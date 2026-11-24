@@ -57,6 +57,25 @@ defmodule Tymeslot.Emails.Shared.RdIdentity do
   @spec request_url(String.t() | nil) :: String.t()
   def request_url(locale \\ current_locale()), do: "#{site_url(locale)}/termine/individuell"
 
+  @doc """
+  A link into the website, moved to the language of the current page
+  (rd-legal-locale.patch). The organiser's legal links are stored once and
+  point at `/de/…`; an English booking page shows them as `/en/…`. Links
+  elsewhere are returned unchanged.
+  """
+  @spec localize_site_link(String.t() | nil) :: String.t() | nil
+  def localize_site_link(url) when is_binary(url) do
+    pattern = Regex.compile!("^" <> Regex.escape(@site) <> "/(?:de|en)(/.*)?$")
+
+    case Regex.run(pattern, url) do
+      [_whole] -> site_url()
+      [_whole, rest] -> site_url() <> rest
+      _other -> url
+    end
+  end
+
+  def localize_site_link(url), do: url
+
   @doc "The wordmark for light surfaces (black lettering)."
   @spec wordmark_light_url() :: String.t()
   def wordmark_light_url, do: "#{@logo_base}/revision-dynamics-wordmark-on-light.png"

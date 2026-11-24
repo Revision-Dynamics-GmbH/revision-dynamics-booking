@@ -221,7 +221,8 @@ defmodule TymeslotWeb.Themes.Shared.Components.BookingForm do
   preview or a component rendered on its own).
   """
   @spec privacy_policy_url(map() | nil) :: String.t() | nil
-  def privacy_policy_url(%{privacy_policy_url: url}), do: url
+  def privacy_policy_url(%{privacy_policy_url: url}),
+    do: Tymeslot.Emails.Shared.RdIdentity.localize_site_link(url)
   def privacy_policy_url(_legal_links), do: nil
 
   defp privacy_sentence(nil),
