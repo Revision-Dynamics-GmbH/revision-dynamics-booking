@@ -163,6 +163,54 @@ defmodule Tymeslot.Utils.TimeRange do
   def meets_minimum_notice?(%DateTime{} = slot_start, %DateTime{} = current_time, minimum_minutes)
       when is_integer(minimum_minutes) and minimum_minutes >= 0 do
     earliest_allowed = DateTime.add(current_time, minimum_minutes, :minute)
-    DateTime.compare(slot_start, earliest_allowed) != :lt
+
+    DateTime.compare(slot_start, earliest_allowed) != :lt and
+      DateTime.compare(slot_start, same_day_cutoff(current_time)) != :lt
+  end
+
+  @doc """
+  Revision Dynamics (24 November 2026): the earliest start the same-day cutoff
+  allows at `current_time`. With `config :tymeslot, :same_day_cutoff,
+  {zone, minute}` set, a booker may still pick the same day until `minute`
+  after midnight in `zone` (06:00 in Europe/Berlin in production); from then
+  on, the next midnight in `zone`. Without the setting it is `current_time`,
+  so only the minimum notice applies.
+  """
+  @spec same_day_cutoff(DateTime.t()) :: DateTime.t()
+  def same_day_cutoff(%DateTime{} = current_time) do
+    case Application.get_env(:tymeslot, :same_day_cutoff) do
+      {zone, minute} when is_binary(zone) and is_integer(minute) ->
+        same_day_cutoff(current_time, zone, minute)
+
+      _off ->
+        current_time
+    end
+  end
+
+  @doc """
+  The same-day cutoff for an explicit `zone` and `minute` after midnight.
+
+  ## Examples
+
+      iex> TimeRange.same_day_cutoff(~U[2026-11-24 00:00:00Z], "Europe/Berlin", 360)
+      ~U[2026-11-24 00:00:00Z]
+
+      iex> TimeRange.same_day_cutoff(~U[2026-11-24 05:00:00Z], "Europe/Berlin", 360)
+      ~U[2026-11-24 23:00:00Z]
+  """
+  @spec same_day_cutoff(DateTime.t(), String.t(), non_neg_integer()) :: DateTime.t()
+  def same_day_cutoff(%DateTime{} = current_time, zone, minute)
+      when is_binary(zone) and is_integer(minute) and minute >= 0 do
+    local = DateTime.shift_zone!(current_time, zone)
+
+    if local.hour * 60 + local.minute < minute do
+      current_time
+    else
+      local
+      |> DateTime.to_date()
+      |> Date.add(1)
+      |> DateTime.new!(~T[00:00:00], zone)
+      |> DateTime.shift_zone!(current_time.time_zone)
+    end
   end
 end

@@ -18,6 +18,11 @@ config :tymeslot, :upload_directory, "/app/data/uploads"
 # Enable secure cookies in production
 config :tymeslot, :secure_cookies, true
 
+# Revision Dynamics (24 November 2026): the same day can be booked only until
+# 06:00 Berlin time, from then on tomorrow at the earliest
+# (`Tymeslot.Utils.TimeRange.same_day_cutoff/1`).
+config :tymeslot, :same_day_cutoff, {"Europe/Berlin", 6 * 60}
+
 # Configures Swoosh API Client
 config :swoosh, api_client: Swoosh.ApiClient.Finch, finch_name: Tymeslot.Finch
 

@@ -185,7 +185,14 @@ defmodule Tymeslot.MeetingTypes.OfferedTimes do
 
     %{
       now: now,
-      earliest: DateTime.add(now, rule.(:min_advance_hours), :hour),
+      earliest:
+        Enum.max(
+          [
+            DateTime.add(now, rule.(:min_advance_hours), :hour),
+            Tymeslot.Utils.TimeRange.same_day_cutoff(now)
+          ],
+          DateTime
+        ),
       latest: DateTime.add(now, window_hours, :hour),
       user_id: meeting_type.user_id,
       before_minutes: rule.(:buffer_before_minutes),
