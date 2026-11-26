@@ -23,6 +23,11 @@ config :tymeslot, :secure_cookies, true
 # (`Tymeslot.Utils.TimeRange.same_day_cutoff/1`).
 config :tymeslot, :same_day_cutoff, {"Europe/Berlin", 6 * 60}
 
+# Revision Dynamics (26.11.2026): every five minutes, check each upcoming
+# booking against its Outlook event (deleted or declined -> cancelled).
+config :tymeslot,
+  oban_additional_crontab: [{"*/5 * * * *", Tymeslot.Workers.RdBookingWatchWorker}]
+
 # Configures Swoosh API Client
 config :swoosh, api_client: Swoosh.ApiClient.Finch, finch_name: Tymeslot.Finch
 

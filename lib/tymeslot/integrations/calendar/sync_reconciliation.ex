@@ -23,6 +23,7 @@ defmodule Tymeslot.Integrations.Calendar.SyncReconciliation do
   alias Tymeslot.Integrations.Calendar.Sync
   alias Tymeslot.Integrations.Calendar.SyncBroadcast
   alias Tymeslot.Integrations.Calendar.TimingChange
+  alias Tymeslot.Meetings.AttendeeDecline
   alias Tymeslot.Meetings.ExternalCalendar
   alias Tymeslot.Profiles
 
@@ -104,34 +105,44 @@ defmodule Tymeslot.Integrations.Calendar.SyncReconciliation do
       _meeting when is_binary(cal_event.recurrence_id) or is_binary(cal_event.recurring_event_id) ->
         :ok
 
+      # Revision Dynamics: the booked attendee declined the invitation in their
+      # own calendar. That is a cancellation, handled like the cancel link.
       meeting ->
-        case TimingChange.classify(meeting, cal_event, host_zone) do
-          :moved ->
-            # A Tymeslot write to the event that finished at or after the
-            # event's `synced_at` may be missing from it. The Outlook sweep and
-            # re-bootstrap stamp `synced_at` with when their read began; other
-            # paths stamp it just after the read, leaving only the read itself
-            # uncovered.
-            reconcile(integration.id, cal_event.provider_event_id, cal_event.uid, :modified,
-              snapshot_at: cal_event.synced_at
-            )
-
-          {:end_moved, end_time} ->
-            ExternalCalendar.apply_external_end_change(meeting, end_time)
-
-          :none ->
-            # Agreement is a signal too. This pass cannot know whether an earlier
-            # one flagged the meeting, and nothing else retires the flag, so a
-            # divergence that has since resolved would otherwise leave the host
-            # with a badge and a notification that was never withdrawn.
-            ExternalCalendar.resolve_external_calendar_change(meeting)
-
-            # In step, or a difference already accepted: what the calendar
-            # shows now is what a later end change is measured against. Not
-            # recorded when the end moved, since a followed end records itself
-            # and one that was refused must be seen as moved again next pass.
-            ExternalCalendar.record_seen_calendar_end(meeting, TimingChange.seen_end(cal_event))
+        if AttendeeDecline.declined?(meeting, cal_event) do
+          AttendeeDecline.apply(meeting)
+        else
+          reconcile_timing(integration, cal_event, meeting, host_zone)
         end
+    end
+  end
+
+  defp reconcile_timing(integration, cal_event, meeting, host_zone) do
+    case TimingChange.classify(meeting, cal_event, host_zone) do
+      :moved ->
+        # A Tymeslot write to the event that finished at or after the
+        # event's `synced_at` may be missing from it. The Outlook sweep and
+        # re-bootstrap stamp `synced_at` with when their read began; other
+        # paths stamp it just after the read, leaving only the read itself
+        # uncovered.
+        reconcile(integration.id, cal_event.provider_event_id, cal_event.uid, :modified,
+          snapshot_at: cal_event.synced_at
+        )
+
+      {:end_moved, end_time} ->
+        ExternalCalendar.apply_external_end_change(meeting, end_time)
+
+      :none ->
+        # Agreement is a signal too. This pass cannot know whether an earlier
+        # one flagged the meeting, and nothing else retires the flag, so a
+        # divergence that has since resolved would otherwise leave the host
+        # with a badge and a notification that was never withdrawn.
+        ExternalCalendar.resolve_external_calendar_change(meeting)
+
+        # In step, or a difference already accepted: what the calendar
+        # shows now is what a later end change is measured against. Not
+        # recorded when the end moved, since a followed end records itself
+        # and one that was refused must be seen as moved again next pass.
+        ExternalCalendar.record_seen_calendar_end(meeting, TimingChange.seen_end(cal_event))
     end
   end
 
